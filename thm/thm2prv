@@ -1,0 +1,25 @@
+#!/usr/bin/env sh
+
+dir=$(dirname $(realpath -P "$0"))
+
+printf '<html><body>' > "${dir}/themes/list.html"
+
+for schDir in $(find "${dir}/themes" -mindepth 1 -maxdepth 1 -type d); do
+  sch=$(basename "${schDir}")
+  printf '[%s] Processing %s\n' "$(date +'%X')" "${sch}"
+  THM_NAME="${sch}" . thm2env
+  test "${variant}" = 'dark' && fntc='#EDEDED' || fntc='#222222'
+  test "${variant}" = 'dark' && brdc='#222222' || brdc='#EDEDED'
+  shadow="text-shadow: -1px -1px 0 ${brdc}, 1px -1px 0 ${brdc}, -1px 1px 0 ${brdc}, 1px 1px 0 ${brdc};"  
+cat >> "${dir}/themes/list.html" << EOL
+<div style="position: relative; width: 256px; float: left; margin: 5px">
+  <a href="${sch}/prv/scheme.html" style="position: relative">
+    <img width="100%" src="${thumbnail}" />
+    <img width="64px" src="${sch}/colors.png" style="z-index: 1; position: absolute; bottom: 6px; right: 6px; border: 5px solid ${brdc}" />
+    <div style="font-size: 15; ${shadow}; color: ${fntc}; position: absolute; bottom: 6px; left: 6px">${sch}</div>
+</a>
+</div>
+EOL
+done
+
+printf '</body></html>' >> "${dir}/themes/list.html"

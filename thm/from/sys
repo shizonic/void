@@ -1,0 +1,9 @@
+#!/usr/bin/env sh
+
+colors="${COLORS:-8}"
+
+seq 1 "${colors}" | xargs -I{} hexdump -n 3 -v -e '"#" 3/1 "%02X" "\n"' /dev/urandom > 'colors.list'
+
+export THEME_COLORS="$(cat 'colors.list')"
+export THEME_NAME="theme-$(echo \"${THEME_COLORS}\" | sha256sum | cut -d ' ' -f 1 | cut -c 1-16)"
+rm 'colors.list'

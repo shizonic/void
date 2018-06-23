@@ -1,0 +1,21 @@
+#!/usr/bin/env sh
+
+if test -z "${IMAGE}"; then
+  >&2 printf '[%s] ERROR: No file passed! Exiting\n' "$(date +'%X')"
+  exit 1
+fi
+
+img="${IMAGE}"
+colors="${COLORS:-8}"
+
+if ! test -f "${img}"; then
+  >&2 printf '[%s] ERROR: Image "%b" not found! Exiting\n' "$(date +'%X')" "${img}"
+  exit 1
+fi
+
+convert "${img}" +dither -colors "${colors}" -define histogram:unique-colors=true -format "%c" histogram:info: | grep -o -E '#[0-9A-F]*' > colors.list
+bn=$(basename "${img}" | cut -d '.' -f 1)
+export THEME_NAME="${bn}"
+export THEME_COLORS="$(cat 'colors.list')"
+export THEME_IMAGE=$(realpath "${img}")
+rm colors.list

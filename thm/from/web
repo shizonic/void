@@ -1,0 +1,60 @@
+#!/usr/bin/env sh
+
+max="${COLORS:-8}"
+skip=0
+
+test "$#" -gt 0 && cols1="${@}"
+test -t 0 || cols2=$(cat)
+
+col=$(printf '%s\n%s\n' "${cols1}" "${cols2}" | sed 's| |\n|g' | sed '/^\s*$/d')
+cur=$(printf '%s\n' "${col}" | wc -l)
+
+if test "${cur}" -eq 1 && test -z "${col}"; then
+  cur=0
+else
+  skip=1
+  i=0
+  for c in ${col}; do
+    i=$((i +1))
+    test "${i}" -ge 3 && continue
+    hex=$(printf '%s' "${c}" | tr -d '#' | tr '[a-z]' '[A-Z]')
+    r="0x"$(printf '%s' "${hex}" | cut -c 1-2)
+    g="0x"$(printf '%s' "${hex}" | cut -c 3-4)
+    b="0x"$(printf '%s' "${hex}" | cut -c 5-6)
+    rgb=$(printf "%d,%d,%d\n" "${r}" "${g}" "${b}")
+    test "${i}" -eq 1 && rgb1="${rgb}"
+    test "${i}" -eq 2 && rgb2="${rgb}"
+  done
+fi
+
+while test "${cur}" -lt "${max}"; do
+  if test "${cur}" -eq 0; then
+    rnd=$(curl -s 'http://colormind.io/api/' --data-binary '{"model":"default"}' | jq '[.result][0][] | @csv' | tr -d '"')
+    cur=$((cur +5))
+  else
+    if test "${skip}" -eq 1; then
+      skip=0
+    else
+      rgb1=$(printf '%s' "${rnd}" | sed -n '1p')
+      rgb2=$(printf '%s' "${rnd}" | sed -n '2p')
+    fi
+    inp=$(printf '[%s, %s, %s, %s, %s]' "[${rgb1}]" "[${rgb2}]" '"N"' '"N"' '"N"')
+    dat=$(printf '{"model":"default", "input": %s}' "${inp}")
+    rnd=$(curl -s 'http://colormind.io/api/' --data-binary "${dat}" | jq '[.result][0][] | @csv' | tr -d '"' | tail -n 3)
+    cur=$((cur +3))
+  fi
+  col="${col} ${rnd}"
+done
+
+for c in ${col}; do
+  if ! printf '%s' "${c}" | grep -q -E '#[0-9A-F]'; then
+    c=$(printf '%s' "${c}" | tr ',' ' ')
+    printf "#%02X%02X%02X\n" ${c}
+  else
+    printf '%s\n' "${c}"
+  fi
+done | tail -n "${max}" > 'colors.list'
+
+export THEME_COLORS="$(cat 'colors.list')"
+export THEME_NAME="theme-$(echo \"${THEME_COLORS}\" | sha256sum | cut -d ' ' -f 1 | cut -c 1-16)"
+rm 'colors.list'
