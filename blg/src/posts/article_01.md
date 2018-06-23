@@ -3,6 +3,7 @@ tags: void,setup,wm,lvm,luks
 title: My setup
 published: 20180623-130000
 template: post.tpl
+issue: 2
 
 ---
 

@@ -3,6 +3,7 @@ tags: hello, world
 title: Hello World!
 published: 20171220-160000
 template: post.tpl
+issue: 1
 
 ---
 

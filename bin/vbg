@@ -62,7 +62,7 @@ md2data() {
   toc=$(printf '%s' "$(md2toc ${1})" | md2html | toc2class)
   slug=$(printf '%s' "${title}" | str2slug)
   layout='layout.tpl'
-  export author layout slug tags template text title toc published
+  export author issue layout slug tags template text title toc published
 }
 
 tpl2data() {
@@ -171,7 +171,7 @@ cmp_site() {
 }
 
 srv_site() {
-  cd "${PWD}/${SMAG_DST}"
+  cd "${dp}/../blg/${SMAG_DST}"
   python -m http.server 8000
   #trap "kill $!" EXIT INT TERM
 }
@@ -184,7 +184,7 @@ dep_site() {
 act='cmp'
 test "$#" -gt 0 && act="${1}" && shift
 
-cd blg
+cd "${dp}/../blg"
 
 case "${act}" in
   a|all) cmp_site; dep_site;;

@@ -18,5 +18,7 @@
 <!--    <a href='index.html'><button class="btn">Go back</button></a> <br /><br />
     <div class="divider"></div>-->
     $text
+    <div id="comments"></div>
+    <script>initComments('Anachron/void', $issue);</script>
   </div>
 </div>
