@@ -1,0 +1,44 @@
+#!/bin/sh
+
+# ------------------------------
+# UFW & SSH
+# ------------------------------
+
+xbps-install ufw
+
+ln -s /etc/sv/ufw /var/service
+
+mkdir -p ~/.ssh
+chmod 600 ~/.ssh
+touch ~/.ssh/authorized_keys
+
+echo 'PasswordAuthentication no' >> /etc/ssh/sshd_config
+echo 'ChallengeResponseAuthentication no' >> /etc/ssh/sshd_config
+echo 'PermitRootLogin no' >> /etc/ssh/sshd_config
+echo 'Port 2120' >> /etc/ssh/sshd_config
+
+ln -s /etc/sv/sshd /var/service
+
+# CIFS
+xbps-install cifs-utils
+groupadd cifs
+usermod -G cifs -a anon # Login again so group will be reloaded
+
+# samba
+xbps-install samba
+groupadd smb
+useradd <user>
+smbpasswd -a <user>
+cat >/etc/samba/smb.conf <<EOF
+[global]
+workgroup = smb
+security = user
+map to guest = Bad Password
+
+[user-work]
+path = /home/anon/usr/doc/wrk/user
+writable = no
+valid users = user
+EOF
+
+# mount -t cifs -o user=user //192.168.2.104/user-work /mnt/drive2/

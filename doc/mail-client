@@ -1,0 +1,12 @@
+#!/bin/sh
+
+xbps-install gnupg mutt getmail mblaze msmtp mailx
+# https://wiki.archlinux.org/index.php/msmtp
+sudo ln -s /usr/bin/msmtp /usr/bin/sendmail
+
+gpg --gen-key
+
+gpg -r anon@cron.world -e ~/app/sec/mutt/creds-gmx
+gpg -r anon@cron.world -e ~/app/sec/mutt/creds-cron
+
+rm ~/app/sec/mutt/creds-{gmx,cron}
