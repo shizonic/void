@@ -1,0 +1,40 @@
+# base
+coreutils
+findutils
+diffutils
+util-linux
+eudev
+ncurses
+dash
+bash
+grep
+gzip
+file
+sed
+gawk
+less
+which
+tar
+man-pages
+mdocml
+shadow
+psmisc
+procps-ng
+tzdata
+vim
+
+# system/service
+#iana-etc
+#runit-void
+
+# hardware
+#pciutils
+#usbutils
+
+# network
+#dhcpcd
+#iproute2
+#iputils
+#iw
+#traceroute
+#ethtool

@@ -1,0 +1,62 @@
+#!/usr/bin/env sh
+ 
+test "$#" -eq 0 && exit 1
+act="${1}"; shift
+pkgDir="${HOME}/pkg"
+ 
+if echo "${PWD}" | grep -q "${pkgDir}"; then
+  lng=$(basename "${PWD}")
+else
+  printf 'Not in %s folder! Exiting.' "${pkgDir}"
+  exit 1
+fi
+ 
+case "${lng}" in
+  'go') # go: go -> https://golang.org/cmd/go/
+    case "${act}" in
+      i) go install ${@};;
+      l) go list ${@};;
+      s) echo 'Visit: "http://go-search.org"';;
+      u) go clean -i ${@};;
+    esac
+  ;;
+  'js') # nodejs: npm -> https://docs.npmjs.com/
+    case "${act}" in
+      i) npm install ${@};;
+      l) npm list ${@};;
+      s) npm search ${@};;
+      u) npm uninstall ${@};;
+    esac
+  ;;
+  'py') # python: pip -> https://pip.pypa.io/en/stable/
+    export PYTHONUSERBASE="${PWD}"
+    case "${act}" in
+      i) pip install --user ${@};;
+      l) pip list ${@};;
+      s) pip search ${@};;
+      u) pip uninstall ${@};;
+    esac
+  ;;
+  'rb') # ruby: gem -> http://guides.rubygems.org/
+    export GEM_HOME="${PWD}"
+    case "${act}" in
+      i) gem install ${@};;
+      l) gem list ${@};;
+      s) gem search ${@};;
+      u) gem uninstall ${@};;
+    esac
+  ;;
+  'rs') # rust: cargo -> https://doc.rust-lang.org/cargo/
+    export CARGO_HOME="${PWD}"
+    case "${act}" in
+      i) cargo install ${@};;
+      l) cargo install --list ${@};;
+      s) cargo search ${@};;
+      u) cargo uninstall ${@};;
+    esac
+  ;;
+  *)
+    printf 'Unknown language: %s\n' "${lng}"
+    exit 1
+  ;;
+esac

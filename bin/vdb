@@ -1,0 +1,29 @@
+#!/bin/sh
+# void-distribute-backup
+
+if test -d /data/bak/system; then
+  printf '[%s] Calculating backup space for system...\n' "$(date +'%X')"
+  du -sh /data/bak/system
+fi
+
+if test -d /data/bak/users; then
+  printf '[%s] Calculating backup space for users...\n' "$(date +'%X')"
+  du -sh /data/bak/users
+fi
+
+printf '[%s] Scanning for connected drives...\n' "$(date +'%X')"
+dirList=$(find /home/$(logname)/mnt -mindepth 1 -maxdepth 1 -type d | sort)
+for dir in ${dirList}; do
+  if grep -qs "${dir}" /proc/mounts; then
+    test -d "${dir}/bak" || continue
+    printf '[%s] Drive exists at %s, syncing backups...\n' "$(date +'%X')" "${dir}"
+    if test -d /data/bak/system; then
+      printf '[%s] Distributing system-backups...\n' "$(date +'%X')"
+      rsync -a --delete /data/bak/system "${dir}/bak/"
+    fi
+    if test -d /data/bak/users; then
+      printf '[%s] Distributing user-backups...\n' "$(date +'%X')"
+      rsync -a --delete /data/bak/users "${dir}/bak/"
+    fi
+  fi
+done

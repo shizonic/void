@@ -1,0 +1,87 @@
+#!/bin/sh
+# void-media-backup
+
+scriptDir=$(dirname `realpath -P "$0"`)
+parentDir=$(dirname "${scriptDir}")
+user=$(logname)
+home="/home/${user}"
+
+vmb_create () {
+  test -d /data || exit 1
+
+  if ! test -d "${home}/msc"; then
+  	printf '[%s] Preparing cache ...\n' "$(date +'%X')"
+  	mkdir -p "${home}/msc"
+  fi
+
+  if test -f "${home}/msc/lock"; then
+    printf '[%s] ERROR: Cannot lock. Another backup in progress?\n' "$(date +'%X')"
+    exit 1
+  fi
+
+  if ! test -d /data/bak/media; then
+  	printf '[%s] Preparing media repo ...\n' "$(date +'%X')"
+  	mkdir -p /data/bak/media
+  	borg init /data/bak/media
+  fi
+
+  printf '[%s] Starting backup ...\n' "$(date +'%X')"
+  dateTime="$(date +'%Y%m%d-%H%M%S')"
+  printf '%s' "${dateTime}" > "${home}/msc/lock"
+
+  printf '[%s] Calculating media size ...\n' "$(date +'%X')"
+  du -hs "${home}/usr/med"
+
+  printf '[%s] Creating root fs backup ...\n' "$(date +'%X')"
+  borg create --exclude-from "${parentDir}/cnf/vmb.ignore" "/data/bak/media::${user}@${dateTime}" "${home}/usr/med"
+
+  printf '[%s] Cleaning up ...\n' "$(date +'%X')"
+  rm -r "${home}/msc"
+}
+
+vmb_dryrun() {
+  dateTime="$(date +'%Y%m%d-%H%M%S')"
+  borg create -v --list --dry-run --exclude-from "${parentDir}/cnf/vmb.ignore" "/data/bak/media::${user}@${dateTime}" "${home}/usr/med"
+}
+
+vmb_info() {
+  vmb_list
+
+  printf '[%s] Choose target backup ...\n' "$(date +'%X')"
+  read -p ': ' answ
+
+  borg info "/data/bak/media::${answ}"
+}
+
+vmb_list () {
+  printf '[%s] Listing available backups ...\n' "$(date +'%X')"
+  borg list '/data/bak/media'
+}
+
+vmb_mount () {
+  vmb_list
+
+  printf '[%s] Choose mount backup ...\n' "$(date +'%X')"
+  read -p ': ' answ
+}
+
+vmb_restore () {
+  vmb_list
+
+  printf '[%s] Choose restore backup ...\n' "$(date +'%X')"
+  read -p ': ' answ
+
+  borg extract "/data/bak/media::${answ}"
+}
+
+test -z "${1}" && exit 1
+act="${1}"; shift
+
+case "${act}" in
+  c) vmb_create ${@};;
+  d) vmb_dryrun ${@};;
+  i) vmb_info ${@};;
+  l) vmb_list ${@};;
+  m) vmb_mount ${@};;
+  r) vmb_restore ${@};;
+esac

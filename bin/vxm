@@ -1,0 +1,107 @@
+#!/usr/bin/env sh
+# void xephyr manager
+
+hostDsp=1
+contDsp=0
+
+# Todo: Make dynamic!
+# find /tmp/.X11-unix/ | grep -o 'X[0-9]$' | tr -d 'X' | sort -r | head -n 1
+
+xep_app() {
+  test "$#" -eq 0 && exit 1
+ 
+  if test ! -d "${cntDir}" && test "${act}" != 'c' && test "${act}" != 'l'; then
+    printf '[%s] Container %s does not exist!\n' "$(date +'%X')" "${cntName}"
+    exit 1
+  fi
+
+  if ! pgrep 'Xephyr' > /dev/null; then
+    printf '[%s] Start Xephyr first ...\n' "$(date +'%X')"
+    exit 1
+  fi
+
+  (
+    cd "${cntDir}"
+
+    if ! grep -qs "tmp/.X11-unix/X${contDsp}" /proc/mounts; then
+      printf '[%s] Binding host :%s to cnt :%s ...\n' "$(date +'%X')" "${hostDsp}" "${contDsp}"
+      mkdir -p "tmp/.X11-unix"
+      touch "tmp/.X11-unix/X${contDsp}"
+      sudo mount --bind "/tmp/.X11-unix/X${hostDsp}" "tmp/.X11-unix/X${contDsp}"
+    fi
+
+    printf '[%s] Running command ...\n' "$(date +'%X')"
+    # https://bbs.archlinux.org/viewtopic.php?id=187234
+    #contain ${cntOpts} . /bin/sh -c "export DISPLAY=:0; export QT_X11_NO_MITSHM=1; export HOME='/tmp'; ${@}"
+    #inject $(cat "${cntDir}/pid") . /bin/sh "export DISPLAY=:${contDsp}; ${@}" 
+    #printf '#!/usr/bin/env sh\nexport DISPLAY=":%s"\nexec %s' "${hostDsp}" "${@}" > ./cmd
+cat > ./cmd << EOL
+#!/usr/bin/env sh
+export TERM="xterm-256color"
+export DISPLAY=":${hostDsp}"
+export QT_X11_NO_MITSHM="1"
+exec ${@} 2>&1 | tee /tmp/cmd.log
+EOL
+    chmod +x ./cmd
+    
+    xhost + > /dev/null
+    vcm j ./cmd
+    xhost - > /dev/null
+
+    test -f "./cmd" && rm ./cmd
+ 
+    printf '[%s] Cleaning up ...\n' "$(date +'%X')"
+    if grep -qs "tmp/.X11-unix/X${contDsp}" /proc/mounts; then
+      sudo umount "tmp/.X11-unix/X${contDsp}"
+      rm -rf "tmp/.X11-unix"
+    fi
+  )
+}
+
+xep_help() {
+cat <<EOL
+EOL
+}
+
+xep_run() {
+  if ! pgrep Xephyr > /dev/null; then
+    printf '[%s] Starting xephyr on DISPLAY :%s ...\n' "$(date +'%X')" "${hostDsp}"
+    Xephyr ${dspOpt} ":${hostDsp}" &
+    sleep 0.01
+    #setxkbmap -display :0 -print | xkbcomp - :1
+  else
+    printf '[%s] Xephyr is already running ...\n' "$(date +'%X')"
+  fi
+}
+
+xep_stop() {
+  if pgrep 'Xephyr' > /dev/null; then
+    printf '[%s] Stopping xephyr on DISPLAY :%s ...\n' "$(date +'%X')" "${hostDsp}"
+    kill $(pgrep 'Xephyr')
+  else
+    printf '[%s] Start Xephyr first ...\n' "$(date +'%X')"
+  fi
+}
+
+test $# -eq 0 && xep_help && exit 1
+
+act="${1}"; shift
+scrnH="1030"
+scrnW="1680"
+dspOpt=" -br -ac -noreset -resizeable -screen ${screenW}:${scrnH}"
+
+test -z "${cntName}" && test $(dirname "${PWD}") = "${HOME}/cnt" && cntName=$(basename "${PWD}")
+
+if test -z "${cntName}" && test $# -gt 0; then
+  cntName="${1}"
+  shift
+fi
+
+test ! -z "${cntName}" && test -z "${cntDir}" && cntDir="${HOME}/cnt/${cntName}"
+
+case "${act}" in
+  a) xep_app ${@};;
+  s) xep_stop ${@};;
+  r) xep_run ${@};;
+  w) xep_wine ${@};;
+esac

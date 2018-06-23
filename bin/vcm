@@ -1,0 +1,216 @@
+#!/bin/sh
+# void-container-manager
+
+scriptDir=$(dirname `realpath -P "$0"`)
+parentDir=$(dirname "${scriptDir}")
+voidRepo1='https://repo.voidlinux.eu/current'
+voidRepo2='https://repo.voidlinux.eu/current/multilib'
+
+cnt_backup() {
+  bakFile="${cntDir}/../${cntName}-$(date +'%Y%m%d-%H%M%S').tar.gz"
+  printf '[%s] Backing up %s as %s...\n' "$(date +'%X')" "${cntName}" "${bakFile}"
+  pseudo tar --xattrs -czpf "${bakFile}" "${cntDir}"
+}
+
+cnt_create() {
+  test -z "${cntName}" && cntName="${1:-$(date +'%Y%m%d-%H%M%S')}"
+  test -z "${cntDir}" && cntDir="${HOME}/${cntName}"
+
+  printf '[%s] Installing bootstrap ...\n' "$(date +'%X')"
+  pseudo xbps-install -R "${voidRepo1}" -MSr "${cntDir}" base-voidstrap
+  
+  cd "${cntDir}"
+
+  printf '[%s] Copying container files ...\n' "$(date +'%X')"
+  while IFS='' read -r line || test -n "${line}"; do
+    pseudo cp ${line}
+  done < "${cntFiles}"
+
+  printf '[%s] Fixing rc.conf ...\n' "$(date +'%X')"
+  sed -i -e '/HARDWARECLOCK/ s/^#*/#/' etc/rc.conf
+  
+  printf '[%s] Fixing agetty* services ...\n' "$(date +'%X')"
+  pseudo rm etc/runit/runsvdir/default/agetty*
+  
+  printf '[%s] Fixing runit virt detection ...\n' "$(date +'%X')"
+  sed -i "s|-q lxc|-q -e 'contain\|inject\|lxc'|g" etc/runit/functions
+  
+  printf '[%s] Creating container runtime directory ...\n' "$(date +'%X')"
+  pseudo mkdir cnt
+  cd -
+}
+
+cnt_destroy() {
+  printf '[%s] Are you sure to destroy %s? ...\n' "$(date +'%X')" "${cntName}"
+  read -p ': ' answ
+
+  case "${answ}" in
+    y|Y|yes|YES) rm -rf "${cntDir}"; printf '[%s] Container %s has been destroyed ...\n' "$(date +'%X')" "${cntName}";;
+  esac
+}
+
+cnt_help() {
+cat << EOH
+EOH
+}
+
+cnt_inject() {
+  test "$#" -eq 0 && cmd="/bin/sh" || cmd="${@}"
+
+  if ! test -f "${cntDir}/cnt/pid" || ! kill -0 $(cat "${cntDir}/cnt/pid") > /dev/null 2>&1; then
+    printf '[%s] Container %s is not running!\n' "$(date +'%X')" "${cntName}"
+    exit 1
+  fi
+
+  printf '[%s] Injecting into %s\n' "$(date +'%X')" "${cntName}"
+  printf '%s' "${cmd}" > "${cntDir}/cnt/run"
+  chmod +x "${cntDir}/cnt/run"
+  sudo inject $(cat "${cntDir}/cnt/pid") cnt/run
+  test -f "${cntDir}/cnt/run" && rm "${cntDir}/cnt/run"
+}
+
+cnt_run() {
+  if test -f "${cntDir}/cnt/pid"; then
+    cntPID=$(cat "${cntDir}/cnt/pid")
+    kill -0 "${cntPID}" > /dev/null 2>&1 || rm "${cntDir}/cnt/pid"
+  fi
+
+  if test -f "${cntDir}/cnt/pid"; then
+    printf '[%s] Container %s already running under PID %s ...\n' "$(date +'%X')" "${cntName}" "${cntPID}"
+    printf '[%s] Resume screen session %s!\n' "$(date +'%X')" "cnt-${cntName}"
+    exit 1
+  fi
+
+  cargs=""
+  test -x "${cntDir}/cnt/binds" && cargs="${cargs} -i \"${cntDir}/cnt/binds\""
+  test -s "${cntDir}/cnt/subuid" && cargs="${cargs} -u $(cat cnt/subuid)"
+  test -s "${cntDir}/cnt/subgid" && cargs="${cargs} -g $(cat cnt/subgid)"
+
+  printf '[%s] Running container %s...\n' "$(date +'%X')" "cnt"
+  nohup contain ${cargs} -n "${cntDir}" "${1:-/bin/init}" > "${cntDir}/tmp/contain.log" &
+  cntPID="$!"
+
+  sleep 0.1
+
+  if ! kill -0 "${cntPID}" > /dev/null 2>&1; then
+    printf '[%s] Container %s did not start!\n' "$(date +'%X')" "${cntName}"
+    exit 1
+  fi
+
+  printf '[%s] Container %s running as PID %s ...\n' "$(date +'%X')" "${cntName}" "${cntPID}"
+  printf '%s' "${cntPID}" > "${cntDir}/cnt/pid"
+}
+
+cnt_stop() {
+  if test -f "${cntDir}/cnt/pid"; then
+    cntPID=$(cat "${cntDir}/cnt/pid")
+    kill -0 "${cntPID}" > /dev/null 2>&1 || rm "${cntDir}/cnt/pid"
+  fi
+
+  if ! test -f "${cntDir}/cnt/pid"; then
+    printf '[%s] Container %s not running ...\n' "$(date +'%X')" "${cntName}"
+    exit 0
+  fi
+ 
+  printf '[%s] Stopping container %s ...\n' "$(date +'%X')" "${cntName}"
+  pkill -KILL -P $(cat "${cntDir}/cnt/pid")
+  #kill "${cntPID}"
+  #sudo inject $(cat "${cntDir}/pid") /bin/halt
+  test -f "${cntDir}/cnt/pid" && rm "${cntDir}/cnt/pid"
+}
+
+cnt_xapp() {
+  contDsp=0
+  hostDsp=0
+  (
+    cd "${cntDir}"
+
+    if ! grep -qs "tmp/.X11-unix/X${contDsp}" /proc/mounts; then
+      printf '[%s] Binding host :%s to cnt :%s ...\n' "$(date +'%X')" "${hostDsp}"
+      mkdir -p "tmp/.X11-unix"
+      touch "tmp/.X11-unix/X${contDsp}"
+      sudo mount --bind "/tmp/.X11-unix/X${hostDsp}" "tmp/.X11-unix/X${contDsp}"
+    fi
+    
+    cat > cnt/xrun << EOT
+#!/usr/bin/env sh
+export TERM="xterm-256color"
+export DISPLAY=":${hostDsp}"
+export QT_X11_NO_MITSHM=1
+export DRI_PRIME=1
+exec ${@} 2>&1 | tee /tmp/cmd.log
+EOT
+
+   chmod +x cnt/xrun
+   xhost + > /dev/null
+   vcm j cnt/xrun
+   xhost - > /dev/null
+
+   test -f cnt/xrun && rm cnt/xrun
+
+   printf '[%s] Cleaning up ...\n' "$(date +'%X')"
+   if grep -qs "tmp/.X11-unix/X${contDsp}" /proc/mounts; then
+     sudo umount "tmp/.X11-unix/X${contDsp}"
+     rm -rf "tmp/.X11-unix"
+   fi
+  )
+}
+
+cnt_pkg_install() {
+  printf '[%s] Running install ...\n' "$(date +'%X')"
+  pseudo xbps-install -r "${cntDir}" ${@} #| sed -e 's/^/[cnt] /'
+}
+
+cnt_pkg_db() {
+  printf '[%s] Running pkgdb ...\n' "$(date +'%X')"
+  pseudo xbps-pkgdb -r "${cntDir}" ${@} #| sed -e 's/^/[cnt] /'
+}
+
+cnt_pkg_query() {
+  printf '[%s] Querying pkgs ...\n' "$(date +'%X')"
+  pseudo xbps-query -r "${cntDir}" ${@} #| sed -e 's/^/[cnt] /'
+}
+
+cnt_pkg_update() {
+  pseudo xbps-install -r "${cntDir}" -Su ${@} #| sed -e 's/^/[cnt] /'
+}
+
+cnt_pkg_remove() {
+  printf '[%s] Running remove ...\n' "$(date +'%X')"
+  pseudo xbps-remove -r "${cntDir}" ${@} #| sed -e 's/^/[cnt] /'
+}
+
+test $# -eq 0 && cnt_help && exit 1
+
+if test "$(dirname ${PWD})" = "${HOME}/vrt/cnt"; then
+  cntName=$(basename "${PWD}")
+else #if test -d "${HOME}/vrt/cnt/${1}"; then
+  cntName="${1}"
+  shift
+fi
+cntDir="${HOME}/vrt/cnt/${cntName}"
+
+act="${1}"; shift
+
+if test ! -d "${cntDir}" && test "${act}" != 'c'; then
+  printf '[%s] Container %s does not exist!\n' "$(date +'%X')" "${cntName}"
+  exit 1
+fi
+
+test -z "${cntPkgs}" && cntPkgs="${parentDir}/conf/cnt.pkgs"
+test -z "${cntFiles}" && cntFiles="${parentDir}/conf/cnt.files"
+
+case "${act}" in
+  b) cnt_backup ${@};;
+  c) cnt_create ${@};;
+  d) cnt_destroy ${@};;
+  j) cnt_inject ${@};;
+  pd) cnt_pkg_db ${@};;
+  pi) cnt_pkg_install ${@};;
+  pq) cnt_pkg_query ${@};;
+  pr) cnt_pkg_remove ${@};;
+  pu) cnt_pkg_update ${@};;
+  r) cnt_run ${@};;
+  s) cnt_stop ${@};;
+  x) cnt_xapp ${@};;
+esac

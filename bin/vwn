@@ -1,0 +1,26 @@
+#!/usr/bin/env sh
+
+test "$#" -gt 0 || exit 1
+cmd="${1}"; shift 1
+
+#if test "${cmd}" = 'w3e' || test "${cmd}" = 'w3u'; then
+  pfx='w3x'
+#else
+#  pfx="${cmd}"
+#fi
+
+#export WINEPREFIX="${HOME}/app/dat/wine/prefix/default"
+export WINEPREFIX="${HOME}/app/dat/wine/prefix/${pfx}"
+
+case "${cmd}" in
+  'w3e')
+    DRI_PRIME=1 wine ~/app/dat/wine/prefix/w3x/drive_c/Program\ Files/Warcraft\ III/'World Editor.exe'
+    ;;
+  'w3u')
+    DRI_PRIME=1 wine ~/app/dat/wine/apps/w3u/'Warcraft-III-Setup.exe'
+    ;;
+  'w3x')
+    DRI_PRIME=1 wine ~/app/dat/wine/prefix/w3x/drive_c/Program\ Files/Warcraft\ III/'Warcraft III.exe'
+    ;;
+esac
+unset WINEPREFIX

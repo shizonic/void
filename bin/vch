@@ -1,0 +1,21 @@
+#!/bin/sh
+# void-clean-host
+
+printf '[%s] Listing kernels ...\n' "$(date +'%X')"
+krnl=$(vkpurge list | sort -r)
+printf '%s\n' "${krnl}"
+
+if test $(printf '%s\n' "${krnl}" | wc -l) -gt 0; then
+  printf '[%s] Deleting old kernels ...\n' "$(date +'%X')"
+  del=$(printf '%s\n' "${krnl}")
+  for k in ${del}; do
+    printf '[%s] Deleting %s ...\n' "$(date +'%X')" "${k}"
+    vkpurge rm "${k}"
+  done
+fi
+
+printf '[%s] Cleaning package orphans ...\n' "$(date +'%X')"
+xbps-remove -o
+
+printf '[%s] Remove unused blocks ...\n' "$(date +'%X')"
+fstrim -a
