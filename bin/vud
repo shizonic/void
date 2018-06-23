@@ -5,7 +5,7 @@ dir=$(dirname $(realpath -P "$0"))
 cd "${dir}/.."
 
 printf '[%s] Syncing dotfiles ...\n' "$(date +'%X')"
-rsync -r -L ~/app/cnf/ dot || true # ignore wrong symbolic links
+rsync -q -r -L --delete --ignore-errors ~/app/cnf/ dot
 
 diff=$(git status -s | grep 'dot/' | wc -l)
 if test "${diff}" -gt 0; then
