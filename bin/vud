@@ -2,8 +2,16 @@
 # void-update-dots
 
 dir=$(dirname $(realpath -P "$0"))
+cd "${dir}/.."
 
-rsync -r -L ~/app/cnf/ "${dir}../dot" || true # ignore wrong symbolic links
+printf '[%s] Syncing dotfiles ...\n' "$(date +'%X')"
+rsync -r -L ~/app/cnf/ dot || true # ignore wrong symbolic links
 
-git add "${dir}/../dot"
-git commit -m "Updating on $(date +'%x@%X')"
+diff=$(git status -s | grep 'dot/' | wc -l)
+if test "${diff}" -gt 0; then
+  printf '[%s] Updating repository ...\n' "$(date +'%X')"
+  git add dot
+  git commit -m "Updating on $(date +'%x@%X')"
+fi
+
+cd - >/dev/null
