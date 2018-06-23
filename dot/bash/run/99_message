@@ -1,0 +1,53 @@
+#!/usr/bin/env sh
+
+printh() {
+  txt="${1}"
+  esc="${2:-0}"
+
+  cols=$(tput cols)
+  len=$(("${#txt}"))
+  sep=$(((${cols} - ${len} - 3) /2))
+  blk=$(printf "%${sep}s" | sed 's| |─|g')
+
+  if test "${esc}" -eq 1; then
+    printf " \[\e[0;90m\]${blk}\[\e[0;31m\]%s\[\e[0;90m\]${blk}\[\e[0m\] \n" "${txt}"
+  else
+    printf " \e[0;90m${blk}\e[0;31m%s\e[0;90m${blk}\e[0m \n" "${txt}"
+  fi
+}
+
+command_not_found_handle() {
+  printh " error "
+  printf "  Command \"$1\" not found in \"$0\"\n"
+  return 127
+}
+
+#export -f command_not_found_handle
+
+shell_prompt_handle() {
+  rc=$?
+  PS1=""
+  bn=$(basename "${PWD}")
+
+  if test "${rc}" -ne 0; then
+    PS1+=$(printh " ⚡${rc} ")
+  fi
+
+  if test "${SSH}" -eq 1 && test -x ~/app/dat/x/stp/current/ssh; then
+    PS1+=$(~/app/dat/x/stp/current/ssh)
+  fi
+  PS1+="\n"
+  PS1+=" [\[\e[0;33m\]${bn}\[\e[0m\]]: "
+
+}
+
+#export -f shell_prompt_handle
+
+export PROMPT_COMMAND='shell_prompt_handle'
+
+prompt_message_handle() {
+  clear
+  printf '\n\tWelcome to Void Linux!\n'
+}
+
+#export -f prompt_message_handle

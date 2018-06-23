@@ -1,0 +1,45 @@
+#!/bin/sh
+
+. thm2env
+
+put_template() { printf '\033]4;%d;rgb:%s\033\\' $@; }
+put_template_var() { printf '\033]%d;rgb:%s\033\\' $@; }
+put_template_custom() { printf '\033]%s%s\033\\' $@; }
+
+color00=$(printf '%s' "${base00}" | tr -d '#' | sed 's/.\{2\}/&\//g')
+color01=$(printf '%s' "${base01}" | tr -d '#' | sed 's/.\{2\}/&\//g')
+color02=$(printf '%s' "${base02}" | tr -d '#' | sed 's/.\{2\}/&\//g')
+color03=$(printf '%s' "${base03}" | tr -d '#' | sed 's/.\{2\}/&\//g')
+color04=$(printf '%s' "${base04}" | tr -d '#' | sed 's/.\{2\}/&\//g')
+color05=$(printf '%s' "${base05}" | tr -d '#' | sed 's/.\{2\}/&\//g')
+color06=$(printf '%s' "${base06}" | tr -d '#' | sed 's/.\{2\}/&\//g')
+color07=$(printf '%s' "${base07}" | tr -d '#' | sed 's/.\{2\}/&\//g')
+color08=$(printf '%s' "${base08}" | tr -d '#' | sed 's/.\{2\}/&\//g')
+color09=$(printf '%s' "${base09}" | tr -d '#' | sed 's/.\{2\}/&\//g')
+color0A=$(printf '%s' "${base0A}" | tr -d '#' | sed 's/.\{2\}/&\//g')
+color0B=$(printf '%s' "${base0B}" | tr -d '#' | sed 's/.\{2\}/&\//g')
+color0C=$(printf '%s' "${base0C}" | tr -d '#' | sed 's/.\{2\}/&\//g')
+color0D=$(printf '%s' "${base0D}" | tr -d '#' | sed 's/.\{2\}/&\//g')
+color0E=$(printf '%s' "${base0E}" | tr -d '#' | sed 's/.\{2\}/&\//g')
+color0F=$(printf '%s' "${base0F}" | tr -d '#' | sed 's/.\{2\}/&\//g')
+
+put_template 0 "${color01}" # dark grey
+put_template 1 "${color0A}" # dark red
+put_template 2 "${color0B}" # dark green
+put_template 3 "${color0C}" # dark yellow
+put_template 4 "${color0D}" # dark blue
+put_template 5 "${color0E}" # dark pink
+put_template 6 "${color0A}" # dark teal
+put_template 7 "${color04}" # light grey
+put_template 8 "${color03}" # darker grey
+put_template 9 "${color0A}" # light red
+put_template 10 "${color0B}" # light green
+put_template 11 "${color0C}" # light yellow
+put_template 12 "${color0D}" # light blue
+put_template 13 "${color0E}" # light pink
+put_template 14 "${color0A}" # light teal
+put_template 15 "${color0F}" # white
+
+put_template_var 10 "${color07}" # foreground
+put_template_var 11 "${color01}" # background
+put_template_custom 12 ";7" # cursor (reverse video)

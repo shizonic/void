@@ -1,0 +1,12 @@
+[global]
+alignment = center
+follow = keyboard
+frame_width = 1
+geometry = 150x10-5+30
+padding = 5
+
+[shortcuts]
+close = ctrl+space
+close_all = ctrl+shift+space
+history = ctrl+grave
+context = ctrl+shift+period

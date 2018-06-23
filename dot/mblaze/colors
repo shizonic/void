@@ -1,0 +1,14 @@
+#!/usr/bin/env sh
+
+export MCOLOR_CUR=1
+export MCOLOR_MISS=2
+
+export MCOLOR_FROM=5
+export MCOLOR_HEADER=1
+export MCOLOR_FOOTER=1
+export MCOLOR_SIG=2
+export MCOLOR_SEP=6
+
+export MCOLOR_QUOTE=3
+export MCOLOR_QQUOTE=4
+export MCOLOR_QQQUOTE=5

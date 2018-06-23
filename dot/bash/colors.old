@@ -1,0 +1,3 @@
+#!/usr/bin/env sh
+
+(cd ~/usr/prj/shl/thm/data/current/ && . stc/shell-colors-new)

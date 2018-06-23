@@ -1,0 +1,61 @@
+#!/bin/sh
+
+git-squish() {
+  test "${1}" -le 1 && return 1
+  git rebase --interactive "HEAD~${1}"
+}
+
+rnd-pass() {
+  </dev/urandom tr -dc 'A-Za-z0-9!"#$%&()*+,-./:;<=>?@[\]^_{|}~' | head -c "${1:-10}"
+}
+
+viw() {
+  vim $(which "${1}")
+}
+
+cdw() {
+  cd $(dirname $(which "${1}"))
+}
+
+jump() {
+  ld="${HOME}/app/log/bash"
+  lg="${ld}/dirs.log"
+  lf="${ld}/dirs.lst"
+  # el="${ld}/env.lst"
+
+  test ! -d "${ld}" && mkdir -p "${ld}"
+  test ! -e "${lg}" && touch "${lg}"
+  test ! -e "${lf}" && touch "${lf}"
+
+  test -p /dev/stdin && cat >> "${lg}"
+  test -z "${1}" && head -n 1 "${lf}" && return
+
+  #test "${1}" = 'l' && cat "${lg}" && return
+  #test "${1}" = 'e' && e=1 && shift || e=0
+
+  t=$(readlink -f "${1}")
+  if test -e "${t}"; then
+    d="${t}"
+  else
+    d=$(grep -F -i "${1}" "${lg}" | sort -u | \
+    awk '{pth=$1; print gsub(/\//,"",$1)";"pth}' | \
+    sort -n | head -n 1 | cut -d ';' -f 2)
+  fi
+
+  test -d "${d}" || return 1
+  cd "${d}" || return 1
+
+  grep -F -q "${d}" "${lg}" || printf '%s\n' "${d}" >> "${lg}"
+  printf '%s' "${d}" > "${lf}"
+
+  # if test -x "${d}/.env"; then
+  #   if test -e "${el}"; then
+  #     for i in $(env | sed 's/=.*//'); do
+  #       unset $i
+  #     done
+  #     source "${el}"
+  #   fi
+  #   env > "${el}"
+  #   source "${d}/.env"
+  # fi
+}

@@ -1,0 +1,31 @@
+#!/bin/sh
+# user dependent .bashrc file
+
+. "${HOME}/app/sec/env"
+
+# if not running interactively, 
+#  only read secure data into environment
+[[ "$-" != *i* ]] && return
+
+env | grep -q -E '^SSH_*' && export SSH=1 || SSH=0
+
+# override path by user and setup executeables
+#PATH="${PATH}:${HOME}/bin:${HOME}/dot/utils:${HOME}/app/dat/x/stp/current/exe"
+PATH="${PATH}:${HOME}/usr/prj/shl/void/bin:${HOME}/bin"
+
+#. "${HOME}/app/dat/x/stp/current/conf"
+
+printf '' > "${HOME}/.bash_login"
+
+eval $(dircolors -b $HOME/.dircolors)
+
+printf '[%s] Loading configs ...\n' "$(date +'%X')" | tee -a "${HOME}/.bash_login"
+for p in "${HOME}/app/cnf/bash/run/"* ; do
+  if [[ -x "${p}" ]]; then
+    bn=$(basename "${p}" | cut -d '_' -f 2)
+    printf '[%s] Sourcing %s ...\n' "$(date +'%X')" "${bn}" | tee -a "${HOME}/.bash_login"
+    . "${p}"
+  fi
+done
+
+prompt_message_handle

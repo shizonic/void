@@ -1,0 +1,10 @@
+let g:netrw_dirhistmax  =10
+let g:netrw_dirhist_cnt =8
+let g:netrw_dirhist_1='/home/anon/usr/prj/shl/mkws/source/pages/posts'
+let g:netrw_dirhist_2='/home/anon/usr/prj/shl/mkws/source/pages'
+let g:netrw_dirhist_3='/home/anon/usr/prj/shl/vpkg/srcpkgs/commento'
+let g:netrw_dirhist_4='/home/anon/usr/prj/shl/stp'
+let g:netrw_dirhist_5='/home/anon/usr/prj/shl/void/thm'
+let g:netrw_dirhist_6='/home/anon/usr/prj/shl/void/thm/themes/unsplash-T7-8Ks05K5s'
+let g:netrw_dirhist_7='/home/anon/usr/prj/shl/void/thm/themes/photo-Q0ah6t1Q-Wk'
+let g:netrw_dirhist_8='/home/anon/usr/prj/shl/void/.git'

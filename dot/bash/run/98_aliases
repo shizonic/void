@@ -1,0 +1,13 @@
+#!/bin/sh
+
+# confirm actions
+alias rm='rm -I'
+alias mv='mv -i'
+alias cp='cp -i'
+alias ln='ln -i'
+
+# colorize output
+alias ls='ls --color=auto'
+alias grep='grep --color=auto'
+alias egrep='egrep --color=auto'
+alias fgrep='fgrep --color=auto'
