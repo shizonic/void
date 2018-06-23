@@ -19,6 +19,30 @@ str2slug() {
   iconv -t 'ascii//TRANSLIT' | sed -r 's/[!?.,-]//g; s/[^a-zA-Z0-9]+/-/g' | sed -r 's/^-+\|-+$//g' | tr 'A-Z' 'a-z'
 }
 
+md2toc() {
+  hds=$(grep -E '^#+' "${1}")
+  min=10
+
+  while read hd; do
+    lvl=$(printf '%s' "${hd}" | grep -o '#' | wc -l)
+    test "${lvl}" -lt "${min}" && min="${lvl}"
+  done <<EOL
+printf '%s\n' "${hds}"
+EOL
+
+  printf '%s\n' "${hds}" | while read hd; do
+    name=$(printf '%s' "${hd}" | tr -d '#' | xargs)
+    id=$(printf '%s' "${name}" | sed 's/ /-/g')
+    lvl=$(printf '%s' "${hd}" | grep -o -E '#+')
+    lvl=$(printf '%s' "${lvl}" | sed "s/^\#\{${min}\}//g" | sed 's/#/\t/g')
+    printf '%s* [%s](%s)\n' "${lvl}" "${name}" "#${id}"
+  done
+}
+
+toc2class() {
+  sed 's/<li>/<li class="nav-item">/g; s/<ul>/<ul class="nav">/g'
+}
+
 md2html() {
   lowdown 
 }
@@ -35,9 +59,10 @@ md2data() {
   check_ext "${1}" 'md' || return 1
   eval "$(cat ${1} | md2vars)"
   text=$(printf '%s' "$(cat ${1} | md2text)" | md2html)
+  toc=$(printf '%s' "$(md2toc ${1})" | md2html | toc2class)
   slug=$(printf '%s' "${title}" | str2slug)
   layout='layout.tpl'
-  export author layout slug tags template text title published
+  export author layout slug tags template text title toc published
 }
 
 tpl2data() {
@@ -50,7 +75,7 @@ cmp_page() {
   name=$(basename "${1}" | cut -d '.' -f 1)
   dir=$(dirname "${1}")
   dirName=$(basename "${dir}")
-  dest="${dp}/${SMAG_DST}/${dirName}"
+  dest="${dp}/../blg/${SMAG_DST}/${dirName}"
 
   test -d "${dest}" || mkdir -p "${dest}"
 
@@ -68,7 +93,7 @@ cmp_page() {
 cmp_index() {
   dir="${1:-$(pwd)}"
   dirName=$(basename "${dir}")
-  dest="${PWD}/${SMAG_DST}/${dirName}"
+  dest="${dp}/../blg/${SMAG_DST}/${dirName}"
 
   mkdir -p "${dest}"
 
