@@ -40,7 +40,7 @@ EOL
 }
 
 toc2class() {
-  sed 's/<li>/<li class="nav-item">/g; s/<ul>/<ul class="nav">/g'
+  sed 's/<ul>/<ul class="menu menu-nav">/g; s/<li>/<li class="menu-item">/g'
 }
 
 md2html() {
