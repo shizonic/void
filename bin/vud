@@ -3,11 +3,7 @@
 
 dir=$(dirname $(realpath -P "$0"))
 
-#grep -qs "${dir}/../dot" /proc/mounts || sudo mount --bind ~/app/cnf "${dir}/../dot" || exit 1
-
-rsync -r -L ~/app/cnf/ dot || true # ignore wrong symbolic links
+rsync -r -L ~/app/cnf/ "${dir}../dot" || true # ignore wrong symbolic links
 
 git add "${dir}/../dot"
 git commit -m "Updating on $(date +'%x@%X')"
-
-#sudo umount "${dir}/../dot" || exit 1
