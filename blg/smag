@@ -1,0 +1,166 @@
+#!/usr/bin/env sh
+# simple markdown blog
+# requires: lowdown, rsync, rwc
+
+set -e
+
+dp=$(dirname $(realpath $0))
+
+test -e "${dp}/smag.def" && . "${dp}/smag.def" || exit 1
+test -e "${PWD}/smag.cnf" && . "${PWD}/smag.cnf" || exit 1
+
+check_ext() {
+  test -f "${1}" || return 1
+  export ext=$(basename "${1}" | awk -F '.' '{print $NF}')
+  test "${ext}" = "${2}" || return 1
+}
+
+str2slug() {
+  iconv -t 'ascii//TRANSLIT' | sed -r 's/[!?.,-]//g; s/[^a-zA-Z0-9]+/-/g' | sed -r 's/^-+\|-+$//g' | tr 'A-Z' 'a-z'
+}
+
+md2html() {
+  lowdown 
+}
+
+md2vars() {
+  sed '/^---$/q' | sed '$ d' | sed '/^\s*$/d' | sed 's|[ ]*:[ ]*|="|g;s|$|"|'
+}
+
+md2text() {
+  sed -e '1,/^---$/d' | tail -n +2
+}
+
+md2data() {
+  check_ext "${1}" 'md' || return 1
+  eval "$(cat ${1} | md2vars)"
+  text=$(printf '%s' "$(cat ${1} | md2text)" | md2html)
+  slug=$(printf '%s' "${title}" | str2slug)
+  layout='layout.tpl'
+  export author layout slug tags template text title published
+}
+
+tpl2data() {
+  check_ext "${1}" 'tpl' || return 1
+  content=$(envsubst < "${1}")
+  export content
+}
+
+cmp_page() {
+  name=$(basename "${1}" | cut -d '.' -f 1)
+  dir=$(dirname "${1}")
+  dirName=$(basename "${dir}")
+  dest="${dp}/${SMAG_DST}/${dirName}"
+
+  test -d "${dest}" || mkdir -p "${dest}"
+
+  md2data "${1}"
+  test "${published}" != '' || return 1
+  test -f "${dir}/${layout}" || return 1
+  test -f "${dir}/${template}" || return 1
+
+  tpl2data "${dir}/${template}"
+  tpl2data "${dir}/${layout}"
+
+  printf '%s' "${content}" > "${dest}/${name}.html"
+}
+
+cmp_index() {
+  dir="${1:-$(pwd)}"
+  dirName=$(basename "${dir}")
+  dest="${PWD}/${SMAG_DST}/${dirName}"
+
+  printf 'Creating index %s\n' "${dirName}"
+  
+  links='<ul>'
+  for fn in $(find "${dir}" -mindepth 1 -maxdepth 1 -name '*.md' -type f); do
+    name=$(basename "${fn}" | cut -d '.' -f 1)
+    md2data "${fn}"
+    test "${published}" = '' && continue
+    #date=$(printf '%s' "${published}" | cut -d '-' -f 1)
+    links="${links}"$(printf '<li><a href="%s.html">%s</a></li>\n' "${name}" "${title}")
+  done
+  links="${links}</ul>"
+  export links
+  
+  title="Index of ${dirName}"
+  export title
+  
+  tpl2data "${dir}/index.tpl"
+  tpl2data "${dir}/${layout}"
+
+  printf '%s' "${content}" > "${dest}/index.html"
+  test -e "${dest}/index.html" || ln -s "${dest}/index.html" "${PWD}/${SMAG_DST}/index.html"
+}
+
+cmp_dir() {
+  dir="${1:-$(pwd)}"
+  for fn in $(find "${dir}" -mindepth 1 -maxdepth 1 -name '*.md' -type f); do
+    printf ' - %s\n' $(basename "${fn}")
+    cmp_page "${fn}"
+  done
+  cmp_index "${dir}"
+  if test -d "${dir}/${SMAG_AST}"; then
+    name=$(basename "${dir}")
+    printf 'Copying assets\n'
+    cp -r "${dir}/${SMAG_AST}" "${PWD}/${SMAG_DST}/${name}/${SMAG_AST}"
+  fi
+}
+
+cmp_def() {
+  for dir in $(find "${PWD}/${SMAG_SRC}" -mindepth 1 -maxdepth 1 -not -name "${SMAG_AST}" -type d); do
+    nane=$(basename "${dir}")
+    printf 'Processing %s\n' "${name}" 
+    cmp_dir "${dir}"
+  done
+}
+
+cmp_watch() {
+  find "${PWD}/${SMAG_SRC}" -mindepth 1 -maxdepth 1 -type d | rwc -d | while read fn; do
+    printf '%s' "${fn}" | grep -q -E '*.md$' || continue
+    printf '%s' "${fn}" | grep -q -E '^-'; del="$?"
+    test "${del}" -eq 0 && fn=$(printf '%s' "${fn}" | cut -d ' ' -f 2-)
+    
+    name=$(basename "${fn}" | cut -d '.' -f 1)
+
+    if test "${del}" -eq 1; then
+      printf 'Changed: %s\n' "${name}"
+      cmp_page "${fn}"
+    elif sleep 0.1; ! test -f "${fn}"; then
+      printf 'Deleted: %s\n' "${name}"
+    else
+      continue
+    fi
+    
+    cmp_index $(dirname "${fn}")
+  done
+}
+
+cmp_site() {
+  printf 'Cleaning dist\n'
+  test -d "${PWD}/${SMAG_DST}" && rm -r "${PWD}/${SMAG_DST}"
+  mkdir -p "${PWD}/${SMAG_DST}"
+  cmp_def
+}
+
+srv_site() {
+  cd "${PWD}/${SMAG_DST}"
+  python -m http.server 8000
+  #trap "kill $!" EXIT INT TERM
+}
+
+dep_site() {
+  test -n "${SMAG_DEP}" || return 1
+  rsync --usermap="${SMAG_CHO}" ${SMAG_RSP} -e "${SMAG_SSH}" "${PWD}/${SMAG_DST}/" "${SMAG_DEP}/"
+}
+
+act='cmp'
+test "$#" -gt 0 && act="${1}" && shift
+
+case "${act}" in
+  a|all) cmp_site; dep_site;;
+  c|cmp) cmp_site;;
+  d|dep) dep_site;;
+  s|srv) srv_site;;
+  w|wtc) cmp_site; cmp_watch;;
+esac

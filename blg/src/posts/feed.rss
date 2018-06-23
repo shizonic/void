@@ -1,0 +1,3 @@
+<?xml version="1.0" encoding="utf-8"?>
+<rss version="2.0">
+<channel><title>New blog</title><link>feed.rss</link><description>New blog</description><item><title>Hello World!</title><description>hello, world</description><link>article_00.html</link><author>Local Host</author><guid>article_00</guid><pubdate>20171220-160000</pubdate></item></channel></rss>

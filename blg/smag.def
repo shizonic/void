@@ -1,0 +1,9 @@
+#!/usr/bin/env sh
+
+export SMAG_SRC='src'     # source folder
+export SMAG_DST='dst'     # dist folder
+export SMAG_AST='assets'  # asset folder
+export SMAG_DEP=''        # deploy target
+export SMAG_SSH='ssh'     # ssh command
+export SMAG_RSP='-rzv --delete'    # rsync params
+export SMAG_CHO=''        # user and group for dest files
