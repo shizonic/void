@@ -7,7 +7,7 @@ function initComments(repo, issue) {
   request.setRequestHeader('Accept', 'application/vnd.github.v3.html+json');
   
   request.onload = function() {
-    cmtDiv=document.querySelectorAll('#comments');
+    cmtDiv = document.querySelectorAll('#comments');
     if (this.status >= 200 && this.status < 400) {
       var data = JSON.parse(this.response);
       data = data.reverse(); /// display latest first
@@ -18,7 +18,6 @@ function initComments(repo, issue) {
         data[0]['user']['login'] = 'Empty';
         data[0]['body_html'] = 'Be the first to comment!';
       }
-      console.log(data);
       //data = data.slice(0,25); // only display 25
       cmt='';
       cmt+='<div class="panel">';
