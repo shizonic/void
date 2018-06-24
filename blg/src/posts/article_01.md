@@ -1,61 +1,28 @@
-author: Anachron
-tags: void,setup,wm,lvm,luks
-title: My setup
-published: 20180623-130000
+author: Local Host
+tags: hello, world
+title: Hello World!
+published: 20171220-160000
 template: post.tpl
-issue: 2
+issue: 1
 
 ---
 
-## Setup
+## blog.init()
 
-### File-System
+### Introduction
 
-```
-NAME                                          MAJ:MIN RM   SIZE RO TYPE  MOUNTPOINT
-sda                                             8:0    0 465,8G  0 disk
-|-sda1                                          8:1    0     1G  0 part  /boot
-|-sda2                                          8:2    0 464,8G  0 part
-  |-luks-1e05ddda-736a-408e-8cf0-ee37c9c8d3ee 254:0    0 464,8G  0 crypt
-    |-lvm-void                                254:1    0    10G  0 lvm   /
-    |-lvm-copy                                254:2    0    10G  0 lvm   /copy
-    |-lvm-swap                                254:3    0     4G  0 lvm   [SWAP]
-    |-lvm-data                                254:4    0 440,8G  0 lvm   /data
-```
+I'm Anachron and I'm currently on [VoidLinux](https://www.voidlinux.eu/).
 
-### Explanation
+#### Myself
 
-I use two partitions `sda1` and `sda2`. While `sda1` is `/boot`-only, everything else is on `sda2`.
+I love linux and everything releated to DYI/KISS, such as [suckless](https://suckless.org/) and [containers](https://github.com/arachsys/containers).
 
-`sda2` is then encrypted via `luks` which has `lvm` inside. 
+If I am not writing scripts to make my life easier I'm probably [ricing](https://www.reddit.com/r/unixporn) my desktop or play [n++](http://www.nplusplus.org/).
 
-- `/ (root)` is on `lvm-void`.
-- `/ (root-copy)` is on `lvm-copy`.
-- `[SWAP]` is on `lvm-swap` &
-- `/data` is on `lvm-data`.
+You can find me on [github](https://github.com/Anachron) and [reddit](https://www.reddit.com/user/AnachronGuy).
 
-`/home` is on `/data`. 
+#### Blog
 
-This way I can easily sync my system files (residing on `lvm-void`) to it's backup place (`lvm-copy`).
+This blog is generated using [smag](https://github.com/Anachron/smag), a simple static website generator based on [lowdown](https://kristaps.bsd.lv/lowdown/), [rsync](https://rsync.samba.org/), [spectre](https://picturepan2.github.io/spectre/), [highlightjs](https://highlightjs.org/) and [rwc](https://github.com/chneukirchen/rwc).
 
-Since all the data is on it's own partition there is no trouble when I have to restore a backup from `lvm-copy` since `/home` is not affected.
-
-### Backup
-
-My backups are split into three different categories:
-
-- **System** (Everything system-dependent, like `/etc`, `/usr`, `/root` and `/var`)
-- **User** (User related files such as configurations, programdata and documents)
-- **Media** (User related media-files such as audio, pictures, movies and alike)
-
-#### System
-
-This backup includes a copy of `/boot`, all files/dirs listed above, luks-headers, the lvm-config, a void package list and a backup of block devices and their ids.
-
-#### User
-
-A user backup typically includes all app files (configs and data), user-specific binaries/programs and all documents/downloads/mails/etc.
-
-### Media
-
-Every other data-type, mostly big-data, is included in this backup. Files like pictures, songs, movies and alike will be backed up to this place. This backup normally takes the longest amount of time.
+In the future you'll find more about `Void Linux`, `ricing`  and `minimalism` here.
