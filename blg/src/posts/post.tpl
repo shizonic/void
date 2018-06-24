@@ -1,9 +1,4 @@
 <div class="off-canvas off-canvas-sidebar-show">
-  <!-- off-screen toggle button -->
-  <a class="off-canvas-toggle btn btn-primary btn-action" href="#navigation">
-    <i class="icon icon-menu"></i>
-  </a>
-
   <div id="navigation" class="off-canvas-sidebar">
     <ul class="menu menu-nav">
       <li class="menu-item"><a href='index.html'>Go back</a></li>
@@ -15,8 +10,11 @@
   <a class="off-canvas-overlay" href="#close"></a>
 
   <div id="content" class="off-canvas-content">
-<!--    <a href='index.html'><button class="btn">Go back</button></a> <br /><br />
-    <div class="divider"></div>-->
+    <div id="top-navbar">
+      <a class="off-canvas-toggle btn btn-primary btn-action" href="#navigation">
+        <i class="icon icon-menu"></i>
+      </a>
+    </div>
     $text
     <div id="comments">
       <template v-if="maxPage > 0">
@@ -56,6 +54,7 @@
               </div>
             </div>
           </div>
+          <!--<div class="panel-footer"></div>-->
         </div>
       </template>
       <template v-if="maxPage == 0">
