@@ -21,22 +21,8 @@ str2slug() {
 
 md2toc() {
   hds=$(grep -E '^#+' "${1}")
-  min=10
-
-  while read hd; do
-    lvl=$(printf '%s' "${hd}" | grep -o '#' | wc -l)
-    test "${lvl}" -lt "${min}" && min="${lvl}"
-  done <<EOL
-printf '%s\n' "${hds}"
-EOL
-
-  printf '%s\n' "${hds}" | while read hd; do
-    name=$(printf '%s' "${hd}" | tr -d '#' | xargs)
-    id=$(printf '%s' "${name}" | sed 's/ /-/g')
-    lvl=$(printf '%s' "${hd}" | grep -o -E '#+')
-    lvl=$(printf '%s' "${lvl}" | sed "s/^\#\{${min}\}//g" | sed 's/#/\t/g')
-    printf '%s* [%s](%s)\n' "${lvl}" "${name}" "#${id}"
-  done
+  min=$(printf '%s\n' "${hds}" | grep -o -E '#+' | sort -n | head -n 1 | awk '{ print length }')
+  printf '%s\n' "${hds}" | sed "s|^#\{${min}\}||g" | tr -d ' ' | sed 's|#|    |g' | sed -E 's|[^ #*]+|* [&](#&)|g' 
 }
 
 toc2class() {
