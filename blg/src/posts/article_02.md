@@ -1,7 +1,7 @@
 author: Anachron
 tags: void,setup,wm,lvm,luks
 title: My setup
-published: 20180623-130000
+published: 2018-06-23T13:00:00
 template: post.tpl
 issue: 2
 

@@ -1,13 +1,13 @@
 #!/usr/bin/env sh
 # void blog generator
-# requires: lowdown, rsync
+# requires: lowdown, envsubst
 
 set -e
 
 dp=$(dirname $(realpath $0))
 
 test -e "${dp}/../blg/smag.def" && . "${dp}/../blg/smag.def" || exit 1
-test -e "${dp}/../blg/smag.cnf" && . "${dp}/../blg/smag.cnf" || exit 1
+test -e "${dp}/../blg/smag.cnf" && . "${dp}/../blg/smag.cnf"
 
 check_ext() {
   test -f "${1}" || return 1
@@ -38,7 +38,7 @@ md2html() {
 }
 
 md2vars() {
-  sed '/^---$/q' | sed '$ d' | sed '/^\s*$/d' | sed 's|[ ]*:[ ]*|="|g;s|$|"|'
+  sed '/^---$/q' | sed '$ d' | sed '/^\s*$/d' | sed 's|:[\ ]*|="|; s|$|"|'
 }
 
 md2text() {
@@ -65,7 +65,7 @@ cmp_page() {
   name=$(basename "${1}" | cut -d '.' -f 1)
   dir=$(dirname "${1}")
   dirName=$(basename "${dir}")
-  dest="${dp}/../blg/${SMAG_DST}/${dirName}"
+  dest=$(printf '%s' "${dir}" | sed "s|${SMAG_SRC}|${SMAG_DST}|")
 
   test -d "${dest}" || mkdir -p "${dest}"
 
@@ -83,21 +83,21 @@ cmp_page() {
 cmp_index() {
   dir="${1:-$(pwd)}"
   dirName=$(basename "${dir}")
-  dest="${dp}/../blg/${SMAG_DST}/${dirName}"
+  dest=$(printf '%s' "${dir}" | sed "s|${SMAG_SRC}|${SMAG_DST}|")
 
   mkdir -p "${dest}"
 
   printf 'Creating index %s\n' "${dirName}"
   
-  links='<ul>'
-  for fn in $(find "${dir}" -mindepth 1 -maxdepth 1 -name '*.md' -type f); do
+  links='<ol>'
+  for fn in $(find "${dir}" -mindepth 1 -maxdepth 1 -name '*.md' -type f | sort); do
     name=$(basename "${fn}" | cut -d '.' -f 1)
     md2data "${fn}"
-    test "${published}" = '' && continue
-    #date=$(printf '%s' "${published}" | cut -d '-' -f 1)
-    links="${links}"$(printf '<li><a href="%s.html">%s</a></li>\n' "${name}" "${title}")
+    test -z "${published}" && continue
+    date=$(date -d "${published}" +'%d.%m.%Y')
+    links="${links}"$(printf '<li><a href="%s.html">%s</a> (<span class="label">%s</span>)</li>\n' "${name}" "${title}" "${date}")
   done
-  links="${links}</ul>"
+  links="${links}</ol>"
   export links
   
   title="Index of ${dirName}"
@@ -112,7 +112,7 @@ cmp_index() {
 
 cmp_dir() {
   dir="${1:-$(pwd)}"
-  for fn in $(find "${dir}" -mindepth 1 -maxdepth 1 -name '*.md' -type f); do
+  for fn in $(find "${dir}" -mindepth 1 -maxdepth 1 -name '*.md' -type f | sort); do
     printf ' - %s\n' $(basename "${fn}")
     cmp_page "${fn}"
   done
@@ -143,11 +143,6 @@ upd_site() {
   git pull origin master
 }
 
-dep_site() {
-  test -n "${SMAG_DEP}" || return 1
-  rsync --usermap="${SMAG_CHO}" ${SMAG_RSP} -e "${SMAG_SSH}" "${PWD}/${SMAG_DST}/" "${SMAG_DEP}/"
-}
-
 act='cmp'
 test "$#" -gt 0 && act="${1}" && shift
 
@@ -155,6 +150,5 @@ cd "${dp}/../blg"
 
 case "${act}" in
   c|cmp) cmp_site;;
-  d|dep) dep_site;;
   u|upd) upd_site;;
 esac

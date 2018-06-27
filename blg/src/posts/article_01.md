@@ -1,7 +1,7 @@
 author: Local Host
 tags: hello, world
 title: Hello World!
-published: 20171220-160000
+published: 2018-06-01T10:00:00
 template: post.tpl
 issue: 1
 
