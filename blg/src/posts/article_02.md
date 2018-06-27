@@ -11,7 +11,7 @@ issue: 2
 
 ### File-System
 
-```
+```text
 NAME                                          MAJ:MIN RM   SIZE RO TYPE  MOUNTPOINT
 sda                                             8:0    0 465,8G  0 disk
 |-sda1                                          8:1    0     1G  0 part  /boot

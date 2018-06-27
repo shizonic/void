@@ -1,6 +1,6 @@
 #!/usr/bin/env sh
-# simple markdown blog
-# requires: lowdown, rsync, rwc
+# void blog generator
+# requires: lowdown, rsync
 
 set -e
 
@@ -29,6 +29,10 @@ toc2class() {
   sed 's/<ul>/<ul class="menu menu-nav">/g; s/<li>/<li class="menu-item">/g'
 }
 
+code2class() {
+  sed 's|<pre><code class="language-\([a-z]*\)">|<pre class="code" data-lang="\1"><code class="\1">|'
+}
+
 md2html() {
   lowdown 
 }
@@ -44,7 +48,7 @@ md2text() {
 md2data() {
   check_ext "${1}" 'md' || return 1
   eval "$(cat ${1} | md2vars)"
-  text=$(printf '%s' "$(cat ${1} | md2text)" | md2html)
+  text=$(printf '%s' "$(cat ${1} | md2text)" | md2html | code2class)
   toc=$(printf '%s' "$(md2toc ${1})" | md2html | toc2class)
   slug=$(printf '%s' "${title}" | str2slug)
   layout='layout.tpl'
@@ -128,27 +132,6 @@ cmp_def() {
   done
 }
 
-cmp_watch() {
-  find "${PWD}/${SMAG_SRC}" -mindepth 1 -maxdepth 1 -type d | rwc -d | while read fn; do
-    printf '%s' "${fn}" | grep -q -E '*.md$' || continue
-    printf '%s' "${fn}" | grep -q -E '^-'; del="$?"
-    test "${del}" -eq 0 && fn=$(printf '%s' "${fn}" | cut -d ' ' -f 2-)
-    
-    name=$(basename "${fn}" | cut -d '.' -f 1)
-
-    if test "${del}" -eq 1; then
-      printf 'Changed: %s\n' "${name}"
-      cmp_page "${fn}"
-    elif sleep 0.1; ! test -f "${fn}"; then
-      printf 'Deleted: %s\n' "${name}"
-    else
-      continue
-    fi
-    
-    cmp_index $(dirname "${fn}")
-  done
-}
-
 cmp_site() {
   printf 'Cleaning dist\n'
   test -d "${PWD}/${SMAG_DST}" && rm -r "${PWD}/${SMAG_DST}"
@@ -156,10 +139,8 @@ cmp_site() {
   cmp_def
 }
 
-srv_site() {
-  cd "${dp}/../blg/${SMAG_DST}"
-  python -m http.server 8000
-  #trap "kill $!" EXIT INT TERM
+upd_site() {
+  git pull origin master
 }
 
 dep_site() {
@@ -173,9 +154,7 @@ test "$#" -gt 0 && act="${1}" && shift
 cd "${dp}/../blg"
 
 case "${act}" in
-  a|all) cmp_site; dep_site;;
   c|cmp) cmp_site;;
   d|dep) dep_site;;
-  s|srv) srv_site;;
-  w|wtc) cmp_site; cmp_watch;;
+  u|upd) upd_site;;
 esac

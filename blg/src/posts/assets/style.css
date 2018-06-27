@@ -24,6 +24,10 @@
     position: fixed;
   }
 
+  .off-canvas .off-canvas-content {
+    width: 100%;
+  }
+
   #top-navbar {
     display: block;
   }
