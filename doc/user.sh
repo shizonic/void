@@ -1,7 +1,7 @@
 #!/bin/sh
 
-xbps-install vim wget git p7zip rsync tree borg
-xbps-install screen xtools xclip inetutils-telnet alsa-utils glances containers redshift
+xbps-install vim wget git p7zip rsync tree borg fuse-sshfs
+xbps-install screen xtools xclip inetutils-telnet alsa-utils glances containers rkt redshift
 xbps-install mpv youtube-dl gstreamer 
 xbps-install gtk-engine-murrine
 xbps-install sxiv ii nq rlwrap zathura zathura-pdf-poppler setroot xssstate
@@ -9,6 +9,7 @@ xbps-install jq qemu whois
 xbps-install lowdown python3-virtualenv
 #xbps-install ruby sup
 # task/time tracking
+xbps-install wireshark
 xbps-install task timewarrior
 
 xbps-install rsstail
@@ -28,6 +29,7 @@ usermod -G wheel -a anon
 usermod -G audio -a anon
 usermod -G cdrom -a anon
 usermod -G kvm -a anon
+usermod -G storage -a anon
 
 # modprobe kvm-intel
 

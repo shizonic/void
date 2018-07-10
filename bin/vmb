@@ -1,47 +1,45 @@
 #!/bin/sh
-# void-media-backup
+# void-user-backup
 
 scriptDir=$(dirname `realpath -P "$0"`)
 parentDir=$(dirname "${scriptDir}")
-user=$(logname)
-home="/home/${user}"
 
 vmb_create () {
-  test -d /data || exit 1
-
-  if ! test -d "${home}/msc"; then
-  	printf '[%s] Preparing cache ...\n' "$(date +'%X')"
-  	mkdir -p "${home}/msc"
+  if ! test -d "${homeDir}/msc"; then
+    printf '[%s] Preparing cache ...\n' "$(date +'%X')"
+    mkdir -p "${homeDir}/msc"
   fi
 
-  if test -f "${home}/msc/lock"; then
+  if test -f "${homeDir}/msc/lock"; then
     printf '[%s] ERROR: Cannot lock. Another backup in progress?\n' "$(date +'%X')"
     exit 1
   fi
 
-  if ! test -d /data/bak/media; then
-  	printf '[%s] Preparing media repo ...\n' "$(date +'%X')"
-  	mkdir -p /data/bak/media
-  	borg init /data/bak/media
-  fi
-
   printf '[%s] Starting backup ...\n' "$(date +'%X')"
   dateTime="$(date +'%Y%m%d-%H%M%S')"
-  printf '%s' "${dateTime}" > "${home}/msc/lock"
+  printf '%s' "${dateTime}" > "${homeDir}/msc/lock"
 
-  printf '[%s] Calculating media size ...\n' "$(date +'%X')"
-  du -hs "${home}/usr/med"
+  #printf '[%s] Compressing backup ...\n' "$(date +'%X')"
+  #tar cfz "${homeDir}/msc/user-data.tar.gz" "${homeDir}/msc/"
 
-  printf '[%s] Creating root fs backup ...\n' "$(date +'%X')"
-  borg create --exclude-from "${parentDir}/cnf/vmb.ignore" "/data/bak/media::${user}@${dateTime}" "${home}/usr/med"
+  #if test -f "${homeDir}/msc/user-data.tar.gz"; then
+  #  printf '[%s] Creating checksum ...\n' "$(date +'%X')"
+  #  (cd "${homeDir}/msc" && md5sum user-data.tar.gz > "${homeDir}/msc/user-data.md5")
+  #fi
+
+  printf '[%s] Cleaning cache ...\n' "$(date +'%X')"
+  find "${homeDir}/msc" -type f ! -name 'user-data.*' -delete
+
+  printf '[%s] Creating user fs backup ...\n' "$(date +'%X')"
+  borg create --exclude-from "${parentDir}/cnf/vmb.ignore" "${bakDir}::${dateTime}" "${homeDir}/usr/med"
 
   printf '[%s] Cleaning up ...\n' "$(date +'%X')"
-  rm -r "${home}/msc"
+  rm -r "${homeDir}/msc"
 }
 
 vmb_dryrun() {
   dateTime="$(date +'%Y%m%d-%H%M%S')"
-  borg create -v --list --dry-run --exclude-from "${parentDir}/cnf/vmb.ignore" "/data/bak/media::${user}@${dateTime}" "${home}/usr/med"
+  borg create -v --list --dry-run --exclude-from "${parentDir}/cnf/vmb.ignore" "${bakDir}::${usrName}@${dateTime}" "${homeDir}/usr/med"
 }
 
 vmb_info() {
@@ -50,19 +48,28 @@ vmb_info() {
   printf '[%s] Choose target backup ...\n' "$(date +'%X')"
   read -p ': ' answ
 
-  borg info "/data/bak/media::${answ}"
+  borg info "${bakDir}::${answ}"
 }
 
 vmb_list () {
   printf '[%s] Listing available backups ...\n' "$(date +'%X')"
-  borg list '/data/bak/media'
+  borg list "${bakDir}"
 }
 
 vmb_mount () {
+  test -d "${1}" || exit 1
+
   vmb_list
 
   printf '[%s] Choose mount backup ...\n' "$(date +'%X')"
   read -p ': ' answ
+
+  borg mount "${bakDir}::${answ}" "${1}"
+}
+
+vmb_prune () {
+  printf '[%s] Pruning backups ...\n' "$(date +'%X')"
+  borg prune -d 7 -w 4 -m 6 -y 10 "${bakDir}"
 }
 
 vmb_restore () {
@@ -71,11 +78,33 @@ vmb_restore () {
   printf '[%s] Choose restore backup ...\n' "$(date +'%X')"
   read -p ': ' answ
 
-  borg extract "/data/bak/media::${answ}"
+  borg extract "${bakDir}::${answ}"
 }
 
 test -z "${1}" && exit 1
 act="${1}"; shift
+
+mntDev=$(find /mnt -maxdepth 2 -type d -name 'bak' | xargs dirname | sort | head -n 1)
+if test -z "${mntDev}"; then
+  2>&1 printf '[%s] No mounted device for backup found!\n' "$(date +'%X')"
+  exit 1
+fi
+
+userName=$(logname)
+if test "$#" -gt 0; then
+  if grep -q "${1}" /etc/passwd; then
+    userName="${1}"
+    shift
+  fi
+fi
+homeDir="/home/${userName}"
+bakDir="${mntDev}/bak/media/${userName}"
+
+if ! test -d "${bakDir}"; then
+  printf '[%s] Backup for %s@media@%s does not exist\n' "$(date +'%X')" "${userName}" "${mntDev}"
+  mkdir -p $(dirname "${bakDir}")
+  borg init -e "repokey" "${bakDir}"
+fi
 
 case "${act}" in
   c) vmb_create ${@};;
@@ -83,5 +112,6 @@ case "${act}" in
   i) vmb_info ${@};;
   l) vmb_list ${@};;
   m) vmb_mount ${@};;
+  p) vmb_prune ${@};;
   r) vmb_restore ${@};;
 esac

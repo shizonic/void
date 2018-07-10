@@ -1,0 +1,24 @@
+#!/usr/bin/env sh
+
+devList=$(find /dev/sd[a-z])
+
+for dev in ${devList}; do
+  part=$(lsblk "${dev}" -p -x SIZE | grep part | sort | head -n 1 | awk '{print $1}')
+  if ! grep -q "${part}" /proc/self/mounts; then
+    #echo "Partition ${part} not mounted!"
+    mntList=$(find /mnt/[1-9]*)
+    mntDir=""
+    for mnt in ${mntList}; do
+      grep -q "${mnt}" /proc/self/mounts
+      if test "$?" -gt 0; then
+        mntDir="${mnt}"
+        break
+      fi
+    done
+    if test -n "${mntDir}"; then
+      #echo "Found mountpoint ${mntDir} for ${part}"
+      mount "${part}" "${mntDir}"
+      test "$?" -eq 0 && echo "Mounted ${part} on ${mntDir}"
+    fi
+  fi
+done

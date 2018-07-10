@@ -1,4 +1,6 @@
 */usr/med/*
+*/usr/tmp/*
 *.log
 *.tmp
 *.lock
+*.git

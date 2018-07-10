@@ -56,6 +56,6 @@ This backup includes a copy of `/boot`, all files/dirs listed above, luks-header
 
 A user backup typically includes all app files (configs and data), user-specific binaries/programs and all documents/downloads/mails/etc.
 
-### Media
+#### Media
 
 Every other data-type, mostly big-data, is included in this backup. Files like pictures, songs, movies and alike will be backed up to this place. This backup normally takes the longest amount of time.

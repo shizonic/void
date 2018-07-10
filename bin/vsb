@@ -5,8 +5,6 @@ scriptDir=$(dirname `realpath -P "$0"`)
 parentDir=$(dirname "${scriptDir}")
 
 vsb_create () {
-  test -d /data || exit 1
-
   if ! test -d /msc; then
   	printf '[%s] Preparing cache ...\n' "$(date +'%X')"
   	mkdir -p /msc
@@ -15,12 +13,6 @@ vsb_create () {
   if test -f /msc/lock; then
     printf '[%s] ERROR: Cannot lock. Another backup in progress?\n' "$(date +'%X')"
     exit 1
-  fi
-
-  if ! test -d /data/bak/system; then
-  	printf '[%s] Preparing system repo ...\n' "$(date +'%X')"
-  	mkdir -p /data/bak/system
-  	borg init /data/bak/system
   fi
 
   printf '[%s] Starting backup ...\n' "$(date +'%X')"
@@ -59,7 +51,7 @@ vsb_create () {
   fi
 
   printf '[%s] Creating root fs backup ...\n' "$(date +'%X')"
-  borg create --exclude-from "${parentDir}/cnf/vsb.ignore" "/data/bak/system::${HOSTNAME}@${dateTime}" /etc /msc /root /usr /var
+  borg create --exclude-from "${parentDir}/cnf/vsb.ignore" "${bakDir}::${dateTime}" /etc /msc /root /usr /var
 
   printf '[%s] Cleaning up ...\n' "$(date +'%X')"
   rm -r /msc
@@ -67,7 +59,7 @@ vsb_create () {
 
 vsb_dryrun() {
   dateTime="$(date +'%Y%m%d-%H%M%S')"
-  borg create -v --list --dry-run --exclude-from "${parentDir}/cnf/vsb.ignore" "/data/bak/system::${HOSTNAME}@${dateTime}" /etc /root /usr /var
+  borg create -v --list --dry-run --exclude-from "${parentDir}/cnf/vsb.ignore" "${bakDir}::${dateTime}" /etc /root /usr /var
 }
 
 vsb_info() {
@@ -76,12 +68,12 @@ vsb_info() {
   printf '[%s] Choose target backup ...\n' "$(date +'%X')"
   read -p ': ' answ
 
-  borg info "/data/bak/system::${answ}"
+  borg info "${bakDir}::${answ}"
 }
 
 vsb_list () {
   printf '[%s] Listing available backups ...\n' "$(date +'%X')"
-  borg list '/data/bak/system'
+  borg list "${bakDir}"
 }
 
 vsb_mount () {
@@ -97,11 +89,25 @@ vsb_restore () {
   printf '[%s] Choose restore backup ...\n' "$(date +'%X')"
   read -p ': ' answ
 
-  borg extract "/data/bak/system::${answ}"
+  borg extract "${bakDir}::${answ}"
 }
 
 test -z "${1}" && exit 1
 act="${1}"; shift
+
+mntDev=$(find /mnt -maxdepth 2 -type d -name 'bak' | xargs dirname | sort | head -n 1)
+if test -z "${mntDev}"; then
+  2>&1 printf '[%s] No mounted device for backup found!\n' "$(date +'%X')"
+  exit 1
+fi
+
+bakDir="${mntDev}/bak/system/${HOSTNAME}"
+
+if ! test -d "${bakDir}"; then
+  printf '[%s] Backup for %s@system@%s does not exist\n' "$(date +'%X')" "${HOSTNAME}" "${mntDev}"
+  mkdir -p $(dirname "${bakDir}")
+  borg init -e "repokey" "${bakDir}"
+fi
 
 case "${act}" in
   c) vsb_create ${@};;

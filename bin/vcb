@@ -1,0 +1,42 @@
+#!/usr/bin/env sh
+
+rsyncArgs=""
+dryRun=0
+CLOUD_MNT='/cloud'
+
+#if test -z "${STORAGE_USER}" || test -z "${STORAGE_PASS}" || test -z "${STORAGE_BOX}"; then
+#  2>&1 printf '[%s] ERROR: Please set STORAGE_{USER,PASS,BOX}!\n' "$(date +'%X')"
+#  exit 1
+#fi
+
+mntDev=$(find /mnt -maxdepth 2 -type d -name 'bak' | xargs dirname | sort | head -n 1)
+if test -z "${mntDev}"; then
+  2>&1 printf '[%s] ERROR: No mounted device for backup found!\n' "$(date +'%X')"
+  exit 1
+fi
+
+case "${1}" in
+  dr|dry*) rsyncArgs="--dry-run -v"; dryRun=1;;
+  s|sync) rsyncArgs="";;
+  mnt|mount)
+    #mount.cifs -o "user=${STORAGE_USER},pass=${STORAGE_PASS},gid=19" "//${STORAGE_BOX}" "${STORAGE_MNT}"
+    sshfs "${CLOUD_BAK}:/" "${CLOUD_MNT}"
+    exit
+    ;;
+  *) 2>&1 printf '[%s] ERROR: Invalid action passed!\n' "$(date +'%X')"; exit 1;;
+esac
+
+#if ! grep -q "${STORAGE_MNT}" /proc/self/mounts; then
+#  2>&1 printf '[%s] ERROR: Please mount ${STORAGE_MNT} first!\n' "$(date +'%X')"
+#  exit 1
+#fi
+
+#test -d "${STORAGE_MNT}/bak" || mkdir -p "${STORAGE_MNT}/bak"
+
+bakRepos=$(cd "${mntDev}/bak" && find -mindepth 2 -maxdepth 2 -printf '%P\n')
+for repo in ${bakRepos}; do
+  repoSrc="${mntDev}/bak/${repo}"
+  repoBak="${CLOUD_BAK}:bak/${repo}"
+  printf '[%s] Syncing backup %s to %s\n' "$(date +'%X')" "${repoSrc}" "${repoBak}"
+  rsync -v --progress -rlptD --delete -e 'ssh -p23' ${rsyncArgs} "${repoSrc}/" "${repoBak}/"
+done
