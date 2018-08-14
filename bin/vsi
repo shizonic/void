@@ -14,8 +14,6 @@ os=$(. /etc/os-release; echo "${NAME}")
 knl="$(uname -r) ($(uname -m))"
 #stp=$(basename $(realpath ~/app/dat/x/stp/current))
 #thm=$(basename $(realpath ~/app/dat/x/thm/current))
-stp="${STP_NAME}"
-thm="${THM_NAME}"
 pkg=$(xbps-query -l | wc -l)
 
 if test "$#" -ne 0; then
@@ -38,9 +36,7 @@ printf "  ┌──────────────────────�
     \033[0;33mgpu\033[0m: ${gpu}
     \033[0;33mpkg\033[0m: ${pkg}
   ┌── usr ────────────────┘
-    \033[0;33mstp\033[0m: ${stp}
-    \033[0;33mthm\033[0m: ${thm}"
-#  └───────────────────────"
+    \033[0;33mstp\033[0m: ${STP}"
 
 printf '\n  └── rom ────────────────┐\n'
 for blkDev in /boot /data; do
@@ -49,7 +45,8 @@ for blkDev in /boot /data; do
 done
 
 
-printf '\n  └── lvm ────────────────┐\n'
+#printf '\n  └── lvm ────────────────┐\n'
+printf '  ┌── prv ────────────────┘\n'
 for lvmDev in /dev/lvm/*; do
   lvmDat=$(df -h "${lvmDev}" | tail -n 1 | awk -F ' ' '{print $3"/"$2" ("$5")"}')
   printf '    \033[0;33m%s\033[0m: %s\n' $(basename "${lvmDev}") "${lvmDat}"

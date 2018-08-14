@@ -1,12 +1,12 @@
 #!/usr/bin/env sh
 
-devList=$(find /dev/sd[a-z])
+devList=$(find /dev/sd[a-z] /dev/mmcblk[0-9])
 
 for dev in ${devList}; do
   part=$(lsblk "${dev}" -p -x SIZE | grep part | sort | head -n 1 | awk '{print $1}')
   if ! grep -q "${part}" /proc/self/mounts; then
     #echo "Partition ${part} not mounted!"
-    mntList=$(find /mnt/[1-9]*)
+    mntList=$(find /mnt/dev/[1-9]* -maxdepth 0 | sort)
     mntDir=""
     for mnt in ${mntList}; do
       grep -q "${mnt}" /proc/self/mounts

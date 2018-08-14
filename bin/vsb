@@ -95,7 +95,7 @@ vsb_restore () {
 test -z "${1}" && exit 1
 act="${1}"; shift
 
-mntDev=$(find /mnt -maxdepth 2 -type d -name 'bak' | xargs dirname | sort | head -n 1)
+mntDev=$(find /mnt/dev -maxdepth 2 -type d -name 'bak' | xargs dirname | sort | head -n 1)
 if test -z "${mntDev}"; then
   2>&1 printf '[%s] No mounted device for backup found!\n' "$(date +'%X')"
   exit 1

@@ -1,16 +1,17 @@
 #!/bin/sh
 
 xbps-install vim wget git p7zip rsync tree borg fuse-sshfs
-xbps-install screen xtools xclip inetutils-telnet alsa-utils glances containers rkt redshift
+xbps-install tmux xtools xclip inetutils-telnet alsa-utils glances containers rkt redshift
 xbps-install mpv youtube-dl gstreamer 
 xbps-install gtk-engine-murrine
 xbps-install sxiv ii nq rlwrap zathura zathura-pdf-poppler setroot xssstate
 xbps-install jq qemu whois 
-xbps-install lowdown python3-virtualenv
+xbps-install lowdown python3-virtualenv sent
+xbps-install samba smbclient
 #xbps-install ruby sup
 # task/time tracking
-xbps-install wireshark
-xbps-install task timewarrior
+#xbps-install wireshark wireshark-qt
+#xbps-install task timewarrior
 
 xbps-install rsstail
 # camera

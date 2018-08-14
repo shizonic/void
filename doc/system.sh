@@ -1,6 +1,7 @@
 #!/bin/sh
 
 xbps-install acpi lm_sensors ntfs-3g fuse-exfat lsof testdisk
+xbps-install autoconf automake
 #libguestfs
 
 #./xbps-src build ufraw

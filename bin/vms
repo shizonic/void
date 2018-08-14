@@ -1,0 +1,10 @@
+#!/usr/bin/env sh
+# vms = void mount samba (shares)
+
+share=$(ip addr | grep -o '192.168.2.1[0-9]*')
+user="anon"
+auth="username=${user}"
+
+mount -v -t cifs "//${share}/media" "/mnt/net" \
+  -o "sec=ntlmv2" -o "${auth},vers=1.0" \
+  -o "iocharset=utf8,rw,file_mode=0777,dir_mode=0777"

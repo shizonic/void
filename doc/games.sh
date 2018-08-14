@@ -1,6 +1,7 @@
 #!/bin/sh
 
 xbps-install hedgwars ImageMagick mercurial
+xbps-install oracle-jre minecraft
 
 xbps-install void-repo-multilib
 xbps-install wine-32bit winetricks

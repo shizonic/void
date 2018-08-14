@@ -1,8 +1,8 @@
 #!/bin/sh
 
-xbps-install gnupg mutt getmail mblaze msmtp mailx
+xbps-install gnupg mutt getmail mblaze mailx opensmtpd
 # https://wiki.archlinux.org/index.php/msmtp
-sudo ln -s /usr/bin/msmtp /usr/bin/sendmail
+#sudo ln -s /usr/bin/msmtp /usr/bin/sendmail
 
 gpg --gen-key
 
