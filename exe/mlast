@@ -1,0 +1,4 @@
+#!/usr/bin/env sh
+
+test "$#" -eq 0 && acc=$(grep -B 3 'from[ ]*'"$(mfrom)" ~/.msmtprc | head -n 1 | awk '{print $2}') || acc="${1}"
+mlist "${HOME}/usr/mls/${acc:-gmx-prv}/INBOX/cur" | msort -r -d | mpick 1:10

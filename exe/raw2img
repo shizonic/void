@@ -1,0 +1,10 @@
+#!/usr/bin/env sh
+
+tgt="${2:-jpg}"
+
+printf 'Converting %s to %s\n' "${1}.CR2" "${1}.${tgt}"
+if test "${tgt}" = "jpg"; then
+  dcraw -c -w -h -b 1.0 "${1}.CR2" | pnmtojpeg > "${1}.JPG"
+elif test "${tgt}" = "png"; then
+  dcraw -c -w -h -b 1.0 "${1}.CR2" | pnmtopng > "${1}.PNG"
+fi

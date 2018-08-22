@@ -1,0 +1,6 @@
+#!/usr/bin/env sh
+
+for f in $(find * -type f -name '*.CR2'); do
+  fn=$(printf '%s' "${f}" | sed 's|.CR2||g')
+  raw2img "${fn}" 'jpg'
+done

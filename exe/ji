@@ -1,0 +1,143 @@
+#!/usr/bin/env sh
+#
+# ji = jump instantly (directory changer) 
+#
+# ji <path>     : Goto specific path
+# ji {n,p,b,e}  : Goto {next,prev,first,last} directory (from history)
+# ji m          : Goto most recent directory
+# ji {f,h,r,s}  : Print favorites, history, recent or state
+# ji c          : Clean history and state from current tty
+# ji x          : Go to history entry no x
+#
+
+ji() {
+  tty=$(tty | grep -o '[0-9]*')
+  jd="${HOME}/.ji"
+  jf="${jd}/favorites"
+  jr="${jd}/recent"
+  jt="${jd}/tty"
+  jh="${jt}/${tty}.history"
+  js="${jt}/${tty}.state"
+
+  test -d "${jd}" || mkdir -p "${jd}"
+  test -e "${jf}" || touch "${jf}"
+  test -e "${jr}" || touch "${jr}"
+
+  test -d "${jt}" || mkdir -p "${jt}"
+  test -e "${jh}" || touch "${jh}"
+  test -e "${js}" || touch "${js}"
+
+  if test "$#" -eq 0; then
+    pwd
+    return
+  fi
+
+  #if test "${1}" -gt 0 2&>1 >/dev/null; then
+  #  ji_hist "${1}"
+  #  return
+  #fi
+
+  case "${1}" in
+    b) # beginning
+      cd $(head -n 1 "${jh}") || return 1
+      printf '%s' 0 > "${js}"
+      ;; 
+    e) # end
+      cd $(tail -n 1 "${jh}") || return 1
+      printf '%s' $(wc -l "${jh}" | cut -d ' ' -f 1) > "${js}"
+      ;;
+    n) # next
+      c=$(cat "${js}")
+      test "${c}" = '' && return 1
+      m=$(wc -l "${jh}" | cut -d ' ' -f 1)
+      n=$(($c + 1))
+      test "${n}" -le "${m}" || return
+      d=$(sed "${n}q;d" "${jh}")
+      cd "${d}" || return 1
+      printf '%s' "${n}" > "${js}"
+      ;;
+    p) # previous
+      c=$(cat "${js}")
+      test "${c}" = '' && return 1
+      p=$(($c - 1))
+      test "${p}" -gt 0 || return 1
+      d=$(sed "${p}q;d" "${jh}")
+      cd "${d}" || return 1
+      printf '%s' "${p}" > "${js}"
+      ;;
+    #?) # numbered
+      #  c=$(wc -l "${jh}" | cut -d ' ' -f 1)
+      #  test "${c}" -gt 0 || return
+      #  d=$(sed "${1}q;d" "${jh}")
+      #  echo "${d}"; return
+      #  cd "${d}" || return 1
+      #  printf '%s' "${1}" > "${js}"
+      #  ;;
+    b|p|n|e)
+      lr=$(tail -n 1 "${jr}")
+      if test "${d}" != "${lr}"; then
+        sed -i "s|^${d}$||g; /^$/d" "${jr}" # remove old entries
+        printf '%s\n' "${d}" >> "${jr}" # add it to the end
+      fi
+      ;;
+    c)
+      printf "%s\n" "${PWD}" > "${jh}"
+      printf '%s' 1 > "${js}"
+      ;;
+    m)
+      d=$(tail -n 1 "${jr}")
+      test -e "${d}" || return 1
+      cd "${d}" || return 1
+      printf '%s\n' "${d}" >> "${jh}"
+      printf '%s' $(wc -l "${jh}" | cut -d ' ' -f 1) > "${js}"
+      #ji_rec
+      ;;
+    f) cat "${jf}";;
+    h) tac "${jh}" | sed "s|^${PWD}$|@ &|g; s|^/|  &|g";;
+    r) tac "${jr}" | sed "s|^${PWD}$|@ &|g; s|^/|  &|g";;
+    s) cat "${js}";;
+    *) 
+      t="${1}"; shift
+      t=$(printf '%s' "${t}" | sed "s|~|${HOME}|g")
+      test "${t}" = '.' && t=$(pwd)
+
+      if ! test -e "${t}"; then
+        d=$(tac "${jh}" | grep -m 1 "${t}") # try history
+        if test -z "${d}"; then
+          d=$(tac "${jr}" | grep -m 1 "${t}") # try recent
+          if test -z "${d}"; then
+            d=$(grep -m 1 "${jf}") # try favorites
+          fi
+        fi
+        t="${d}"
+      else
+        t=$(realpath "${t}")
+      fi
+
+      test -n "${t}" || return 1
+      test -e "${t}" || return 1
+
+      lh=$(tail -n 1 "${jh}")
+      if test "${t}" != "${lh}"; then
+        cd "${t}" || return 1
+        printf '%s\n' "${t}" >> "${jh}"
+        printf '%s' $(wc -l "${jh}" | cut -d ' ' -f 1) > "${js}"
+      fi
+
+      lr=$(tail -n 1 "${jr}")
+      if test "${t}" != "${lr}"; then
+        sed -i "s|^${t}$||g; /^$/d" "${jr}" # remove old entries
+        printf '%s\n' "${t}" >> "${jr}" # add it to the end
+      fi
+
+      return 0
+      #ji_cd "${1}"
+      ;;
+  esac
+}
+
+jw() {
+  w=$(which "${1}")
+  test "$?" -gt 0 && return $?
+  ji $(dirname "${w}")
+}

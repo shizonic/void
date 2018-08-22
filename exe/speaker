@@ -1,0 +1,16 @@
+#!/usr/bin/env sh
+
+test -e ~/.asoundrc && rm ~/.asoundrc
+#cp ~/app/cnf/alsa/asoundrc ~/.asoundrc
+#sed -i 's|device.*|device 3|g' ~/.asoundrc
+#cp ~/app/cnf/alsa/hdmi ~/.asoundrc
+
+case "${1}" in
+  h|hdmi)
+    cp /etc/asound.conf ~/.asoundrc
+    sed -i 's|device.*|device 3|g' ~/.asoundrc
+    #cp ~/app/cnf/alsa/hdmi ~/.asoundrc
+    ;;
+esac
+
+#aplay /usr/share/sounds/alsa/Front_Center.wav

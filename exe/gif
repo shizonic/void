@@ -1,0 +1,25 @@
+#!/usr/bin/env sh
+
+INPUT="${1}"
+SKIP="${2:-0}"
+TIME="${3:-9999999}"
+FPS=10
+SCALE=320
+OUTPUT="${INPUT}.gif"
+PALETTE="/tmp/gif-palette.png"
+
+if ! test -f "${INPUT}"; then
+  printf '[%s] Error: File "%s" does not exist!\n' "$(date +'%X')" "${INPUT}"
+  exit 1
+fi
+
+printf '[%s] Generating palette...\n' "$(date +'%X')"
+ffmpeg -y -ss "${SKIP}" -t "${TIME}" -i "${INPUT}" \
+-vf "fps=${FPS},scale=${SCALE}:-1:flags=lanczos,palettegen" "${PALETTE}"
+
+printf '[%s] Generating gif...\n' "$(date +'%X')"
+ffmpeg -ss "${SKIP}" -t "${TIME}" -i "${INPUT}" -i "${PALETTE}" -filter_complex \
+"fps=${FPS},scale=${SCALE}:-1:flags=lanczos[x];[x][1:v]paletteuse" "${OUTPUT}"
+
+rm "${PALETTE}"
+printf '[%s] Finished!\n' "$(date +'%X')"

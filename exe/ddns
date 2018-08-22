@@ -1,0 +1,13 @@
+#!/usr/bin/env sh
+
+test -n "${VULTR_API}" || exit 1
+
+ip=$(curl -s "https://api.ipify.org")
+rec=$(curl -s -H "API-Key: ${VULTR_API}" "https://api.vultr.com/v1/dns/records?domain=cron.world")
+recID=$(echo "${rec}" | jq '.[] | select(.name == "home") | .RECORDID')
+
+test "$#" -gt 0 && printf '%s|%s\n' "${ip}" "${recID}"
+
+res=$(curl -s -H "API-Key: ${VULTR_API}" https://api.vultr.com/v1/dns/update_record --data 'domain=cron.world' --data "RECORDID=${recID}" --data "data=${ip}")
+
+test "$#" -gt 0 && printf '%s' "${res}"

@@ -36,7 +36,7 @@ qem_run() {
     vendor=$(printf '%s' "${ids}" | cut -d ':' -f 1)
     product=$(printf '%s' "${ids}" | cut -d ':' -f 2)
     printf 'iPhone detected on %s:%s!\n' "${vendor}" "${product}"
-    args="-usb -device nec-usb-xhci,id=xhci -device usb-ehci,id=ehci -device usb-host,vendorid=0x${vendor},productid=0x${product},bus=ehci.0,port=1"
+    args="${args} -usb -device nec-usb-xhci,id=xhci -device usb-ehci,id=ehci -device usb-host,vendorid=0x${vendor},productid=0x${product},bus=ehci.0,port=1"
   fi
 
   lay=$(setxkbmap -query | grep layout | awk '{print $2}' | tr -d '\n')

@@ -1,0 +1,25 @@
+#!/usr/bin/env bash
+
+test "$#" -eq 1 || exit 1
+
+pkg="${1}"; shift
+
+cl="https://raw.githubusercontent.com/void-linux/void-packages/master/srcpkgs/${pkg}/template"
+
+curl -s "${cl}" > /tmp/pkg-tpl
+
+unset changelog
+. /tmp/pkg-tpl
+test -z "${changelog}" && exit 1
+
+
+case "${changelog}" in
+  *.md)
+    curl -s "${changelog}" > /tmp/pkg-cl
+    ${EDITOR:-vim}  -c 'set syntax=markdown' /tmp/pkg-cl
+    rm /tmp/pkg-cl
+    ;;
+  *) xdg-open "${changelog}";;
+esac
+
+rm /tmp/pkg-tpl 

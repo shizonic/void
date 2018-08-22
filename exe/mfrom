@@ -1,0 +1,7 @@
+#!/usr/bin/env sh
+# mfrom: easy from-switcher
+
+test "$#" -eq 0 && awk -F ':' '$1 == "Local-Mailbox" {print $2}' ~/.mblaze/profile | xargs && exit
+acc=$(sed -n "/^account[ ]*${1}$/,/^$/p" ~/.msmtprc | awk '$1 == "from" {print $2}')
+test -n "${acc}" && sed -i "s|^Local-Mailbox.*|Local-Mailbox: ${acc}|" ~/.mblaze/profile
+test -n "${acc}" && printf 'Switched to "%s"\n' "${acc}"

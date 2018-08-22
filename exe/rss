@@ -1,0 +1,8 @@
+#!/usr/bin/env sh
+
+test "$#" -le 1 && exit 1
+url="${2}"; name="${1}"; shift 2
+
+rsstail -i 3 -n 0 -u "${url}" | while read line; do
+  notify-send " ${name}"
+done

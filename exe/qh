@@ -1,0 +1,31 @@
+#!/usr/bin/env sh
+# qh: Quick History
+
+qh() {
+  rc="$?"
+  set +o history
+  hst=$(history | tail -n 1 | awk -F ' ' '{$1=""; print $0}' | cut -c 2-)
+  cmd=$(printf '%s' "${hst}" | sed 's|^sudo ||g' | cut -d ' ' -f 1)
+  d="${HOME}/.qh"
+  t=$(tty | grep -o '[0-9]*')
+  th="${d}/tty-${t}.hst"
+  ign="cd;ls;less;more;which;clear;true;false;echo"
+  cst="de;ji;qh"
+  
+  if test "${1}" = 'p'; then
+    tac "${th}"
+    return
+  fi
+
+  test -e "${d}" || mkdir "${d}"
+  test -e "${th}" || touch "${th}"
+
+  #if test "$(tail -n 1 ${th} | cut -d '|' -f 3-)" != "${hst}"; then
+  if ! printf '%s' "${cst};${ign}" | grep -q "${cmd}"; then
+    printf '%s|%s|%s|%s\n' "$(date +%s)" "${rc}" "${PWD}" "${hst}" >> "${th}"
+  fi
+  #fi
+
+  set -o history
+  return ${rc}
+}

@@ -1,0 +1,221 @@
+#!/usr/bin/env sh
+
+#dir=$(dirname $(realpath -P "$0"))
+dir="${HOME}/.irc"
+script=$(basename "${0}")
+
+test "$#" -ge 2 || exit 1
+
+irc_con() {
+  awk -F ',' '$1 == "'"${srvName}"'" {print $0}' "${dir}/servers.csv" |  while IFS=',' read s_key s_addr s_port s_def; do
+    s_con=1
+
+    ! test -d "${HOME}/usr/irc/${s_addr}" && mkdir -p "${HOME}/usr/irc/${s_addr}"
+
+    if test -f "${HOME}/usr/irc/${s_addr}/pid"; then
+      pid=$(cat "${HOME}/usr/irc/${s_addr}/pid")
+      if ps -p "${pid}" 2>&1 >/dev/null; then
+        printf 'Already connected to #%s.\n' "${s_key}"
+        s_con=0
+      else
+        printf 'Deleting old pidfile for #%s.\n' "${s_key}"
+        rm "${HOME}/usr/irc/${s_addr}/pid"
+      fi
+    fi
+
+    if test "${s_con}" -eq 1; then
+      if test -f "${HOME}/usr/irc/${s_addr}/out" && false; then
+        printf 'Archiving history on #%s.\n' "${s_key}"
+        mkdir -p "${HOME}/usr/irc/${s_addr}/history"
+        awk -v dir="${HOME}/usr/irc/${s_addr}/history" '{date=strftime("%Y-%m-%d", $1); print >> dir"/"date".log"}' "${HOME}/usr/irc/${s_addr}/out"
+        test "$?" -eq 0 && truncate -s 0 "${HOME}/usr/irc/${s_addr}/out"
+      fi
+
+      awk -F ',' '$1 == "'"${s_key}"'" {print $0}' "${dir}/idents.csv" | while IFS=',' read i_serv i_key i_name i_nick i_pass i_def; do
+      test "${i_def}" -eq 1 || continue
+      echo "Connecting #${i_key} on #${s_key}"
+
+      if test -z "${i_pass}"; then
+        printf 'Please type password for #%s: ' "${i_key}"
+        read i_pass </dev/tty
+        export i_pass
+      fi
+
+      ii -i "${HOME}/usr/irc" -s "${s_addr}" -p "${s_port}" -n "${i_nick}" -f "${i_name}"  -k 'i_pass' 2>&1 >/dev/null &
+      pid="$!"
+      printf '%s' "${pid}" > "${HOME}/usr/irc/${s_addr}/pid"
+
+      printf 'Indentifying...\n' "$(date +'%X')"
+      tail -n 0 -f "${HOME}/usr/irc/${s_addr}/nickserv/out" | while read ll; do
+        if printf '%s' "${ll}" | grep -q 'You are now identified'; then
+          printf 'Indentified!\n' "$(date +'%X')"
+          kill $(pgrep -f 'tail -n 0')
+        elif printf '%s' "${ll}" | grep -q 'Invalid password'; then
+          printf 'Invalid password!\n' "$(date +'%X')"
+          kill $(pgrep -f 'tail -n 0')
+          kill "${pid}"
+        fi
+      done
+
+      ps -p "${pid}" 2>&1 >/dev/null || exit 1
+
+      awk -F ',' '$1 == "'"${s_key}"'" {print $0}' "${dir}/channels.csv" | while IFS=',' read c_serv c_key c_name c_def; do
+      test "${c_def}" -eq 0 && continue
+      echo "Joining #${c_key} on #${s_key}"
+      test -e "${HOME}/usr/irc/${s_addr}/${c_name}/in" && rm "${HOME}/usr/irc/${s_addr}/${c_name}/in"
+      printf '/join %s\n' "${c_name}" > "${HOME}/usr/irc/${s_addr}/in"
+    done
+  done
+fi
+done
+
+}
+
+irc_read() {
+  srv=$(awk -F ',' '$1 == "'"${srvName}"'" {print $2}' "${dir}/servers.csv")
+  #chn=$(awk -F ',' '$1 == "'"${1}"'" && $2 == "'"${2}"'" {print $3}' "${dir}/channels.csv")
+  nck=$(awk -F ',' '$1 == "'"${srvName}"'" {print $4}' "${dir}/idents.csv")
+
+  (test -z "${srv}" || test -z "${chn}" || test -z "${nck}") && exit 1
+
+  CHANNEL="${HOME}/usr/irc/${srv}/${chn}"
+  NICK="${nck}"
+
+  trap 'stty echo; tput cnorm' HUP INT TERM
+  stty -echo; tput civis
+
+  c_self='\033[0;31m'
+  c_nick='\033[0;33m'
+  c_text='\033[0m'
+  c_ment='\033[0;32m'
+  c_sys='\033[0;2m'
+  c_act='\033[0;3m'
+  c_res='\033[0m'
+
+  t_act='«'
+  t_speak='»'
+  t_join='+'
+  t_left='×'
+  t_mode='*'
+  t_quit=';'
+  t_empty=$(seq -s ' ' 17 | tr -d '[:digit:]')
+
+  m_rows=$(tput lines)
+  m_cols=$(tput cols)
+
+  clear
+  tail -f -n "${m_rows}" "${CHANNEL}/out" | while IFS=' ' read m_time m_nick m_text; do
+    m_nick=$(printf '%s' "${m_nick}" | tr -d '<>' | cut -c 1-12)
+    m_self=$(test "${m_nick}" = "${NICK}" && printf 0 || printf 1)
+    m_sys=$(test "${m_nick}" = '-!-' && printf 0 || printf 1)
+    m_ment=$(printf '%s' "${m_text}" | grep -q "${NICK}" && printf 1 || printf 0)
+    m_act=$(printf '%s' "${m_text}" | grep -q -e '^[^\s\\]*ACTION' && printf 1 || printf 0)
+    if test "${m_act}" -eq 1; then
+      o_text=$(printf '%s' "${m_text}" | cut -d ' ' -f 2-)
+      o_nick=" ${c_nick}${m_nick}${c_res}"
+      printf '%-25b%b%b\n' "${o_nick}" "${c_sys}${t_act}${c_res}" " ${c_act}${o_text}${c_res}"
+    elif test "${m_sys}" -eq 1; then
+      test "${m_ment}" -eq 0 && m_c_text="${c_text}" || m_c_text="${c_ment}"
+      test "${m_self}" -eq 0 && m_c_nick="${c_nick}" || m_c_nick="${c_self}"
+      o_nick=" ${m_c_nick}${m_nick}${c_res}"
+      o_text=$(printf '%s' "${m_text}" | fold -s -w "$((m_cols - 17))" | sed -e "1!s/^/${t_empty}/")
+      o_text=" ${m_c_text}${o_text}${c_res}"
+      printf '%-25b%b%b\n' "${o_nick}" "${c_sys}${t_speak}${c_res}" "${o_text}"
+      test "${m_ment}" -eq 1 && printf 'IR|%s\n' "${chn}" > /tmp/status-fifo
+    else
+      m_nick=$(printf '%s' "${m_text}" | cut -d '(' -f 1 | cut -c 1-12)
+      m_symb=""
+      case "${m_text}" in
+        *join*) m_symb="${t_join}";;
+        *left*) m_symb="${t_left}";;
+        *mode*) m_symb="${t_mode}";;
+        *quit*) m_symb="${t_quit}";;
+      esac
+      o_nick=" ${c_sys}${m_nick}${c_res}"
+      printf '%-24b%b\n' "${o_nick}" "${c_sys}${m_symb}${c_res}"
+    fi
+  done
+}
+
+irc_write() {
+  #srv=$(awk -F ',' '$1 == "'"${1}"'" {print $2}' "${dir}/servers.csv")
+  #chn=$(awk -F ',' '$1 == "'"${1}"'" && $2 == "'"${2}"'" {print $3}' "${dir}/channels.csv")
+
+  (test -z "${srv}" || test -z "${chn}") && return 1 
+
+  CHANNEL="${HOME}/usr/irc/${srv}/${chn}"
+
+  c_chan='\033[0;33m'
+  c_sys='\033[0;2m'
+  c_res='\033[0m'
+
+  t_swt='@'
+  t_chan='#'
+
+  o_chn=$(basename "${CHANNEL}" | tr -d '#')
+
+  while :; do
+    clear
+    printf ' [%b%b]: ' "${c_sys}${t_chan}${c_res}" "${c_chan}${o_chn}${c_res}"
+    read line
+    if printf '%s' "${line}" | grep -q -e '^!'; then
+      line=$(printf '%s' "${line}" | cut -c 2-)
+      irc "${1}" ${line}
+    else
+      printf '%s\n' "${line}" > "${CHANNEL}/in"
+    fi
+  done
+}
+
+srvName="${1}"; act="${2}"; shift 2
+
+srv=$(awk -F ',' '$1 == "'"${srvName}"'" {print $2}' "${dir}/servers.csv")
+chn=$(awk -F ',' '$1 == "'"${srvName}"'" && $2 == "'"${1}"'" {print $3}' "${dir}/channels.csv")
+
+(test -z "${srv}") && exit 1
+
+case "${act}" in
+  i|ident) printf 'identify %s\n' "${chn}" > "${HOME}/usr/irc/${srv}/nickserv/in";;
+  j|join)
+    test -e "${HOME}/usr/irc/${srv}/${chn}/in" && rm "${HOME}/usr/irc/${srv}/${chn}/in" && sleep 0.01
+    printf '/join %s\n' "${chn}" > "${HOME}/usr/irc/${srv}/in"
+    ;;
+  l|leave)
+    test -e "${HOME}/usr/irc/${srv}/${chn}/in" || exit
+    printf '/part %s\n' "${chn}" > "${HOME}/usr/irc/${srv}/in"
+    sleep .01
+    rm "${HOME}/usr/irc/${srv}/${chn}/in"
+    ;;
+  n|nicks)
+    #grep "= ${chn}" "${HOME}/usr/irc/${srv}/out";; # | grep "= ${chan}" | cut -d ' ' -f 4-;;
+    t=$(tac "${HOME}/usr/irc/${srv}/out" | grep -m 1 "= ${chn}" | cut -d ' ' -f 1)
+    tac "${HOME}/usr/irc/${srv}/out" | grep "${t} = ${chn}" | cut -d ' ' -f 4- | tr ' ' '\n' | sort
+    ;;
+  q|quit)
+    pidf="${HOME}/usr/irc/${srv}/pid"
+    if test -f "${pidf}"; then
+      printf '/quit\n' > "${HOME}/usr/irc/${srv}/in"
+      pid=$(cat "${pidf}")
+      wait "${pid}"
+      rm "${HOME}/usr/irc/${srv}/pid"
+      find "${HOME}/usr/irc/${srv}" -type p -name 'in' -delete 
+      printf 'Disconnected!\n'
+    else
+      printf 'Nothing to do!\n'
+    fi
+    ;;
+  c|con) irc_con ${@};;
+  r|read) irc_read ${@};;
+  w|write) irc_write ${@};;
+#  o|out)
+#    tmux \
+#      new-session "sirc-read ${srvName} ${1}" \; \
+#      split-window -l 2 "sirc-speak ${srvName} ${1}" \;
+#      ;;
+  t|tmux)
+    tmux \
+      new-session "irc ${srvName} r ${1}" \; \
+      split-window -h -p 30 "irc ${srvName} n ${1} | less" \; \
+      split-window -f -l 2 "irc ${srvName} w ${1}" \;
+    ;;
+esac

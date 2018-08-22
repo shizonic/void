@@ -12,10 +12,12 @@ mkdir -p ~/.ssh
 chmod 600 ~/.ssh
 touch ~/.ssh/authorized_keys
 
+PORT='something'
+
 echo 'PasswordAuthentication no' >> /etc/ssh/sshd_config
 echo 'ChallengeResponseAuthentication no' >> /etc/ssh/sshd_config
 echo 'PermitRootLogin no' >> /etc/ssh/sshd_config
-echo 'Port 2120' >> /etc/ssh/sshd_config
+echo "Port ${PORT}" >> /etc/ssh/sshd_config
 
 ln -s /etc/sv/sshd /var/service
 

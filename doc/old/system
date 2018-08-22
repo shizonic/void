@@ -26,13 +26,3 @@ vm.dirty_ratio = 10
 vm.swappiness = 10
 EOF
 
-# autofs
-xbps-install autofs
-mkdir /data/mount
-cat >/etc/autofs/auto.master<<EOF
-/data/mount /etc/autofs/auto.drives --timeout=5,defaults,user,exec,uid=1000 --ghost
-EOF
-cat >/etc/autofs/auto.drives<<EOF
-touro-drive -fstype=auto,sync :/dev/disk/by-uuid/5844216D44214F56
-EOF
-ln -s /etc/sv/autofs /var/service

@@ -1,0 +1,18 @@
+#!/usr/bin/env sh
+# x screen locker
+# Use xset s $time to control the timeout when this will run.
+
+if test "$#" -lt 1; then
+  printf "usage: %s cmd\n" "$(basename $0)" 2>&1
+  exit 1
+fi
+cmd="$@"
+
+while :; do
+  if test "$(xssstate -s)" != "disabled"; then
+    to=$(($(xssstate -t) / 1000))
+    test "$to" -le 0 && $cmd || sleep $to
+  else
+    sleep 10
+  fi
+done

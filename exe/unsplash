@@ -1,0 +1,23 @@
+#!/usr/bin/env sh
+
+num="${1:-10}"
+
+res=$(xrandr | grep -o -E 'primary [0-9]*x[0-9]*' | grep -o -E '[0-9x]*')
+imw=$(echo "${res}" | awk -F 'x' '{print $1}')
+imh=$(echo "${res}" | awk -F 'x' '{print $2}')
+
+api="https://api.unsplash.com/photos/random/?w=${imw}&h=${imh}&count=${num}"
+! test -f 'rnd-img.xml' && curl -s "${api}" -H "Authorization: Client-ID ${UNSPLASH_API}" > 'rnd-img.xml'
+
+i=0
+while test "${i}" -lt "${num}"; do
+  url=$(cat 'rnd-img.xml' | jq ".[${i}].urls.custom" | tr -d '"')
+  id=$(cat 'rnd-img.xml' | jq ".[${i}].id" | tr -d '"')
+  fmt=$(echo "${url}" | grep -o -E 'fm=([a-z])*' | cut -d '=' -f 2)
+  fn="photo-${id}.${fmt}"
+  ! test -f "${fn}" && curl -s "${url}" > "${fn}"
+  test -f "${fn}" && printf '%s\n' "${fn}"
+  i=$((i +1))
+done
+
+rm 'rnd-img.xml'

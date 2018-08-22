@@ -1,0 +1,47 @@
+#!/usr/bin/env sh
+
+test "$#" -eq 0 && exit
+act="${1}" && shift
+
+case "${act}" in
+  cmr)
+    printf '[%s] Searching for cameras...\n' "$(date +'%X')"
+    camera=$(gphoto2 --auto-detect | tail -n +3 | awk -F '  ' '{print $1}')
+    
+    test -n "${camera}" || exit 1
+    
+    #sudo gphoto2 --auto-detect -l
+    #printf '[%s] Select folder to download: ' "$(date +'%X')"
+    #read folder
+
+    printf '[%s] Downloading images from %s...\n' "$(date +'%X')" "${camera}"
+    cd ~/usr/med/img/new && sudo gphoto2 -P
+    ;;
+  scn)
+    typ="${1:-jpg}"
+    dir="${HOME}/usr/med/img/scn"
+    fn="scan-$(date +%Y%m%d-%H%M%S).${typ}"
+    
+    printf '[%s] Searching for printers/scanners...\n' "$(date +'%X')"
+    printer=$(scanimage -L | grep -v 'video0' | cut -d ' ' -f 2 | tr -d "\`\'")
+
+    test -n "${printer}" || exit 1
+
+    printf '[%s] Scanning image from %s...\n' "$(date +'%X')" "${printer}"
+    scanimage -d "pixma:MB2300_192.168.2.110" --format "${typ}" > "${dir}/${fn}"
+    
+    printf '[%s] Finished %s\n' "$(date +'%X')" "${dir}/${fn}"
+    ;;
+  prt)
+    if test "$#" -eq 0; then
+      printf '[%s] Error: Please pass files to print!\n' "$(date +'%X')"
+      exit 1
+    fi
+
+    printf '[%s] Searching for printers/scanners...\n' "$(date +'%X')"
+    printer=$(lpstat -p | head -n 1 | cut -d ' ' -f 2)
+
+    printf '[%s] Printing image on %s...\n' "$(date +'%X')" "${printer}"
+    lp -d "${printer}" "${1}"
+    ;;
+esac

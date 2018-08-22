@@ -1,0 +1,131 @@
+Audio, Images & Video
+- ImageMagick
+- ffmpeg
+- gstreamer
+- libdvdcss
+- mpc
+- mpd
+- mpv
+- netpbm
+- youtube-dl
+
+Backup, Restore & Versioning
+- borg
+- git
+- mercurial
+- testdisk
+
+Containers & VMs
+- containers
+- qemu
+- rkt
+- wine-32bit
+- wine-mono
+- winetricks
+
+Display & Window Management
+- compton-git
+- cwm
+- dunst
+- lemonbar-xft
+- libnotify
+- lxappearance
+- mesa-ati-dri-32bit
+- mesa-intel-dri-32bit
+- redshift
+- sent
+- setroot
+- slock
+- sxhkd
+- sxiv
+- tmux
+- xclip
+- xdo
+- xdotool
+- xf86-video-amdgpu
+- xf86-video-intel
+- xorg-apps-7.6_7
+- xorg-fonts-7.6_5
+- xorg-input-drivers-7.6_4
+- xorg-minimal-1.2_2
+- xorg-server-xephyr-1.20.1_6
+- xssstate
+
+Encryption, Password
+- cryptsetup
+- gnupg
+- pass
+- pinentry-gtk
+
+Fonts, Icons & Themes
+- font-awesome5
+- freetype-devel
+- gtk-engine-murrine
+- ttf-ubuntu-font-family
+
+Games
+- hedgewars
+- minecraft
+- steam
+
+Internet, Network & File Sharing
+- avahi
+- cifs
+- firefox
+- fuse-exfat
+- fuse-sshfs
+- getmail
+- ii
+- mailx
+- mblaze
+- mstmp
+- rsync
+- samba-32bit
+- smbclient
+- whois
+
+Printing, Camera
+- cups
+- cups-filters
+- dcraw
+- gphoto2
+- gutenprint
+
+Programming
+- rustup
+
+System
+- acpi
+- alsa-utils
+- base-system
+- dbus
+- dbus-x11
+- gcc
+- gettext
+- grub
+- libtxc_dxtn
+- linux4.16
+- lvm2
+- ntfs-3g
+- ntp
+- pkg-config
+- socklog-void
+- sysstat
+- void-repo-multilib
+- void-repo-nonfree
+
+Utilities
+- cronie
+- dos2unix
+- jq
+- lowdown
+- lsof
+- p7zip
+- sassc
+- tree
+- ufw
+- vim
+- wget
+- xtools
+- zathura
+- zathura-pdf-poppler
