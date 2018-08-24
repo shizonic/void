@@ -22,7 +22,8 @@ str2slug() {
 md2toc() {
   hds=$(grep -E '^#+' "${1}")
   min=$(printf '%s\n' "${hds}" | grep -o -E '#+' | sort -n | head -n 1 | awk '{ print length }')
-  printf '%s\n' "${hds}" | sed "s|^#\{${min}\}||g" | tr -d ' ' | sed 's|#|    |g' | sed -E 's|[^ #*]+|* [&](#&)|g' 
+  printf '%s\n' "${hds}" | sed "s|^#\{${min}\}||g" | sed 's|#|    |g' | sed -E 's|[^ #*]+.*|* [&](#&)|g'
+  #printf '%s\n' "${hds}" | sed "s|^#\{${min}\}||g" | tr -d ' ' | sed 's|#|    |g' | sed -E 's|[^ #*]+|* [&](#&)|g' 
 }
 
 toc2class() {
@@ -143,12 +144,28 @@ upd_site() {
   git pull origin master
 }
 
+new_cont() {
+  test -e "${PWD}/${1}" && exit
+  cat > "${PWD}/${1}" << EOL
+author: 
+tags: 
+title: 
+published: $(date +'%Y-%m-%dT%H:%M:%S')
+template: .tpl
+issue: 
+
+---
+
+EOL
+  vim "${PWD}/${1}"
+}
+
 act='cmp'
 test "$#" -gt 0 && act="${1}" && shift
 
-cd "${dp}/../blg"
-
 case "${act}" in
-  c|cmp) cmp_site;;
-  u|upd) upd_site;;
+  c|cmp) cd "${dp}/../blg"; cmp_site ${@};;
+  u|upd) cd "${dp}/../blg"; upd_site ${@};;
+  n|new) new_cont ${@};;
+  o|open) $BROWSER "${dp}/../blg/${SMAG_DST}/";;
 esac

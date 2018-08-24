@@ -98,6 +98,7 @@ cnt_run() {
   fi
 
   printf '[%s] Container %s running as PID %s ...\n' "$(date +'%X')" "${cntName}" "${cntPID}"
+  test -d "${cntDir}/cnt" || mkdir "${cntDir}/cnt"
   printf '%s' "${cntPID}" > "${cntDir}/cnt/pid"
 }
 
