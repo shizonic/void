@@ -1,0 +1,30 @@
+#!/usr/bin/env sh
+
+. ~/app/cnf/shell/env # load env
+. ~/app/sec/env # load secure env
+
+. ~/app/cnf/shell/hist # cmd history
+
+. ~/app/cnf/shell/defs # load defaults
+. ~/app/cnf/shell/paths # load paths
+
+# skip remaining actions
+# if not run interactively
+echo "$-" | grep -q 'i' || exit 1
+
+. ~/app/cnf/shell/aliases
+. ~/app/cnf/shell/funcs
+
+#. ~/bin/ji # directory switcher
+#. ~/bin/de # .env file handler
+#. ~/bin/qh # quick history
+
+. ~/vos/exe/hist
+
+. ~/app/cnf/shell/vars
+
+hist dc # empty tty dir history
+#hist cc # empty tty cmd history
+
+thm-apply sh $(tty) # apply shell colors
+eval $(dircolors -b $HOME/.dircolors) # apply dir colors

@@ -1,0 +1,33 @@
+#!/usr/bin/env sh
+
+shell_prompt_handle() {
+  rc="$?"
+  cwd=$(pwd | sed "s|${HOME}|~|")
+  pl=$(printf '%s' "${cwd}" | wc -c)
+  if test "${pl}" -gt 20; then
+    p1=$(printf '%s' "${cwd}" | cut -c -10)
+    p2=$(printf '%s' "${cwd}" | rev | cut -c -10 | rev)
+    cwd="${p1}»${p2}"
+  fi
+  PS1="${cwd}"
+  gs=$(git status -s 2>/dev/null)
+  if test "$?" -eq 0; then
+    gb=$(git branch | cut -d ' ' -f 2)
+    ga=$(printf '%s' "${gs}" | grep -c '^??')
+    gc=$(printf '%s' "${gs}" | grep -c '^ M')
+    gd=$(printf '%s' "${gs}" | grep -c '^ D')
+    gm="["
+    test "${ga}" -gt 0 && gm="${gm}+"
+    test "${gd}" -gt 0 && gm="${gm}%"
+    test "${gc}" -gt 0 && gm="${gm}-"
+    gm="${gm}]"
+    PS1="${PS1} @${gb}${gm}"
+  fi
+  test "${rc}" -ne 0 && PS1="${PS1} ${rc}!"
+  jl=$(jobs -r | wc -l)
+  test "${jl}" -gt 0 && PS1="${PS1} ${jl}&"
+  pl=$(printf '%s' "${PS1}" | wc -c)
+  test "${pl}" -ge 25 && PS1="${PS1}\n # " || PS1="${PS1} # "
+}
+
+export PROMPT_COMMAND='shell_prompt_handle'

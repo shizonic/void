@@ -2,11 +2,29 @@
 alignment = center
 follow = keyboard
 frame_width = 1
-geometry = 150x10-5+30
+geometry = 150x10-5+5
 padding = 5
+font = Ubuntu 12
+separator_color = "#383838"
+frame_color = "#383838"
 
 [shortcuts]
 close = ctrl+space
 close_all = ctrl+shift+space
 history = ctrl+grave
 context = ctrl+shift+period
+
+[urgency_low]
+background = "#282828"
+foreground = "#d9bcd7"
+timeout = 5
+
+[urgency_normal]
+background = "#282828"
+foreground = "#b1addc"
+timeout = 10
+
+[urgency_critical]
+background = "#282828"
+foreground = "#bed7f8"
+timeout = 0

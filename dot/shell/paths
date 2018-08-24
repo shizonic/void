@@ -1,0 +1,14 @@
+#!/usr/bin/env sh
+
+if test -z "${PATH_SET}"; then
+  #export PATH="${PATH}:${HOME}/app/dat/stp/cwm"
+  #export PATH="${PATH}:${HOME}/usr/prj/shl/void/bin"
+  #export PATH="${PATH}:${HOME}/usr/prj/shl/sirc"
+
+  export PATH="${PATH}:$(find ~/bin -mindepth 1 -xtype d | tr '\n' ':')"
+  #export PATH="${PATH}:${HOME}/bin"
+
+  export PATH_SET=1
+fi
+
+export RUST_SRC_PATH="$(rustc --print sysroot)/lib/rustlib/src/rust/src/"

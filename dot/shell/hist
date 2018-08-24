@@ -1,0 +1,9 @@
+#!/usr/bin/env sh
+
+unset HISTFILE
+
+#export HISTFILE='/tmp/history'
+#export HISTSIZE=1
+
+#shopt -s histappend
+#set +o history

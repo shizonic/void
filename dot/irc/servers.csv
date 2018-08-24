@@ -1,0 +1,3 @@
+key,addr,port,default
+fn,irc.freenode.net,6667,1
+nx,irc.nixers.net,6667,0

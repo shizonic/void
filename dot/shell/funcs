@@ -1,0 +1,105 @@
+#!/usr/bin/env sh
+
+command_not_found_handle() {
+  cols=$(tput cols)
+  printf "\e[0;90m%${cols}s\e[0m\n" | sed 's| |─|g' 
+  printf '  Could not find cmd "\e[0;31m%s\e[0m" in "\e[0;31m%s\e[0m"!\n' "${1}" "${0}"
+  return 127
+}
+
+directory_not_found_handle() {
+  cols=$(tput cols)
+  printf "\e[0;90m%${cols}s\e[0m\n" | sed 's| |─|g' 
+  printf '  Could not find dir "\e[0;31m%s\e[0m"!\n' "${1}"
+  # in "\e[0;31m%s\e[0m"!\n' "${1}" "${PWD}"
+  return 127
+}
+
+welcome_prompt_handle() {
+  clear
+  . /etc/os-release
+  printf '\n  Welcome to \e[0;31m%s\e[0m, \e[0;31m%s\e[0m!\n\n' "${NAME}" "${USER}"
+}
+
+shell_history_handle() {
+  history -a
+  tail -n 1 /tmp/history >> ~/.history
+}
+
+shell_prompt_handle() {
+  rc="$?"
+  #shell_history_handle
+  dcol='\[\e[0;90m\]'
+  hcol='\[\e[0;31m\]'
+  rcol='\[\e[0m\]'
+  sep=$(printf "%$(tput cols)s" | sed 's| |─|g')
+  cwd=$(pwd | sed "s|${HOME}|~|")
+  pl=$(printf '%s' "${cwd}" | wc -c)
+  if test "${pl}" -gt 20; then
+    p1=$(printf '%s' "${cwd}" | cut -c -10)
+    p2=$(printf '%s' "${cwd}" | rev | cut -c -10 | rev)
+    cwd="${p1}…${p2}"
+  fi
+  PS1="${cwd}"
+  gs=$(git status -s 2>/dev/null)
+  if test "$?" -eq 0; then
+    gb=$(git branch | grep '\*' | cut -d ' ' -f 2 | tr -d '\n')
+    gb="${dcol}@${hcol}${gb}${rcol}"
+    ga=$(printf '%s' "${gs}" | grep -c '^??')
+    gc=$(printf '%s' "${gs}" | grep -c '^ M')
+    gd=$(printf '%s' "${gs}" | grep -c '^ D')
+    gt=$(expr $ga + $gc + $gd)
+    PS1="${PS1} ${gb}"
+    if test "${gt}" -gt 0; then
+      PS1="${PS1}±"
+      #gm="${dcol}[${rcol}"
+      #test "${ga}" -gt 0 && gm="${gm}+"
+      #test "${gd}" -gt 0 && gm="${gm}%"
+      #test "${gc}" -gt 0 && gm="${gm}-"
+      #gm="${gm}${dcol}]${rcol}"
+      #PS1="${PS1} ${gb}${gm}"
+    fi
+  fi
+  test "${rc}" -ne 0 && PS1="${PS1} ${rc}${hcol}!${rcol}"
+  if test -e "${PWD}/.env"; then
+    de=$(grep -c -E '[A-Z_]*=' "${PWD}/.env")
+    test "${de}" -gt 0 && PS1="${PS1} ${de}${hcol}e${rcol}";
+  fi
+  jl=$(jobs -r | wc -l)
+  test "${jl}" -gt 0 && PS1="${PS1} ${jl}${hcol}&${rcol}"
+  pl=$(printf '%s' "${PS1}" | sed 's|\\[\\e\[[0-9;]*m\\]||g' | wc -c)
+  test "${pl}" -ge 30 && PS1="${PS1}\n"
+  PS1="${dcol}${sep}${rcol}\n ${PS1} ${dcol}»${rcol} "
+}
+
+cd() {
+  if test "$#" -gt 0 && test "${1}" != '-'; then
+    while test "$#" -gt 1; do
+      case "${1}" in
+        -L|-P|-e) args="${args} ${1}"; shift 1;;
+        *)
+          printf '  Invalid Option: \e[0;31m%s\e[0m\n' "${1}"
+          return 1
+        ;;
+      esac
+    done
+    if ! test -d "${1}"; then
+      directory_not_found_handle "${1}"
+      return $?
+    fi
+  fi
+  builtin cd ${args} "${1}"
+}
+
+viw() {
+  vim $(which "${1}")
+}
+
+export -f cd
+export -f viw
+
+export -f command_not_found_handle
+export -f directory_not_found_handle
+export -f shell_history_handle
+export -f shell_prompt_handle
+export -f welcome_prompt_handle

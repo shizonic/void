@@ -1,7 +1,6 @@
 #!/usr/bin/env sh
+export STP='cwm'
 
-export STP_NAME='wmutils'
-export THM_NAME='photo-Q0ah6t1Q-Wk' # rnd
-
-printf '' > ~/.xinit.log
-exec "${HOME}/usr/prj/shl/void/stp/stp" 2>&1 >> ~/.xinit.log
+test -d "${HOME}/app/dat/stp/${STP}" || exit 1
+export PATH="${PATH}:${HOME}/app/dat/stp/${STP}"
+exec "${HOME}/app/dat/stp/${STP}/run-wm" 2>&1 > ~/.xinit.log

@@ -1,0 +1,4 @@
+#!/usr/bin/env sh
+
+export PROMPT_COMMAND='hist; shell_prompt_handle'
+export WELCOME_COMMAND='welcome_prompt_handle'

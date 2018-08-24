@@ -1,6 +1,11 @@
 " plugins
 call plug#begin('~/.vim/plugged')
+"Plug 'gabrielelana/vim-markdown'
 Plug 'rust-lang/rust.vim'
+Plug 'autozimu/LanguageClient-neovim', {
+    \ 'branch': 'next',
+    \ 'do': 'bash install.sh',
+    \ }
 call plug#end()
 
 " look & feel
@@ -18,3 +23,17 @@ set softtabstop=2   "Indent by x spaces when pressing <TAB>
 "set autoindent      "Keep indentation from previous line
 "set smartindent     "Automatically inserts indentation in some cases
 "set cindent         "Like smartindent, but stricter and more customisable
+
+" Rust
+" Required for operations modifying multiple buffers like rename.
+set hidden
+
+let g:LanguageClient_serverCommands = {
+  \ 'rust': ['rustup', 'run', 'stable', 'rls'],
+  \ }
+
+nnoremap <F5> :call LanguageClient_contextMenu()<CR>
+" Or map each action separately
+"nnoremap <silent> K :call LanguageClient#textDocument_hover()<CR>
+"nnoremap <silent> gd :call LanguageClient#textDocument_definition()<CR>
+"nnoremap <silent> <F2> :call LanguageClient#textDocument_rename()<CR>

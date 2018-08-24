@@ -1,23 +1,20 @@
 #!/bin/sh
 # user dependent .bashrc file
 
-. "${HOME}/app/sec/env"
+##. "${HOME}/app/sec/env"
 
 # if not running interactively, 
 #  only read secure data into environment
-[[ "$-" != *i* ]] && return
+echo "$-" | grep -q 'i' || exit 1
 
-env | grep -q -E '^SSH_*' && export SSH=1 || SSH=0
+env | grep -q -E '^SSH_*' && export SSH=1 || export SSH=0
 
 # override path by user and setup executeables
-#PATH="${PATH}:${HOME}/bin:${HOME}/dot/utils:${HOME}/app/dat/x/stp/current/exe"
-PATH="${PATH}:${HOME}/usr/prj/shl/void/bin:${HOME}/bin"
-
-#. "${HOME}/app/dat/x/stp/current/conf"
+#PATH="${PATH}:${HOME}/usr/prj/shl/void/bin:${HOME}/usr/prj/shl/sirc:${HOME}/bin"
 
 printf '' > "${HOME}/.bash_login"
 
-eval $(dircolors -b $HOME/.dircolors)
+#eval $(dircolors -b $HOME/.dircolors)
 
 printf '[%s] Loading configs ...\n' "$(date +'%X')" | tee -a "${HOME}/.bash_login"
 for p in "${HOME}/app/cnf/bash/run/"* ; do
@@ -28,4 +25,6 @@ for p in "${HOME}/app/cnf/bash/run/"* ; do
   fi
 done
 
-prompt_message_handle
+. ~/app/cnf/shell/profile
+
+$WELCOME_COMMAND

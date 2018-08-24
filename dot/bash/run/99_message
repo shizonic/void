@@ -33,9 +33,6 @@ shell_prompt_handle() {
     PS1+=$(printh " ⚡${rc} ")
   fi
 
-  if test "${SSH}" -eq 1 && test -x ~/app/dat/x/stp/current/ssh; then
-    PS1+=$(~/app/dat/x/stp/current/ssh)
-  fi
   PS1+="\n"
   PS1+=" [\[\e[0;33m\]${bn}\[\e[0m\]]: "
 

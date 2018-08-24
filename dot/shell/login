@@ -1,0 +1,5 @@
+#!/usr/bin/env sh
+
+. ~/app/cnf/shell/profile
+
+$WELCOME_COMMAND

@@ -1,0 +1,7 @@
+#!/usr/bin/env sh
+
+export STP_NAME='wmutils'
+export THM_NAME='photo-Q0ah6t1Q-Wk' # rnd
+
+printf '' > ~/.xinit.log
+exec "${HOME}/usr/prj/shl/void/stp/stp" 2>&1 >> ~/.xinit.log
