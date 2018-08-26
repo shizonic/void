@@ -1,6 +1,9 @@
 Audio, Images & Video
 - ImageMagick
+- bluez
+- bluez-alsa
 - ffmpeg
+- gimp
 - gstreamer
 - libdvdcss
 - mpc
@@ -26,6 +29,7 @@ Containers & VMs
 Display & Window Management
 - compton-git
 - cwm
+- dmenu
 - dunst
 - lemonbar-xft
 - libnotify
@@ -80,6 +84,7 @@ Internet, Network & File Sharing
 - mblaze
 - mstmp
 - rsync
+- samba
 - samba-32bit
 - smbclient
 - whois
@@ -117,6 +122,7 @@ System
 Utilities
 - cronie
 - dos2unix
+- gotop
 - jq
 - lowdown
 - lsof

@@ -1,0 +1,5 @@
+#!/usr/bin/env sh
+
+. thm-export
+
+dmenu -fn "${fontName}:size=${fontSize}" -nf "${base05}" -nb "${base01}" -sf "${base0A}" -sb "${base01}" "${@}"

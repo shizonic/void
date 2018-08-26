@@ -1,0 +1,60 @@
+#!/usr/bin/env sh
+#nti = notify icon
+
+test "$#" -eq 0 && exit 1
+
+case "${1}" in
+  'BT') printf '';; # battery
+  'BN') printf '';; # brightness
+  'CL') printf '';; # clock
+  'CT') printf '';; # cpu temperature
+  'CU') printf '';; # cpu usage
+  'DE') printf '';; # desktop
+  'DN') printf '';; # ddns
+  'DP') printf '';; # display
+  'DT') printf '';; # date
+  'FW') printf '';; # firewall
+  'GT') printf '';; # gpu temperature
+  'IC') printf '';; # internet connectivity
+  'IR') printf '';; # irc
+  'KL') printf '';; # keyboard
+  'LD') printf '';; # cpu load
+  'MC') printf '';; # microphone
+  'MI') printf '';; # mail incoming
+  'ML') printf '';; # mails (unread)
+  'MS') printf '';; # music
+  'PK') printf '';; # pkg updates
+  'PT') printf '';; # printer
+  'RC') printf '';; # recording
+  'RD') printf '';; # removeable drives
+  'RM') printf '';; # ram space
+  'RX') printf '';; # received data
+  'RS') printf '';; # redshift state
+  'SI') printf '';; # ssh incoming
+  'SO') printf '';; # ssh outgoing
+  'SP') printf '';; # rom space
+  'SS') printf '';; # screen share
+  'ST') printf '';; # sleep time
+  'TX') printf '';; # transferred data
+  'WC') printf '';; # webcam
+  'WL') printf '';; # wifi connectivity
+  'WM') printf '';; # window manager
+  'WT') # weather
+    test "$#" -eq 1 && exit 1
+    sts=$(echo "${2}" | cut -d '|' -f 1)
+    case "${sts}" in
+      Clear) printf "";;
+      Fog|Mist) printf "";;
+      Clouds) printf "";;
+      Rain) printf "";;
+      Snow) printf "";;
+      Thunderstorm|Storm) printf "";;
+    esac
+    ;;
+  'VL') # volume
+    test "$#" -eq 1 && exit 1
+    sts=$(echo "${2}" | cut -d '|' -f 1)
+    vol=$(echo "${2}" | cut -d '|' -f 2)
+    test "${vol}" -eq 0 || test "${sts}" = 'off' && printf '' || printf ''
+    ;; 
+esac

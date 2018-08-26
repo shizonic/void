@@ -1,0 +1,7 @@
+#!/usr/bin/env sh
+
+if test "$#" -gt 0; then
+  grep "${1}" /proc/net/wireless | awk '{ print int($3 * 100 / 70) }'
+else
+  tail -n 1 /proc/net/wireless | awk '{ print int($3 * 100 / 70) }'
+fi

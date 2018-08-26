@@ -1,0 +1,6 @@
+#!/usr/bin/env sh
+
+pubIP=$(curl -s "https://api.ipify.org")
+dnsIP=$(getent hosts home.cron.world | cut -d ' ' -f 1)
+
+test "${pubIP}" = "${dnsIP}" && printf '0' || echo '1'

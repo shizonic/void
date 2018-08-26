@@ -1,0 +1,23 @@
+#!/usr/bin/env sh
+
+mpvOpts=''
+
+catLst=$(find ~/usr/med/mov -maxdepth 1 -type d -printf '%P\n')
+cat=$(printf '%s\n' "${catLst}" | run-menu)
+
+test -z "${cat}" && exit
+
+movLst=$(cd ~/usr/med/mov/${cat}; find -not -name '*.srt' -printf '%P\n' -type f | cut -d '-' -f 1 | tr '_' ' ' | sort)
+mov=$(printf '%s\n' "${movLst}" | run-menu -l 50)
+
+test -z "${mov}" && exit
+
+movFilePat=$(printf '%s' "${mov}" | tr ' ' '_')
+movFiles=$(find ~/usr/med/mov/${cat} -name "*${movFilePat}*" -type f)
+
+vidFile=$(printf '%s\n' "${movFiles}" | grep -v '.srt')
+subFile=$(printf '%s\n' "${movFiles}" | grep '.srt')
+
+test -n "${subFile}" && mpvOpts="--sub-file=${subFile}"
+
+mpv ${mpvOpts} "${vidFile}"

@@ -1,0 +1,120 @@
+#!/bin/sh
+
+test -e "/tmp/status-fifo" && rm -f "/tmp/status-fifo"
+test -f "/tmp/status-alert" && rm -f "/tmp/status-alert"
+touch "/tmp/status-alert" || exit 1
+mkfifo "/tmp/status-fifo" || exit 1
+
+trap "rm -f /tmp/status-fifo /tmp/status-alert" EXIT
+
+addAlert() {
+  grep -q "${1}" "/tmp/status-alert" && return 1
+  printf '%s\n' "${1}" >> "/tmp/status-alert"
+}
+
+remAlert() {
+  ! grep -q "${1}" "/tmp/status-alert" && return 1
+  sed -i "\~${1}~d" "/tmp/status-alert"
+}
+
+handlePart() {
+  if test "${1}" -eq 0; then
+    addAlert "${part}"
+    printf '%%{F%s}%s%%{F-} ' "${col}" "${ico}"
+    #printf '%s ' "${ico}"
+  else
+    remAlert "${part}"
+    printf ''
+  fi
+}
+
+. thm-export
+sbght=$(cat /tmp/status-brightness)
+tbght=$(cat /tmp/brightness)
+
+if test "${sbght}" -lt 40; then
+  test "${tbght}" -lt 50 && col="${base06}" || col="${base01}"
+elif test "${sbght}" -lt 70; then
+  test "${tbght}" -lt 50 && col="${base05}" || col="${base02}"
+else
+  test "${tbght}" -lt 50 && col="${base04}" || col="${base03}"
+fi
+
+#if test "${sbght}" -lt 35; then
+#  test "${wbght}" -lt 50 && col="${base03}" || col="${base05}"
+#elif test "${sbght}" -lt 70; then
+#  col="${base04}"
+#else
+#  test "${wbght}" -lt 50 && col="${base05}" || col="${base03}"
+#fi
+
+while :; do
+  while read -r line; do
+    part=$(printf '%s' "${line}" | cut -c 1-2)
+    val=$(printf '%s' "${line}" | cut -c 4-)
+    test "${part}" = 'WM' && val=$(printf '%s' "${line}" | cut -c 3-)
+    ico=$(status-icon "${part}" "${val}")
+    icoStr="%{F${base09}}${ico}%{F-} "
+
+    #test "${val}" = '' && continue
+
+    case "${part}" in
+      'BN') bnStr=$(handlePart $(test "${val}" -le 25; printf "$?"));; # brightness
+      'BT') btStr=$(handlePart $(test "${val}" -le 10; printf "$?"));; # battery
+      'CL') clStr="${ico} ${val} ";; # clock
+      'CT') ctStr=$(handlePart $(test "${val}" -ge 75; printf "$?"));; # cpu temperature
+      'CU') cuStr=$(handlePart $(test "${val}" -ge 75; printf "$?"));; # cpu usage
+      'DN') dnStr=$(handlePart $(test "${val}" -eq 1; printf "$?"));; # dynamic dns
+      'DP') notify-send -a "${part}" -u low "${ico} ${val}";; # display
+      'DT') dtStr="${ico} ${val} ";; # date
+      'FW') fwStr=$(handlePart $(test "${val}" -eq 0; printf "$?"));; # firewall
+      'GT') gtStr=$(handlePart $(test "${val}" -ge 75; printf "$?"));; # gpu temperature
+      'IC') icStr=$(handlePart $(test "${val}" -eq 0; printf "$?"));; # Internet Connectivity
+      'IR') notify-send -a "${part}" -u low "${ico} ${val}";; # irc message
+      'KL') notify-send -a "${part}" -u low "${ico} ${val}";; # keyboard
+      'LD') ldStr=$(handlePart $(test "${val}" -ge 200; printf "$?"));; # workload
+      'MC') mcStr=$(handlePart $(test "${val}" -eq 1; printf "$?"));; # microhpone activitiy
+      'MI') notify-send -a "${part}" -u low "${ico} ${val}";; # mail incoming
+      'ML') mlStr=$(handlePart $(test "${val}" -gt 0; printf "$?"));; # mails unread
+      'MS') notify-send -a "${part}" -u low "${ico} ${val}";; # music playback
+      'PK') pkStr=$(handlePart $(test "${val}" -ge 10; printf "$?"));; # package updates
+      'PT') ptStr=$(handlePart $(test "${val}" -eq 1; printf "$?"));; # printjobs
+      'RC') rcStr=$(handlePart $(test "${val}" -eq 1; printf "$?"));; # recording
+      'RD') notify-send -a "${part}" -u low "${ico} ${val}";; # removeable drive
+      'RM') rmStr=$(handlePart $(test "${val}" -ge 90; printf "$?"));; # ram space
+      'RX') rxStr=$(handlePart $(test "${val}" -ge 2500; printf "$?"));; # received data
+      'RS') rsStr=$(handlePart $(test "${val}" -ne 0; printf "$?"));; # redshift state
+      'SI') siStr=$(handlePart $(test "${val}" -ne 0; printf "$?"));; # SSH connections in
+      'SO') soStr=$(handlePart $(test "${val}" -ne 0; printf "$?"));; # SSH connections out
+      'SS') ssStr=$(handlePart $(test "${val}" -ne 0; printf "$?"));; # screen share
+      'ST') stStr=$(handlePart $(test "${val}" -ne 0; printf "$?"));; # sleep time
+      'TX') txStr=$(handlePart $(test "${val}" -ge 2500; printf "$?"));; # transmitted data
+      'WC') wcStr=$(handlePart $(test "${val}" -eq 1; printf "$?"));; # webcam
+      'WL') wlStr=$(handlePart $(test "${val}" -le 35; printf "$?"));; # wlan connectivity
+      'VL') # volume
+          status=$(echo "${val}" | cut -d '|' -f 1)
+          volume=$(echo "${val}" | cut -d '|' -f 2)
+          vlStr=$(handlePart $(test "${status}" = 'off'; printf "$?"))
+          
+          if test "${status}" = 'off'; then
+            notify-send -a "${part}" -u 'low' "${ico} mute"
+          else
+            notify-send -a "${part}" -u 'low' "${ico} ${volume}%"
+          fi
+          ;;
+    esac
+
+    system="${btStr}${rmStr}${spStr}${cuStr}${ctStr}${gtStr}${mtStr}"
+    safety="${fwStr}${pkStr}${siStr}${soStr}${rcStr}${ssStr}"
+    network="${dnStr}${rxStr}${txStr}${wlStr}${icStr}"
+    media="${mcStr}${wcStr}${vlStr}"
+    status="${rsStr}${bnStr}${stStr}${ptStr}"
+
+    rgtStr="${media}${network}${system}${safety}"
+    cenStr="${status}"
+    lftStr=""
+    
+    #printf '%s\n' "%{l}${lftStr}%{c}${cenStr}%{r}${rgtStr}"
+    printf '%s\n' "%{c}${lftStr}${cenStr}${rgtStr}"
+  done < "/tmp/status-fifo"
+done

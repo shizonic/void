@@ -92,10 +92,12 @@ hist() {
         fi
       fi
 
-      printf '%s|%s|%s|%s\n' "$(date +%s)" "${rc}" "${PWD}" "${cmd}" >> "${thc}"
-      if test "${cmd}" != "${ghcl}" && test "${cmd}" != 'hist'; then
-        sed -i "s|^${cmd}$||g; /^$/d" "${ghc}"
-        printf '%s\n' "${cmd}" >> "${ghc}"
+      if test "${cmd}" != 'hist'; then
+        printf '%s|%s|%s|%s\n' "$(date +%s)" "${rc}" "${PWD}" "${cmd}" >> "${thc}"
+        if test "${cmd}" != "${ghcl}"; then
+          #sed -i "s|^${cmd}$||g; /^$/d" "${ghc}"
+          printf '%s\n' "${cmd}" >> "${ghc}"
+        fi
       fi
       ;;
   esac

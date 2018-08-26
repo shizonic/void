@@ -1,0 +1,42 @@
+#!/usr/bin/env sh
+# ntp = notify period
+
+case "${1}" in
+  'BT') printf '60';; # battery
+  'BN') printf '60';; # brightness
+  'CL') printf '60';; # clock
+  'CT') printf '5';; # cpu temperature
+  'CU') printf '5';; # cpu usage
+  'DE') printf '1';; # desktop
+  'DN') printf '300';; # ddns
+  #'DP') printf '5';; # display
+  'DT') printf '600';; # date
+  'FW') printf '5';; # firewall
+  'GT') printf '5';; # gpu temperature
+  'IC') printf '5';; # internet connectivity
+  #'IR') printf '60';; # irc
+  'KL') printf '5';; # keyboard
+  'LD') printf '5';; # cpu load
+  'MC') printf '5';; # microphone
+  'ML') printf '5';; # mails
+  'MS') printf '5';; # music
+  'PK') printf '900';; # pkg updates
+  'PT') printf '5';; # printer
+  'RC') printf '5';; # recording
+  #'RD') printf '5';; # removeable drives
+  'RM') printf '15';; # ram space
+  'RX') printf '5';; # received data
+  'RS') printf '60';; # redshift state
+  'SI') printf '3';; # ssh incoming
+  'SO') printf '3';; # ssh outgoing
+  'SP') printf '60';; # rom space
+  'SS') printf '5';; # screen share
+  'ST') printf '60';; # sleep time
+  'TX') printf '5';; # transferred data
+  'WC') printf '5';; # webcam
+  'WL') printf '5';; # wifi connectivity
+  'WT') printf '600';; # weather
+  #'VL') printf '60';; # volume
+  *) printf '0';; # unknown
+esac
+

@@ -1,0 +1,3 @@
+#!/usr/bin/env sh
+
+getent hosts github.com | cut -d ' ' -f1 | wc -l

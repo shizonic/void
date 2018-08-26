@@ -1,0 +1,9 @@
+#!/usr/bin/env sh
+
+chc=$(printf 'exec\npass\nmovie\nsteam\ntwitch\nwine\n' | run-menu ${@})
+
+case "${chc}" in
+  exec) launch-menu;;
+  movie) movie-menu;;
+  steam) steam-menu;;
+esac

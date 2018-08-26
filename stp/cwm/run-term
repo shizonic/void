@@ -1,0 +1,5 @@
+#!/usr/bin/env sh
+
+. thm-export
+
+st -f "${symbName}:size=${symbSize}" -f "${monoName}:size=${monoSize}" "${@}" 2>&1 > /tmp/st.log

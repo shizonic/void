@@ -1,0 +1,19 @@
+#!/usr/bin/env sh
+
+# passed wallpaper
+if test -f "${1}"; then
+  wp=$(realpath "${1}")
+  shift 1;
+else
+# random wallpaper
+  wp=$(find "${HOME}/usr/med/img/wpr" -maxdepth 1 -type f | sort -R | head -n 1)
+fi
+
+setroot -z "${wp}"
+printf '%s' "${wp}" > /tmp/wallpaper
+
+. thm-generate  # generate theme
+thm-apply xrs # apply theme to xrs
+. thm-export
+thm-apply cnf # apply theme to config
+thm-apply gtk # apply theme to gtk

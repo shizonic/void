@@ -1,0 +1,5 @@
+#!/usr/bin/env sh
+
+. thm-export
+
+lemonbar -f "${symbName} Solid-${symbSize}" -f "${symbName} Regular-${symbSize}" -f "${fontName}-${fontSize}" -F "${base05}" -B "${base00}" "${@}"

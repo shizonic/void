@@ -1,0 +1,4 @@
+#!/usr/bin/env sh
+
+h=$(date +'%H')
+test "${h}" -ge 8 && test "${h}" -le 21 && printf 0 || printf 1

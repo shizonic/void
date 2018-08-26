@@ -1,0 +1,5 @@
+#!/usr/bin/env sh
+
+. thm-export
+
+run-bar -p -d -B '#00FFFFFF' -F "${base07}"

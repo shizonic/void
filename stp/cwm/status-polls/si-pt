@@ -1,0 +1,3 @@
+#!/usr/bin/env sh
+
+test "$(lpstat -o | wc -l)" -gt 0 && printf 1 || printf 0

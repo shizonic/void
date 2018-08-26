@@ -1,0 +1,17 @@
+#!/usr/bin/env sh
+
+pgrep dunst && pkill dunst
+pgrep status-writer && pkill status-writer
+pgrep status-reader && pkill status-reader
+pgrep status-bar && pkill status-bar
+pgrep lemonbar && pkill lemonbar
+
+dunst &       # notifications   : ~/.config/dunst/dunstrc
+pgrep cwm 2>&1 >/dev/null && kill -HUP $(pgrep cwm) # reload cwm config
+
+xrdb ~/.Xresources # reload xrs
+. thm-export
+thm-apply sh # reload all terminals
+
+status-reader | status-bar & # statusbar
+status-writer # status polling

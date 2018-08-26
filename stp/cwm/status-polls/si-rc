@@ -1,0 +1,3 @@
+#!/usr/bin/env sh
+
+test -f /tmp/record.mkv && printf 1 || printf 0

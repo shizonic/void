@@ -1,0 +1,17 @@
+#!/usr/bin/env sh
+
+xset +fp ~/.fonts # more fonts
+xset fp rehash # reload fonts
+xset -dpms # disable screen lock
+#xset dpms 600 1200 1800 # 
+xsetroot -cursor_name left_ptr # set default cursor
+manage-displays & # display manager
+
+thm-change # change configs
+thm-reload # reload programs
+
+redshift &    # color correct   : ~/.config/redshift.conf
+gpg-agent --daemon # gpg agent  ! ~/.gnupg/gpg-agent.conf
+compton -b &  # transparency    : ~/.compton.conf
+
+cwm           # window manager  : ~/.cwmrc

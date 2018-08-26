@@ -1,0 +1,30 @@
+#!/bin/sh
+
+dp=$(dirname $(realpath $0))
+me=$(realpath $0)
+
+for pid in $(pidof -x "${me}"); do
+  test "${pid}" != $$ && kill -9 "${pid}"
+done
+
+test -p "/tmp/status-fifo" || exit 1
+
+ntwpoll() {
+  script="${1}"
+  short=$(basename "${script}" | cut -d '-' -f 2 | tr '[a-z]' '[A-Z]')
+  period=$(status-period "${short}")
+  
+  test "${period}" -eq 0 && return
+
+  while :; do
+    printf '%s|%s\n' "${short}" $("${script}")
+
+    sleep "${period}"
+  done
+} > "/tmp/status-fifo"
+
+sleep 1.
+
+for script in $(find "${dp}/status-polls" -type f); do
+  test -x "${script}" && ntwpoll "${script}" &
+done

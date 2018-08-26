@@ -82,13 +82,14 @@ while test "$#" -gt 0; do
       knl=$(uname -r)
       arc=$(uname -m)
       pkg=$(xbps-query -l | wc -l)
+      man=$(xbps-query -m | wc -l)
       libc=$(ldd --version | head -n 1 | cut -d '(' -f 2- | tr -d '()')
       uptm=$(uptime | awk -F'( |,|:)+' '{print $6"d,",$8"h and",$9"m"}')
       newText 'type' "${os}"
       newText 'krnl' "${knl}"
       newText 'arch' "${arc}"
       newText 'host' "${HOSTNAME}"
-      newText 'pkgc' "${pkg}"
+      newText 'pkgc' "${pkg} (${man}*)"
       newText 'libc' "${libc}"
       newText 'uptm' "${uptm}"
       ;;

@@ -1,0 +1,62 @@
+#!/usr/bin/env sh
+wall="$(cat /tmp/wallpaper)"
+crop='/tmp/wallpaper-cropped'
+brght='/tmp/status-brightness'
+
+# cut top part so we can calculate top brightness
+width=$(convert "${wall}" -format "%w" info:)
+convert "${wall}" -crop "${width}x25+0+0" +repage "${crop}"
+
+R=$(convert "${crop}" -scale 1x1! -format "%[fx:mean.r]" info:)
+G=$(convert "${crop}" -scale 1x1! -format "%[fx:mean.g]" info:)
+B=$(convert "${crop}" -scale 1x1! -format "%[fx:mean.b]" info:)
+bgt=$(echo "(0.299 * $R + 0.587 * $G + 0.114 * $B) * 100" | bc -s | cut -d '.' -f 1)
+
+rm "${crop}"
+printf '%s' "${bgt}" > "${brght}"
+
+args="--no-preview --no-bg-img"
+cols=$(colorz -n 8 ${args} "${wall}")
+dc=$(printf '%s' "${cols}" | cut -d ' ' -f 1)
+lc=$(printf '%s' "${cols}" | cut -d ' ' -f 2)
+
+bgt=$(convert "${wall}"  -colorspace gray -format "%[fx:100*mean]%%" info: | cut -d '.' -f 1)
+printf '%s\n' "${bgt}" > /tmp/brightness
+
+# Bright image, Dark theme
+if test "${bgt}" -ge 70; then
+  printf '%s\n' "${dc}" > /tmp/theme
+  export base00="#f8f8f8"
+  export base01="#e8e8e8"
+  export base02="#d8d8d8"
+  export base03="#b8b8b8"
+  export base04="#585858"
+  export base05="#383838"
+  export base06="#282828"
+  export base07="#181818"
+else # Dark image, bright theme
+  printf '%s\n' "${lc}" > /tmp/theme
+  export base00="#181818"
+  export base01="#282828"
+  export base02="#383838"
+  export base03="#585858"
+  export base04="#b8b8b8"
+  export base05="#d8d8d8"
+  export base06="#e8e8e8"
+  export base07="#f8f8f8"
+fi
+export base08=$(sed -n '1p' "/tmp/theme")
+export base09=$(sed -n '2p' "/tmp/theme")
+export base0A=$(sed -n '3p' "/tmp/theme")
+export base0B=$(sed -n '4p' "/tmp/theme")
+export base0C=$(sed -n '5p' "/tmp/theme")
+export base0D=$(sed -n '6p' "/tmp/theme")
+export base0E=$(sed -n '7p' "/tmp/theme")
+export base0F=$(sed -n '8p' "/tmp/theme")
+
+export fontName="$(grep '#define fontName' ~/app/cnf/x/Xfonts | cut -d ' ' -f 3-)"
+export fontSize="$(grep '#define fontSize' ~/app/cnf/x/Xfonts | cut -d ' ' -f 3-)"
+export monoName="$(grep '#define monoName' ~/app/cnf/x/Xfonts | cut -d ' ' -f 3-)"
+export monoSize="$(grep '#define monoSize' ~/app/cnf/x/Xfonts | cut -d ' ' -f 3-)"
+export symbName="$(grep '#define symbName' ~/app/cnf/x/Xfonts | cut -d ' ' -f 3-)"
+export symbSize="$(grep '#define symbSize' ~/app/cnf/x/Xfonts | cut -d ' ' -f 3-)"

@@ -1,0 +1,8 @@
+#!/bin/sh
+
+test "$#" -gt 0 && amixer -q sset Master "${1}"
+
+status=$(amixer get Master | grep -o -w 'o[nf]*')
+volume=$(amixer get Master | grep -o -E '[0-9]{1,3}%' | tr -d '%')
+
+printf 'VL|%s|%s\n' "${status}" "${volume}" > /tmp/status-fifo

@@ -1,0 +1,9 @@
+#!/usr/bin/env sh
+
+game=$(printf 'N++\n' | run-menu -l 50)
+
+test -z "${game}" && exit
+
+case "${game}" in
+  'N++') steam steam://run/230270;;
+esac

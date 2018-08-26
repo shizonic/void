@@ -1,0 +1,3 @@
+#!/usr/bin/env sh
+
+mlist -s ~/usr/mls/*/INBOX | wc -l
