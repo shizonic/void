@@ -1,16 +1,21 @@
-Audio, Images & Video
+Audio, Documents, Images & Video
 - ImageMagick
+- beets
 - bluez
 - bluez-alsa
 - ffmpeg
 - gimp
 - gstreamer
 - libdvdcss
-- mpc
-- mpd
 - mpv
 - netpbm
+- rubber (LATEX)
 - youtube-dl
+
+Tasks, Time Tracking, Ledger
+- ledger
+- task
+- timewarrior
 
 Backup, Restore & Versioning
 - borg
@@ -80,13 +85,16 @@ Internet, Network & File Sharing
 - fuse-sshfs
 - getmail
 - ii
+- khal
+- khard
 - mailx
 - mblaze
-- mstmp
+- msmtp
 - rsync
 - samba
 - samba-32bit
 - smbclient
+- vdirsyncer
 - whois
 
 Printing, Camera
@@ -95,6 +103,7 @@ Printing, Camera
 - dcraw
 - gphoto2
 - gutenprint
+- ufraw
 
 Programming
 - rustup
@@ -121,8 +130,10 @@ System
 
 Utilities
 - cronie
+- cpufrequtils
 - dos2unix
 - gotop
+- fd
 - jq
 - lowdown
 - lsof

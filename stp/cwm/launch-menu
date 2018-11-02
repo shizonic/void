@@ -1,4 +1,7 @@
 #!/usr/bin/env sh
 
-cmd=$("${SHELL}" -c 'compgen -c | sort -u' | run-menu)
-"${SHELL}" -c "${cmd}" 2>&1 >/dev/null &
+#cmd=$("${SHELL}" -c 'compgen -c | sort -u' | run-menu)
+cmd=$(printf 'firefox\nhedgewars\nlxappearance\nminecraft\nsteam\nzathura' | run-menu)
+#tf=$(mktemp "/tmp/${cmd}-XXXXXX.log")
+tf='/dev/null'
+test -n "${cmd}" && "${SHELL}" -c "${cmd}" 2>&1 >"${tf}"

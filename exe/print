@@ -1,0 +1,52 @@
+#!/usr/bin/env sh
+
+ps="/tmp/print.ps"
+pf="/tmp/print-files.txt"
+
+touch "${pf}"
+
+# media=A4
+# page-ranges=1-4,7,9-12
+# number-up=16
+
+if test -z "${PRINTER}"; then
+  printf '[%s] Searching for printers/scanners...' "$(date +'%X')"
+  PRINTER=$(lpstat -l | head -n 1 | cut -d ' ' -f 2)
+  printf ' done!\nFound "%s".\n' "${PRINTER}"
+fi
+if test -z "${PRINTER}"; then
+  printf '[%s] ERROR "$%s" is not set.\n' "$(date +'%X')" 'PRINTER'
+  exit 1
+fi
+
+if test "$#" -eq 0; then
+  lpstat -p "${PRINTER}" -s
+  exit $?
+fi
+
+while test "$#" -gt 0; do
+  fn="${1}"; shift
+  if ! test -f "${fn}"; then
+    opts="${opts} ${fn}"
+    continue
+  fi
+  printf '%s\n' "${fn}" >> "${pf}"
+done
+
+#printf '[%s] DEBUG options: "%s"\n' "$(date +'%X')" "${opts}"
+
+cat "${pf}" | while read fn; do
+  ext=$(printf '%s' "${fn}" | awk -F '.' '{print $NF}')
+  case "${ext}" in
+    pdf)
+      printf '[%s] Generating "%s" using [%s] ...' "$(date +'%X')" "${ps}" "${ext}" 
+      pdf2ps "${fn}" "${fn}.ps"; ps="${fn}.ps"
+      ;;
+    *) ps="${fn}";;
+  esac
+  printf ' done!\n'
+  printf '[%s] Printing "%s"\n' "$(date +'%X')" "${fn}" 
+  lp -d "${PRINTER}" ${opts} "${ps}"
+done
+
+rm "${pf}"

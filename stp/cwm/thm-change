@@ -17,3 +17,8 @@ thm-apply xrs # apply theme to xrs
 . thm-export
 thm-apply cnf # apply theme to config
 thm-apply gtk # apply theme to gtk
+
+cat /tmp/theme | while read color; do
+  convert -size 50x50 "xc:$color" +depth miff:-
+done | montage - -geometry +0+0 /tmp/palette.png
+

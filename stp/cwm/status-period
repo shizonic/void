@@ -3,6 +3,7 @@
 
 case "${1}" in
   'BT') printf '60';; # battery
+  'BK') printf '10';; # backup
   'BN') printf '60';; # brightness
   'CL') printf '60';; # clock
   'CT') printf '5';; # cpu temperature

@@ -70,12 +70,14 @@ hist() {
         dc) rm "${thd}";; # clear dirs
         da) cd "${ghdl}";; # apply last global dir
         d) tac "${thd}";; # print dirs
+        dg) tac "${ghd}";; # print global dirs
       esac
       ;;
     c*)
       case "${1}" in
         cc) rm "${thc}";; # clear cmds
         c) tac "${thc}";; # print cmds
+        cg) tac "${ghc}";; # print global cmds
       esac
       ;;
     "")

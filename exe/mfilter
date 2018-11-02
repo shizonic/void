@@ -1,0 +1,9 @@
+#!/usr/bin/env sh
+# mfilter: filter messages automatically
+
+flt="${MBLAZE:-$HOME/.mblaze}/filter"
+
+for f in $(find "${flt}" -type f); do
+  printf 'Processing filter "%s" ...' $(basename "${f}")
+  printf ' done\n'
+done

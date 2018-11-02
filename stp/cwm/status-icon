@@ -4,8 +4,9 @@
 test "$#" -eq 0 && exit 1
 
 case "${1}" in
-  'BT') printf '';; # battery
+  'BK') printf '';; # backup
   'BN') printf '';; # brightness
+  'BT') printf '';; # battery
   'CL') printf '';; # clock
   'CT') printf '';; # cpu temperature
   'CU') printf '';; # cpu usage

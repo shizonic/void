@@ -1,0 +1,9 @@
+#!/usr/bin/env sh
+
+printf '%s\n' 'Tasks:'
+task due:today list
+
+printf '\n'
+
+printf '%s\n' 'Events:'
+khal list today | tail -n +2

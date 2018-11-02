@@ -1,4 +1,3 @@
 #!/usr/bin/env sh
 
-fuser /dev/video0 > /dev/null
-test "$?" -eq 0 && printf 1 || printf 0
+fuser -s /dev/video0 && printf 1 || printf 0

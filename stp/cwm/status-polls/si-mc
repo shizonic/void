@@ -1,4 +1,3 @@
 #!/usr/bin/env sh
 
-fuser /dev/snd/pcmC0D0c > /dev/null
-test $? -eq 0 && printf 1 || printf 0
+fuser -s /dev/snd/pcmC0D0c && printf 1 || printf 0

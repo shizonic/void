@@ -1,0 +1,68 @@
+#!/usr/bin/env sh
+
+#if test "$#" -gt 0; then 
+#  chc1="${1}"; shift
+#  if test "$#" -gt 0; then
+#    chc2="${1}"; shift
+#  fi
+#  if test "$#" -gt 0; then
+#    chc3="${1}"; shift
+#  fi
+#fi
+#test -z "${chc1}" && 
+chc1=$(printf 'wc3\nwc3-ptr\nLauncher' | run-menu -l 50)
+
+case "${chc1}" in
+  Launcher)
+    export WINEPREFIX="${HOME}/app/dat/wine/prefix/wc3"
+    #DRI_PRIME=1 wine ~/app/dat/wine/apps/Battle.net-Setup.exe
+    DRI_PRIME=1 wine "${HOME}/app/dat/wine/apps/Battle.net/Battle.net Launcher.exe"
+    unset WINEPREFIX
+    ;;
+  wc3|wc3-ptr)
+    #echo "${chc1} | ${chc2} | ${chc3}"
+    export WINEPREFIX="${HOME}/app/dat/wine/prefix/${chc1}"
+    w3xDir="${WINEPREFIX}/drive_c/Program Files/Warcraft III"
+    test "${chc1}" = 'wc3-ptr' && w3xDir="${w3xDir} Public Test" 
+    #args="-window -opengl"
+    #args="${args} -d3d11"
+    #args="-graphicsapi OpenGL2"
+    args="-nativefullscr"
+    chc2=$(printf 'Start\nLaunch\nUpdate\nEditor\nLogs\nKill\nRegEdit\nWineCfg\nWineTricks' | run-menu -l 50)
+    case "${chc2}" in
+      'Update')
+        cd "${HOME}/app/dat/wine/apps"
+        lang="enUS"
+        # https://www.battle.net/download/getInstallerForGame?os=win&locale=deDE&version=PTR&gameProgram=WARCRAFT_3"
+        url="https://www.battle.net/download/getInstallerForGame?os=win&locale=${lang}&version=PTR&gameProgram=WARCRAFT_3"
+        curl -s -L "${url}" > 'Warcraft-III-Public-Test-Setup.exe'
+        #ls -ltr "${HOME}/app/dat/wine/apps"
+        wine 'Warcraft-III-Public-Test-Setup.exe'
+        ;;
+      'Editor') DRI_PRIME=1 wine "${w3xDir}/World Editor.exe" 2>&1 | tee "${WINEPREFIX}/last-run.log";;
+      #'Errors') run-term "${SHELL} -c \"cd '${WINEPREFIX}/drive_c/users/anon/Meine Dokumente/Warcraft III/Errors'\"";;
+      #'Install') DRI_PRIME=1 wine ~/app/dat/wine/apps/Warcraft-III-Setup_new.exe;;
+      #'Warcraft 3 Update') DRI_PRIME=1 wine "${HOME}/app/dat/wine/apps/w3u/Warcraft-III-Setup.exe";;
+      'Clean') test "${chc3}" = "clean" && test -e "${WINEPREFIX}/drive_c/ProgramData/Battle.net" && rm -rf "${WINEPREFIX}/drive_c/ProgramData/Battle.net";;
+      'Kill')
+        pkill wine; pkill wineserver
+        pkill Warcraft; pkill ^Battle; pkill ^Blizzard
+        pkill Agent; pkill services; pkill plugplay; pkill explorer; pkill rundll32
+        ;;
+      'Launch') 
+        if test "${chc1}" = 'wc3-ptr'; then
+          DRI_PRIME=1 wine "${w3xDir}/Warcraft III Public Test Launcher.exe" ${args} 2>&1 | tee "${WINEPREFIX}/last-run.log"
+        else
+          DRI_PRIME=1 wine "${w3xDir}/Warcraft III Launcher.exe" ${args} 2>&1 | tee "${WINEPREFIX}/last-run.log"
+        fi
+        ;;
+      'Logs') wine "${HOME}/app/dat/wine/apps/LogGoblin.exe";;
+      'Start') DRI_PRIME=1 wine "${w3xDir}/Warcraft III.exe" ${args} 2>&1 | tee "${WINEPREFIX}/last-run.log";;
+      'RegEdit') DRI_PRIME=1 wine regedit;;
+      'WineCfg') DRI_PRIME=1 winecfg;;
+      'WineTricks') DRI_PRIME=1 winetricks;;
+    esac
+    unset WINEPREFIX
+    ;;
+esac
+

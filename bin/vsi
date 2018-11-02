@@ -44,6 +44,7 @@ if test "$#" -eq 0; then
   $(basename "${0}"): Void System Information
 
   -b : Backup
+  -d : Default
   -f : Fonts
   -g : Geodata
   -h : Identity
@@ -53,6 +54,11 @@ if test "$#" -eq 0; then
   -s : System Info
   -w : Window Manager
 EOL
+  exit
+fi
+
+if test "${1}" = '-d'; then
+  vsi -s -r -l -o 
   exit
 fi
 
@@ -124,10 +130,10 @@ while test "$#" -gt 0; do
       fi
       ;;
     -b)
-      newHead 'bkp'
+      newHead 'bak'
       mntDev=$(find /mnt/dev -maxdepth 2 -type d -name 'bak')
       if test -z "${mntDev}"; then
-        newText 'not' 'mounted'
+        newText 'all' 'not mounted'
       else
         newText 'usr' $(stat -c %y "${mntDev}/user")
         newText 'med' $(stat -c %y "${mntDev}/media")

@@ -1,0 +1,2 @@
+#!/bin/env sh
+curl "cheat.sh/${1}"

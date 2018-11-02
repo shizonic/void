@@ -1,4 +1,5 @@
 #!/usr/bin/env sh
+# run with "sudo -E"
 
 rsyncArgs=""
 dryRun=0

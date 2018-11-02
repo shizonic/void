@@ -1,0 +1,43 @@
+#!/usr/bin/env sh
+
+test "$#" -eq 0 && exit 1
+
+case "${1}" in
+  bnc)
+cat > /tmp/mail-body << EOL
+This message was created automatically by mail delivery software.
+A message that you sent could not be delivered to one or more of its
+recipients. This is a permanent error.
+
+------ This is a copy of the message, including all the headers. ------
+EOL
+    f=$(mhdr -h from "${2}")
+    mbnc -resent-to "${f}" -- "${2}"
+    test "$?" -eq 0 && printf 'Mail has been bounced.\n'
+    ;;
+  del)
+    rm "${2}"
+    test "$?" -eq 0 && printf 'Mail has been deleted.\n'
+    ;;
+  ext)
+    mshow -x "${2}"
+    test "$?" -eq 0 && printf 'Attachments have been extracted.\n'
+    ;;
+  tkt)
+    test -f /tmp/mail-ticket || printf '0' > /tmp/mail-ticket
+    tn=$(cat /tmp/mail-ticket) 
+    tn=$(echo "${tn} +1" | bc -s)
+    tn=$(printf '%010d' "${tn}")
+cat > /tmp/mail-body << EOL
+Thank you for your email!
+
+Your case number is #${tn}.
+EOL
+    printf '%s' "${tn}" > /tmp/mail-ticket
+    mrep -body /tmp/mail-body -- "${2}"
+    test "$?" -eq 0 && printf 'Mail has been replied (ticket).\n'
+    ;;
+esac
+
+#mbnc "${1}"
+#mrep -body spam-reply.txt "${1}"

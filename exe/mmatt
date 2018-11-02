@@ -1,0 +1,3 @@
+#!/usr/bin/env sh
+
+test -f "${1}" && mcom -attach $(cat "${1}")

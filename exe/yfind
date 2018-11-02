@@ -1,0 +1,4 @@
+#!/usr/bin/env sh
+
+beet ls -f '$path' ${@}
+#find ~/usr/med/aud -iregex ".*${1}.*"

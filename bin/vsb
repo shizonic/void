@@ -25,7 +25,7 @@ vsb_create () {
   fi
 
   printf '[%s] Creating luks backup ...\n' "$(date +'%X')"
-  cryptsetup luksHeaderBackup /dev/sda2 --header-backup-file=/msc/luks-header
+  cryptsetup luksHeaderBackup /dev/*da2 --header-backup-file=/msc/luks-header
 
   printf '[%s] Creating lvm backup ...\n' "$(date +'%X')"
   vgcfgbackup -f /msc/lvm-config

@@ -59,6 +59,7 @@ while :; do
     #test "${val}" = '' && continue
 
     case "${part}" in
+      'BK') bkStr=$(handlePart $(test "${val}" -eq 1; printf "$?"));; # backup
       'BN') bnStr=$(handlePart $(test "${val}" -le 25; printf "$?"));; # brightness
       'BT') btStr=$(handlePart $(test "${val}" -le 10; printf "$?"));; # battery
       'CL') clStr="${ico} ${val} ";; # clock
@@ -104,7 +105,7 @@ while :; do
           ;;
     esac
 
-    system="${btStr}${rmStr}${spStr}${cuStr}${ctStr}${gtStr}${mtStr}"
+    system="${btStr}${bkStr}${rmStr}${spStr}${cuStr}${ctStr}${gtStr}${mtStr}"
     safety="${fwStr}${pkStr}${siStr}${soStr}${rcStr}${ssStr}"
     network="${dnStr}${rxStr}${txStr}${wlStr}${icStr}"
     media="${mcStr}${wcStr}${vlStr}"

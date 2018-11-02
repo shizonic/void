@@ -1,0 +1,13 @@
+#!/usr/bin/env sh
+
+test "$#" -eq 0 && mode="clip" || mode="${1}"
+pwf=$(cd ~/.password-store && find -type f -name "*.gpg" -printf '%P\n' | sed 's|.gpg||g')
+sel=$(printf '%s\n' "${pwf}" | run-menu ${@})
+test -z "${sel}" && exit
+case "${mode}" in
+  clip) pass show -c "${sel}";;
+  write) entry=$(pass show "${sel}")
+    pass=$(echo "${entry}" | head -n 1)
+    (setxkbmap; xdotool type "${pass}")
+    ;;
+esac

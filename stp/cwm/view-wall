@@ -1,0 +1,3 @@
+#!/usr/bin/env sh
+
+sxiv "$(cat /tmp/wallpaper)"

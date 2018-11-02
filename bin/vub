@@ -27,8 +27,8 @@ vub_create () {
   #  (cd "${homeDir}/msc" && md5sum user-data.tar.gz > "${homeDir}/msc/user-data.md5")
   #fi
 
-  printf '[%s] Cleaning cache ...\n' "$(date +'%X')"
-  find "${homeDir}/msc" -type f ! -name 'user-data.*' -delete
+  #printf '[%s] Cleaning cache ...\n' "$(date +'%X')"
+  #find "${homeDir}/msc" -type f ! -name 'user-data.*' -delete
 
   printf '[%s] Creating user fs backup ...\n' "$(date +'%X')"
   borg create --exclude-from "${parentDir}/cnf/vub.ignore" "${bakDir}::${dateTime}" "${homeDir}/app" "${homeDir}/bin" "${homeDir}/usr"

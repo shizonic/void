@@ -12,7 +12,6 @@ unset changelog
 . /tmp/pkg-tpl
 test -z "${changelog}" && exit 1
 
-
 case "${changelog}" in
   *.md)
     curl -s "${changelog}" > /tmp/pkg-cl

@@ -23,6 +23,11 @@ irc_con() {
       fi
     fi
 
+    printf 'Deleting old fifos for #%s.\n' "${s_key}"
+    find "${HOME}/usr/irc/${s_addr}" -name 'in' -delete
+
+    sleep 0.01
+
     if test "${s_con}" -eq 1; then
       if test -f "${HOME}/usr/irc/${s_addr}/out" && false; then
         printf 'Archiving history on #%s.\n' "${s_key}"
@@ -36,8 +41,10 @@ irc_con() {
       echo "Connecting #${i_key} on #${s_key}"
 
       if test -z "${i_pass}"; then
-        printf 'Please type password for #%s: ' "${i_key}"
-        read i_pass </dev/tty
+        #printf 'Please type password for #%s: ' "${i_key}"
+        #read i_pass </dev/tty
+        pe="irc/""$(printf '%s' "${s_key}" | tr -d '#')"
+        i_pass=$(pass "${pe}")
         export i_pass
       fi
 
@@ -60,11 +67,11 @@ irc_con() {
       ps -p "${pid}" 2>&1 >/dev/null || exit 1
 
       awk -F ',' '$1 == "'"${s_key}"'" {print $0}' "${dir}/channels.csv" | while IFS=',' read c_serv c_key c_name c_def; do
-      test "${c_def}" -eq 0 && continue
-      echo "Joining #${c_key} on #${s_key}"
-      test -e "${HOME}/usr/irc/${s_addr}/${c_name}/in" && rm "${HOME}/usr/irc/${s_addr}/${c_name}/in"
-      printf '/join %s\n' "${c_name}" > "${HOME}/usr/irc/${s_addr}/in"
-    done
+        test "${c_def}" -eq 0 && continue
+        echo "Joining #${c_key} on #${s_key}"
+        test -e "${HOME}/usr/irc/${s_addr}/${c_name}/in" && rm "${HOME}/usr/irc/${s_addr}/${c_name}/in" && sleep 0.01
+        printf '/join %s\n' "${c_name}" > "${HOME}/usr/irc/${s_addr}/in"
+      done
   done
 fi
 done
@@ -86,7 +93,7 @@ irc_read() {
 
   c_self='\033[0;31m'
   c_nick='\033[0;33m'
-  c_text='\033[0m'
+  c_text='\033[0;39m'
   c_ment='\033[0;32m'
   c_sys='\033[0;2m'
   c_act='\033[0;3m'
@@ -205,6 +212,7 @@ case "${act}" in
     fi
     ;;
   c|con) irc_con ${@};;
+#  l|clean) find -name 'in' ~/usr/irc -delete;;
   r|read) irc_read ${@};;
   w|write) irc_write ${@};;
 #  o|out)

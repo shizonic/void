@@ -1,0 +1,9 @@
+#!/usr/bin/env sh
+
+pl='/tmp/play-list'
+
+test -p /dev/stdin && fl=$(cat) || fl=$(yfind ${@})
+printf '%s\n' "${fl}" > "${pl}"
+
+mpv -loop --no-video --playlist="${pl}"
+rm "${pl}"
