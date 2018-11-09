@@ -1,6 +1,10 @@
 #!/usr/bin/env sh
 
-export PROMPT_COMMAND='hist; shell_prompt_handle'
+if command -v hist; then
+  export PROMPT_COMMAND='hist; shell_prompt_handle'
+else
+  export PROMPT_COMMAND='shell_prompt_handle'
+fi
 export WELCOME_COMMAND='welcome_prompt_handle'
 
 # Fix fullscreen videos minimizing on focus loss
