@@ -4,7 +4,7 @@
 
 fontname "Ubuntu:pixelsize=12"
 
-color activeborder "#b1addc"
+color activeborder "#eb7423"
 color inactiveborder "#383838"
 color font "#f8f8f8"
 color selfont "#f8f8f8"

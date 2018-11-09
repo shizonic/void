@@ -72,32 +72,6 @@ shell_prompt_handle() {
   PS1="${dcol}${sep}${rcol}\n ${PS1} ${dcol}»${rcol} "
 }
 
-cd() {
-  if test "$#" -gt 0 && test "${1}" != '-'; then
-    while test "$#" -gt 1; do
-      case "${1}" in
-        -L|-P|-e) args="${args} ${1}"; shift 1;;
-        *)
-          printf '  Invalid Option: \e[0;31m%s\e[0m\n' "${1}"
-          return 1
-        ;;
-      esac
-    done
-    if ! test -d "${1}"; then
-      directory_not_found_handle "${1}"
-      return $?
-    fi
-  fi
-  builtin cd ${args} "${1}"
-}
-
-viw() {
-  vim $(which "${1}")
-}
-
-export -f cd
-export -f viw
-
 export -f command_not_found_handle
 export -f directory_not_found_handle
 export -f shell_history_handle

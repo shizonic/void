@@ -4,3 +4,5 @@ export TERMINAL="xst"
 export BROWSER="firefox"
 export EDITOR="vim"
 export PAGER="less"
+
+export PRINTER="CanonPrinter"

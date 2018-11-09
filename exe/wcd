@@ -1,0 +1,9 @@
+#!/usr/bin/env sh
+
+w=$(which "${1}" 2>/dev/null)
+if test -z "${w}"; then
+  2>&1 printf 'Error: %s could not be found.\n' "${1}"
+  exit 1
+fi
+
+cd $(dirname "${w}")

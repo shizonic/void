@@ -1,16 +1,16 @@
 #!/usr/bin/env sh
 
 . ~/app/cnf/shell/env # load env
-. ~/app/sec/env # load secure env
+. ~/app/sec/shell/env # load secure env
 
-. ~/app/cnf/shell/hist # cmd history
+. ~/app/cnf/shell/hist # shell history
 
 . ~/app/cnf/shell/defs # load defaults
 . ~/app/cnf/shell/paths # load paths
 
 # skip remaining actions
 # if not run interactively
-echo "$-" | grep -q 'i' || exit 1
+echo "$-" | grep -q 'i' || exit 0
 
 . ~/app/cnf/shell/aliases
 . ~/app/cnf/shell/funcs
@@ -19,12 +19,12 @@ echo "$-" | grep -q 'i' || exit 1
 #. ~/bin/de # .env file handler
 #. ~/bin/qh # quick history
 
-. ~/vos/exe/hist
-
 . ~/app/cnf/shell/vars
 
-hist dc # empty tty dir history
+if command -v hist; then
+  hist dc # empty tty dir history
+fi
 #hist cc # empty tty cmd history
 
-thm-apply sh $(tty) # apply shell colors
-eval $(dircolors -b $HOME/.dircolors) # apply dir colors
+command -v thm-apply && thm-apply sh $(tty) # apply shell colors
+test -e ~/.dircolors && eval $(dircolors -b $HOME/.dircolors) # apply dir colors

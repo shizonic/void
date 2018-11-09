@@ -1,9 +1,111 @@
 #!/usr/bin/env sh
+# qh: Quick History
 
 unset HISTFILE
 
-#export HISTFILE='/tmp/history'
-#export HISTSIZE=1
+hist() {
+  rc="$?"
+  set +o history
+  
+  d="${HOME}/.hist"
+  hd="${d}/dirs"
+  hc="${d}/cmds"
+  hs="${d}/state"
+  
+  ghd="${hd}/global"
+  ghc="${hc}/global"
 
-#shopt -s histappend
-#set +o history
+  test -e "${d}" || mkdir "${d}"
+  test -e "${hd}" || mkdir "${hd}"
+  test -e "${hc}" || mkdir "${hc}"
+  test -e "${hs}" || mkdir "${hs}"
+  touch "${ghd}" "${ghc}"
+
+  t=$(tty | grep -o '[0-9]*')
+  thd="${hd}/tty-${t}"
+  thc="${hc}/tty-${t}"
+  ths="${hs}/tty-${t}"
+
+  touch "${thd}" "${thc}" "${ths}"
+
+  thdl=$(tail -n 1 "${thd}")
+  ghdl=$(tail -n 1 "${ghd}")
+  ghcl=$(tail -n 1 "${ghc}" | cut -d '|' -f 4-)
+
+  case "${1}" in
+    d*)
+      case "${1}" in
+        df) # first dir
+          dir=$(head -n 1 "${thd}")
+          printf '%s' 1 > "${ths}"
+          cd "${dir}"
+          ;;
+        dp) # prev dir
+          cur=$(cat "${ths}")
+          if test "${cur}" -gt 1; then
+            prv=$(($cur - 1))
+            dir=$(sed "${prv}q;d" "${thd}")
+            if test -n "${dir}"; then
+              cd "${dir}"
+              printf '%s' "${prv}" > "${ths}"
+            fi
+          fi
+          ;;
+        dn) # next dir
+          cur=$(cat "${ths}")
+          max=$(wc -l "${thd}" | cut -d ' ' -f 1)
+          if test "${cur}" -lt "${max}"; then
+            nxt=$(($cur + 1))
+            dir=$(sed "${nxt}q;d" "${thd}")
+            if test -n "${dir}"; then
+              cd "${dir}"
+              printf '%s' "${nxt}" > "${ths}"
+            fi
+          fi
+          ;;
+        dl) # last dir
+          max=$(wc -l "${thd}" | cut -d ' ' -f 1)
+          dir=$(tail -n 1 "${thd}")
+          printf '%s' "${max}" > "${ths}"
+          cd "${dir}"
+          ;;
+        dc) rm "${thd}";; # clear dirs
+        da) cd "${ghdl}";; # apply last global dir
+        d) tac "${thd}";; # print dirs
+        dg) tac "${ghd}";; # print global dirs
+      esac
+      ;;
+    c*)
+      case "${1}" in
+        cc) rm "${thc}";; # clear cmds
+        c) tac "${thc}";; # print cmds
+        cg) tac "${ghc}";; # print global cmds
+      esac
+      ;;
+    "")
+      cmd=$(history | tail -n 1 | awk -F ' ' '{$1=""; print $0}' | cut -c 2-)
+      fst=$(printf '%s' "${cmd}" | sed 's|^sudo ||g' | cut -d ' ' -f 1)
+
+      # only log dir changes if user was responsible
+      if test "${fst}" = 'cd' && test "${rc}" -eq 0; then
+        test "${PWD}" != "${thdl}" && printf '%s\n' "${PWD}" >> "${thd}"
+        printf '%s' $(wc -l "${thd}" | cut -d ' ' -f 1) > "${ths}"
+        if test "${PWD}" != "${ghdl}"; then 
+          sed -i "s|^${PWD}$||g; /^$/d" "${ghd}"
+          printf '%s\n' "${PWD}" >> "${ghd}"
+        fi
+      fi
+
+      if test "${cmd}" != 'hist'; then
+        printf '%s|%s|%s|%s\n' "$(date +%s)" "${rc}" "${PWD}" "${cmd}" >> "${thc}"
+        if test "${cmd}" != "${ghcl}"; then
+          #sed -i "s|^${cmd}$||g; /^$/d" "${ghc}"
+          printf '%s\n' "${cmd}" >> "${ghc}"
+        fi
+      fi
+      ;;
+  esac
+
+  set -o history
+  return "${rc}"
+}

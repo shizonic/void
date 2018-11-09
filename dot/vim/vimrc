@@ -1,6 +1,7 @@
 " plugins
 call plug#begin('~/.vim/plugged')
 "Plug 'gabrielelana/vim-markdown'
+Plug '~/app/cnf/vim/plugged/mblaze-cpl'
 Plug 'rust-lang/rust.vim'
 Plug 'autozimu/LanguageClient-neovim', {
     \ 'branch': 'next',
@@ -37,3 +38,7 @@ nnoremap <F5> :call LanguageClient_contextMenu()<CR>
 "nnoremap <silent> K :call LanguageClient#textDocument_hover()<CR>
 "nnoremap <silent> gd :call LanguageClient#textDocument_definition()<CR>
 "nnoremap <silent> <F2> :call LanguageClient#textDocument_rename()<CR>
+
+"setlocal complete+=k
+"setlocal dictionary+=~/.mblaze/address
+"setlocal iskeyword+=-

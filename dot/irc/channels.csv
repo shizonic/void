@@ -2,6 +2,9 @@ server,key,name,def
 fn,vl,#voidlinux,1
 fn,hw,#hedgewars,0
 fn,bb,#borgbackup,0
-fn,vx,#vuxu,0
+fn,qb,#qutebrowser,0
+fn,vx,#vuxu,1
 fn,cwm,##cwm,0
+fn,whq,#winehq,0
+fn,tx,#latex,0
 nx,nx,#unix,1

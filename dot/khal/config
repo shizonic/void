@@ -1,0 +1,14 @@
+[calendars]
+
+[[cron_prv_bday]]
+path = ~/usr/cal/cron-prv/34564875-f210-72dd-7505-0f2bc7c1c53f
+
+[[cron_prv_norm]]
+path = ~/usr/cal/cron-prv/071396C9-C093-40F5-BFBB-4AC194A42285
+
+[locale]
+timeformat = %H:%M
+dateformat = %Y-%m-%d
+longdateformat = %Y-%m-%d
+datetimeformat = %Y-%m-%d %H:%M
+longdatetimeformat = %Y-%m-%d %H:%M

@@ -2,3 +2,6 @@
 
 export PROMPT_COMMAND='hist; shell_prompt_handle'
 export WELCOME_COMMAND='welcome_prompt_handle'
+
+# Fix fullscreen videos minimizing on focus loss
+export SDL_VIDEO_MINIMIZE_ON_FOCUS_LOSS=0

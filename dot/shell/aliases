@@ -12,3 +12,6 @@ alias ls='ls --color=auto'
 alias grep='grep --color=auto'
 alias egrep='egrep --color=auto'
 alias fgrep='fgrep --color=auto'
+
+# set default rc-file for ledger
+alias ledger="ledger --init-file ~/app/cnf/ledger/ledgerrc"

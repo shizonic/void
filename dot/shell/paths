@@ -5,6 +5,7 @@ if test -z "${PATH_SET}"; then
   #export PATH="${PATH}:${HOME}/usr/prj/shl/void/bin"
   #export PATH="${PATH}:${HOME}/usr/prj/shl/sirc"
 
+  . /etc/profile.d/texlive.sh
   export PATH="${PATH}:$(find ~/bin -mindepth 1 -xtype d | tr '\n' ':')"
   #export PATH="${PATH}:${HOME}/bin"
 

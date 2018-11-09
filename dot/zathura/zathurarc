@@ -4,7 +4,7 @@ set recolor-keephue "false"
 set font "Ubuntu 12"
 
 set default-bg "#282828"
-set default-fg "#df879e"
+set default-fg "#deebf6"
 
 set statusbar-bg "#383838"
 set statusbar-fg "#b8b8b8"
@@ -16,19 +16,19 @@ set notification-bg "#181818"
 set notification-fg "#f8f8f8"
 
 set notification-error-bg "#181818"
-set notification-error-fg "#43bbde"
+set notification-error-fg "#dca8a3"
 
 set notification-warning-bg "#181818"
-set notification-warning-fg "#bed7f8"
+set notification-warning-fg "#dd5b21"
 
-set highlight-color "#b1addc"
-set highlight-active-color "#f4e2f2"
+set highlight-color "#eb7423"
+set highlight-active-color "#63b5dc"
 
-set completion-bg "#e1a4be"
+set completion-bg "#49a4dc"
 set completion-fg "#383838"
 
-set completion-highlight-fg "#f4e2f2"
+set completion-highlight-fg "#63b5dc"
 set completion-highlight-bg "#383838"
 
 set recolor-lightcolor "#282828"
-set recolor-darkcolor "#d9bcd7"
+set recolor-darkcolor "#87c3dc"

@@ -16,15 +16,15 @@ context = ctrl+shift+period
 
 [urgency_low]
 background = "#282828"
-foreground = "#d9bcd7"
+foreground = "#87c3dc"
 timeout = 5
 
 [urgency_normal]
 background = "#282828"
-foreground = "#b1addc"
+foreground = "#eb7423"
 timeout = 10
 
 [urgency_critical]
 background = "#282828"
-foreground = "#bed7f8"
+foreground = "#dd5b21"
 timeout = 0
