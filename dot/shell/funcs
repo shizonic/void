@@ -40,7 +40,11 @@ shell_prompt_handle() {
     p2=$(printf '%s' "${cwd}" | rev | cut -c -10 | rev)
     cwd="${p1}…${p2}"
   fi
-  PS1="${cwd}"
+  if ! ip addr | grep -q '192.168.2.1[0-9]*'; then
+    PS1="[${HOSTNAME}] ${cwd}"
+  else
+    PS1="${cwd}"
+  fi
   gs=$(git status -s 2>/dev/null)
   if test "$?" -eq 0; then
     gb=$(git branch | grep '\*' | cut -d ' ' -f 2 | tr -d '\n')
