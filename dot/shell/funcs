@@ -73,7 +73,11 @@ shell_prompt_handle() {
   test "${jl}" -gt 0 && PS1="${PS1} ${jl}${hcol}&${rcol}"
   pl=$(printf '%s' "${PS1}" | sed 's|\\[\\e\[[0-9;]*m\\]||g' | wc -c)
   test "${pl}" -ge 30 && PS1="${PS1}\n"
-  PS1="${dcol}${sep}${rcol}\n ${PS1} ${dcol}»${rcol} "
+  if test $(id -u) -gt 0; then
+    PS1="${dcol}${sep}${rcol}\n ${PS1} ${dcol}»${rcol} "
+  else
+    PS1="${dcol}${sep}${rcol}\n ${PS1} ${dcol}#${rcol} "
+  fi
 }
 
 export -f command_not_found_handle
