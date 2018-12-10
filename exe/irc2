@@ -1,0 +1,298 @@
+#!/usr/bin/env sh
+
+cnfDir="${HOME}/.irc"
+datDir="${HOME}/usr/irc"
+idntLst="${cnfDir}/idents.csv"
+servLst="${cnfDir}/servers.csv"
+chanLst="${cnfDir}/channels.csv"
+actLst="${cnfDir}/active.csv"
+
+findServ() {
+  awk -F ',' '$1 == "'"${1}"'" {print $0}' "${servLst}"
+}
+
+findIdent() {
+  awk -F ',' '$1 == "'"${1}"'" && $2 == "'"${2}"'" {print $0}' "${idntLst}"
+}
+
+findServIdents() {
+  awk -F ',' '$1 == "'"${1}"'" {print $0}' "${idntLst}"
+}
+
+findChan() {
+  awk -F ',' '$1 == "'"${1}"'" && $2 == "'"${2}"'" {print $0}' "${chanLst}"
+}
+
+findServChans() (
+  awk -F ',' '$1 == "'"${1}"'" {print $0}' "${chanLst}"
+) 
+
+findActive() {
+  tail -n +2 "${actList}"
+}
+
+readServ() {
+  test "$#" -eq 1 && serv="${1}" || return 1
+  #read -r serv < /dev/stdin
+  s_key=$(printf '%s' "${serv}" | cut -d ',' -f 1)
+  s_addr=$(printf '%s' "${serv}" | cut -d ',' -f 2)
+  s_port=$(printf '%s' "${serv}" | cut -d ',' -f 3)
+  s_def=$(printf '%s' "${serv}" | cut -d ',' -f 4)
+  
+  s_pidf="${datDir}/${s_addr}/pid"
+}
+
+readIdent() {
+  test "$#" -eq 1 && ident="${1}" || return 1
+  i_serv=$(printf '%s' "${ident}" | cut -d ',' -f 1)
+  i_key=$(printf '%s' "${ident}" | cut -d ',' -f 2)
+  i_name=$(printf '%s' "${ident}" | cut -d ',' -f 3)
+  i_nick=$(printf '%s' "${ident}" | cut -d ',' -f 4)
+  i_pass=$(printf '%s' "${ident}" | cut -d ',' -f 5)
+  i_def=$(printf '%s' "${ident}" | cut -d ',' -f 6)
+}
+
+readChan() {
+  test "$#" -eq 1 && chan="${1}" || return 1
+  c_serv=$(printf '%s' "${chan}" | cut -d ',' -f 1)
+  c_key=$(printf '%s' "${chan}" | cut -d ',' -f 2)
+  c_name=$(printf '%s' "${chan}" | cut -d ',' -f 3)
+  c_def=$(printf '%s' "${chan}" | cut -d ',' -f 4)
+}
+
+joinChan() {
+  grep -q "${s_key},${c_key}" "${cnfDir}/active.csv" && return 0 
+  printf 'Joining "%s:%s"\n' "${s_key}" "${c_key}"
+  printf '/join %s\n' "${c_name}" > "${HOME}/usr/irc/${s_addr}/in"
+  printf '%s,%s\n' "${s_key}" "${c_key}" >> "${cnfDir}/active.csv"
+}
+
+leaveChan() {
+  grep -q "${s_key},${c_key}" "${cnfDir}/active.csv" || return 0 
+  printf 'Leaving "%s:%s"\n' "${s_key}" "${c_key}"
+  printf '/part %s\n' "${c_name}" > "${HOME}/usr/irc/${s_addr}/in"
+  sed -i "/${s_key},${c_key}/d" "${cnfDir}/active.csv"
+}
+
+writeChan() {
+  text="${@}"
+  printf '%s\n' "${text}" > "${datDir}/${s_addr}/${c_name}/in"
+}
+
+checkServ() {
+  test -f "${s_pidf}" && pid=$(cat "${s_pidf}") || pid=""
+  if test -n "${pid}"; then
+    ps -p "${pid}" 2>&1 >/dev/null
+  fi
+}
+
+joinServ() {
+  if ! checkServ; then
+    printf 'Cleaning up "%s"\n' "${s_key}"
+    sed -i "/^${s_key}/d" "${cnfDir}/active.csv"
+    printf 'Connecting to "%s"\n' "${s_key}"
+    test -z "${i_pass}" && i_pass=$(pass "irc/${s_key}/${i_key}") && export i_pass
+    ii -i "${datDir}" -s "${s_addr}" -p "${s_port}" -n "${i_nick}" -f "${i_name}" -k 'i_pass' 2>&1 >/dev/null &
+    printf '%s' "$!" > "${datDir}/${s_addr}/pid"
+    checkIdent && notify-send " ${s_key}"
+  else
+    printf 'Server "%s" already running!\n' "${s_key}"
+  fi
+  defChan=$(findServChans "${s_key}" | awk -F ',' '$4 == 1 {print $0}')
+  for chan in ${defChan}; do
+    readChan "${chan}"
+    joinChan      
+  done
+}
+
+recServ() {
+  ! checkServ && joinServ
+  while :; do
+    pid=$(cat "${s_pidf}")
+    tail --pid="${pid}" -f /dev/null
+    notify-send " ${s_key}"
+    joinServ
+  done
+}
+
+saveHistory() {
+  printf 'Archiving logs on "%s"\n' "${s_key}"
+  chanLst=$(cd "${datDir}/${s_addr}"; find -mindepth 2 -maxdepth 2 -name 'out')
+  for chan in ${chanLst}; do
+    name=$(printf '%s' "${chan}" | cut -d '/' -f 2)
+    printf 'Archiving "%s"\n' "${name}"
+    mkdir -p "${datDir}/${s_addr}/history/${name}"
+    awk -v dir="${datDir}/${s_addr}/history/${name}" '{date=strftime("%Y-%m-%d", $1); print >> dir"/"date".log"}' "${datDir}/${s_addr}/${chan}"
+    test "$?" -eq 0 && truncate -s 0 "${chan}"
+  done
+}
+
+findHistory() {
+  grep "${@}" "${datDir}/${s_addr}/history/${c_name}"/*.log
+}
+
+checkIdent() {
+  printf 'Identifying as "%s"\n' "${i_key}"
+  tail -n 0 -f "${datDir}/${s_addr}/nickserv/out" | \
+  while read line; do
+    if printf '%s' "${line}" | grep -q 'You are now identified'; then
+      printf 'Indentified!\n' "$(date +'%X')"
+      kill $(pgrep -f 'tail -n 0')
+      return 0
+    elif printf '%s' "${line}" | grep -q 'Invalid password'; then
+      printf 'Invalid password!\n' "$(date +'%X')"
+      kill $(pgrep -f 'tail -n 0')
+      return 1
+    fi
+  done
+}
+
+termReader() {
+  trap 'stty echo; tput cnorm' HUP INT TERM
+  stty -echo; tput civis
+
+  c_self='\033[0;31m'; c_nick='\033[0;33m'
+  c_text='\033[0;39m'; c_ment='\033[0;32m'
+  c_sys='\033[0;2m';   c_act='\033[0;3m'
+  c_res='\033[0m'
+
+  t_act='«';  t_speak='»'
+  t_join='+'; t_left='×'
+  t_mode='*'; t_quit=';'
+  t_empty=$(seq -s ' ' 17 | tr -d '[:digit:]')
+
+  m_rows=$(tput lines); m_cols=$(tput cols)
+
+  clear
+
+  tail -f -n "${m_rows}" "${datDir}/${s_addr}/${c_name}/out" | \
+  while IFS=' ' read m_time m_nick m_text; do
+    #printf '%s: %s\n' "${m_nick}" "${m_text}"  
+    m_nick=$(printf '%s' "${m_nick}" | tr -d '<>' | cut -c 1-12)
+    m_self=$(test "${m_nick}" = "${i_nick}" && printf 0 || printf 1)
+    m_sys=$(test "${m_nick}" = '-!-' && printf 0 || printf 1)
+    m_ment=$(printf '%s' "${m_text}" | grep -q "${i_nick}" && printf 1 || printf 0)
+    m_act=$(printf '%s' "${m_text}" | grep -q -e '^[^\s\\]*ACTION' && printf 1 || printf 0)
+    if test "${m_act}" -eq 1; then
+      o_text=$(printf '%s' "${m_text}" | cut -d ' ' -f 2-)
+      o_nick=" ${c_nick}${m_nick}${c_res}"
+      printf '%-25b%b%b\n' "${o_nick}" "${c_sys}${t_act}${c_res}" " ${c_act}${o_text}${c_res}"
+    elif test "${m_sys}" -eq 1; then
+      test "${m_ment}" -eq 0 && m_c_text="${c_text}" || m_c_text="${c_ment}"
+      test "${m_self}" -eq 0 && m_c_nick="${c_nick}" || m_c_nick="${c_self}"
+      o_nick=" ${m_c_nick}${m_nick}${c_res}"
+      o_text=$(printf '%s' "${m_text}" | fold -s -w "$((m_cols - 17))" | sed -e "1!s/^/${t_empty}/")
+      o_text=" ${m_c_text}${o_text}${c_res}"
+      printf '%-25b%b%b\n' "${o_nick}" "${c_sys}${t_speak}${c_res}" "${o_text}"
+      test "${m_ment}" -eq 1 && printf 'IR|%s\n' "${c_name}" > /tmp/status-fifo
+    else
+      m_nick=$(printf '%s' "${m_text}" | cut -d '(' -f 1 | cut -c 1-12)
+      m_symb=""
+      case "${m_text}" in
+        *join*) m_symb="${t_join}";;
+        *left*) m_symb="${t_left}";;
+        *mode*) m_symb="${t_mode}";;
+        *quit*) m_symb="${t_quit}";;
+      esac
+      o_nick=" ${c_sys}${m_nick}${c_res}"
+      printf '%-24b%b\n' "${o_nick}" "${c_sys}${m_symb}${c_res}"
+    fi
+  done
+}
+
+termWriter() {
+  c_chan='\033[0;33m'
+  c_sys='\033[0;2m'
+  c_res='\033[0m'
+
+  t_swt='@'
+  t_chan='#'
+
+  o_chn=$(printf '%s' "${c_name}" | tr -d '#')
+
+  while :; do
+    clear
+    printf ' [%b%b]: ' "${c_sys}${t_chan}${c_res}" "${c_chan}${o_chn}${c_res}"
+    read line
+    writeChan "${line}"
+  done
+}
+
+test "$#" -le 1 && printf 'To less arguments!\n' && exit 1
+
+readServ $(findServ "${1}")
+
+test -z "${s_key}" && printf 'Unknown server: %s\n' "${1}" && exit 1
+
+case "${2}" in
+  a|archive)
+    shift 2
+    saveHistory "${@}"
+    ;;
+  c|con)
+    readIdent $(findServIdents "${1}") || exit 1
+    joinServ || exit 1
+    ;;
+  h|hist)
+    readChan $(findChan "${1}" "${3}") || exit 1
+    shift 3
+    findHistory "${@}"
+    ;;
+  j|join)
+    readChan $(findChan "${1}" "${3}") || exit 1
+    joinChan
+    ;;
+  l|leave)
+    readChan $(findChan "${1}" "${3}") || exit 1
+    leaveChan
+    ;;
+  n|nicks)
+    t=$(tac "${datDir}/${s_addr}/out" | grep -m 1 "= ${chn}" | cut -d ' ' -f 1)
+    tac "${datDir}/${s_addr}/out" | grep "${t} = ${chn}" | cut -d ' ' -f 4- | tr ' ' '\n' | sort -u
+    ;;
+  o|open)
+    if tmux ls | grep -q "irc2-${1}-${3}"; then
+      tmux attach -t "irc2-${1}-${3}"
+    else
+      tmux \
+        new-session "irc2 ${1} tr ${3}" \; \
+        split-window -h -p 30 "irc2 ${1} n ${3} | less" \; \
+        split-window -f -l 2 "irc2 ${1} tw ${3}" \; \
+        rename-session "irc2-${1}-${3}" \;
+    fi
+    ;;
+  r|rec)
+    readIdent $(findServIdents "${1}") || exit 1
+    recServ
+    ;;
+  tr|termreader)
+    readChan $(findChan "${1}" "${3}") || exit 1
+    readIdent $(findServIdents "${1}") || exit 1
+    shift 3
+    termReader "${@}"
+    ;;
+  tw|termwriter)
+    readChan $(findChan "${1}" "${3}") || exit 1
+    readIdent $(findServIdents "${1}") || exit 1
+    shift 3
+    termWriter "${@}"
+    ;;
+  w|write)
+    readChan $(findChan "${1}" "${3}") || exit 1
+    shift 3
+    writeChan "${@}"
+    ;; 
+  q|quit)
+    pid=$(cat "${datDir}/${s_addr}/pid")
+    ps -p "${pid}" 2>&1 >/dev/null || exit
+    sess=$(tmux ls 2>/dev/null | grep -o -w -E "irc2-${s_key}-[a-z]*")
+    if test -n "${sess}"; then
+      for s in ${sess}; do
+        tmux kill-session -t "${s}"
+      done
+    fi
+    printf '/quit\n' > "${datDir}/${s_addr}/in"
+    tail --pid="${pid}" -f /dev/null
+    printf 'Disconnected\n'
+    ;;
+esac

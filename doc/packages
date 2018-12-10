@@ -1,10 +1,8 @@
 Audio, Documents, Images & Video
-- ImageMagick
 - beets
 - bluez
 - bluez-alsa
 - ffmpeg
-- gimp
 - gstreamer
 - libdvdcss
 - mpv
@@ -62,6 +60,7 @@ Display & Window Management
 
 Encryption, Password
 - cryptsetup
+- encfs
 - gnupg
 - pass
 - pinentry-gtk
@@ -98,12 +97,14 @@ Internet, Network & File Sharing
 - vdirsyncer
 - whois
 
-Printing, Camera
+Printing, Camera, Photo Editing
 - cups
 - cups-filters
 - dcraw
+- gimp
 - gphoto2
 - gutenprint
+- ImageMagick
 - ufraw
 
 Programming

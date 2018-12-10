@@ -1,0 +1,7 @@
+#!/usr/bin/env sh
+
+pics=$(find "${PWD}" -mindepth 1 -maxdepth 1 -regex '.*[jpg|png]')
+for pic in ${pics}; do
+  printf 'Testing "%s"\n' "$(basename ${pic})"
+  thm-change "${pic}" 2>&1 >/dev/null && thm-reload 2>&1 >/dev/null && sleep "${1:-10}"
+done

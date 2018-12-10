@@ -1,10 +1,10 @@
 #!/usr/bin/env sh
 
-pgrep dunst && pkill dunst
-pgrep status-writer && pkill status-writer
-pgrep status-reader && pkill status-reader
-pgrep status-bar && pkill status-bar
-pgrep lemonbar && pkill lemonbar
+pgrep dunst >/dev/null && pkill dunst
+pgrep status-writer >/dev/null && pkill status-writer
+pgrep status-reader >/dev/null && pkill status-reader
+pgrep status-bar >/dev/null && pkill status-bar
+pgrep lemonbar >/dev/null && pkill lemonbar
 
 dunst &       # notifications   : ~/.config/dunst/dunstrc
 pgrep cwm 2>&1 >/dev/null && kill -HUP $(pgrep cwm) # reload cwm config

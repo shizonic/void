@@ -1,7 +1,7 @@
 #!/usr/bin/env sh
 
 #cmd=$("${SHELL}" -c 'compgen -c | sort -u' | run-menu)
-cmd=$(printf 'firefox\nhedgewars\nlxappearance\nlutris\nminecraft\nsteam\nzathura' | run-menu)
+cmd=$(printf '%s\n' 'firefox' 'hedgewars' 'gimp' 'lxappearance' 'lutris' 'minecraft' 'steam' 'zathura' | sort | run-menu)
 #tf=$(mktemp "/tmp/${cmd}-XXXXXX.log")
 tf='/dev/null'
 test -n "${cmd}" && "${SHELL}" -c "${cmd}" 2>&1 >"${tf}"

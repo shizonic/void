@@ -1,0 +1,4 @@
+#!/usr/bin/env sh
+
+str="$(printf '%s\n' 'wtii' 'followgrubby' 'back2warcraft' 'tod' | sort | run-menu)"
+test -n "${str}" && mpv "https://twitch.tv/${str}"

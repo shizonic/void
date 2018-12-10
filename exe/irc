@@ -56,10 +56,12 @@ irc_con() {
         echo "Connecting #${i_key} on #${s_key}"
 
         if test -z "${i_pass}"; then
-          #printf 'Please type password for #%s: ' "${i_key}"
-          #read i_pass </dev/tty
           pe="irc/${s_key}/${i_key}"
           i_pass=$(pass "${pe}")
+          if test -z "${i_pass}"; then
+            printf 'Please type password for #%s: ' "${i_key}"
+            read i_pass </dev/tty
+          fi
           export i_pass
         fi
       fi
@@ -223,6 +225,11 @@ case "${act}" in
     ;;
   q|quit)
     pidf="${HOME}/usr/irc/${srv}/pid"
+    sess=$(tmux ls 2>/dev/null | grep -o -w -E "irc-${srvName}-[a-z]*")
+    test -n "${sess}" && printf 'Killing sessions\n'
+    for s in ${sess}; do
+      tmux kill-session -t "${s}"
+    done
     if test -f "${pidf}"; then
       printf '/quit\n' > "${HOME}/usr/irc/${srv}/in"
       pid=$(cat "${pidf}")
@@ -231,7 +238,7 @@ case "${act}" in
       find "${HOME}/usr/irc/${srv}" -type p -name 'in' -delete 
       printf 'Disconnected!\n'
     else
-      printf 'Nothing to do!\n'
+      printf 'Already disconnected!\n'
     fi
     ;;
   c|con) irc_con ${@};;

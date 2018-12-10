@@ -13,4 +13,5 @@ while test "$#" -gt 0; do
 done
 
 test -z "${MAIL_ACC}" && MAIL_ACC=$(grep -B 3 'from[ ]*'"$(mfrom)" ~/.msmtprc | head -n 1 | awk '{print $2}')
-mlist "${HOME}/usr/mls/${MAIL_ACC}/INBOX/cur" | msort -r -d | mpick "1:${n}"
+#mlist "${HOME}/usr/mls/${MAIL_ACC}/INBOX/cur" | msort -r -d | 
+cat "${HOME}/usr/mls/${MAIL_ACC}/all.seq" | mpick "1:${n}"

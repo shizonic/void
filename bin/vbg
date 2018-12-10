@@ -2,7 +2,7 @@
 # void blog generator
 # requires: lowdown, envsubst
 
-set -e
+#set -e
 
 dp=$(dirname $(realpath $0))
 
