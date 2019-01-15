@@ -1,0 +1,12 @@
+#!/usr/bin/env sh
+
+if test -f "${PALETTE}"; then
+  c=$(cat "${PALETTE}")
+elif test -f "${WALLPAPER}"; then
+  c1=$(printf '%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n' '#181818' '#282828' '#383838' '#585858' '#b8b8b8' '#d8d8d8' '#e8e8e8' '#f8f8f8')
+  c2=$(colorz -n 8 --no-preview --no-bg-img "${WALLPAPER}" | cut -d ' ' -f 2 | sort -R)
+  c=$(printf '%s\n%s\n' "${c1}" "${c2}")
+fi
+
+test -z "${c}" && exit 1
+printf '%s\n' "${c}"

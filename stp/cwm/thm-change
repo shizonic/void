@@ -1,39 +1,36 @@
 #!/usr/bin/env sh
 
-cp="" # color palette
-wp="" # wallpaper
+unset WALLPAPER
+unset PALETTE
 
 while test "$#" -gt 0; do
   if test -f "${1}"; then
     ft=$(file "${1}" | grep -o -E 'text|image')
-    test "${ft}" = 'image' && wp=$(realpath "${1}")
-    test "${ft}" = 'text' && cp=$(realpath "${1}")
+    test "${ft}" = 'image' && export WALLPAPER=$(realpath "${1}")
+    test "${ft}" = 'text' && export PALETTE=$(realpath "${1}")
   fi
   shift 1
 done
 
-test -z "${cp}${wp}" && wp=$(find "${HOME}/usr/med/img/wpr" -maxdepth 1 -type f | sort -R | head -n 1)
-
-if test -f "${wp}"; then
-  setroot -z "${wp}"
-  printf '%s' "${wp}" > /tmp/wallpaper
-elif test -f "${cp}"; then
-  wc=$(sed -n '2p' "${cp}")
-  setroot -sc "${wc}"
-  printf '%s' "${wc}" > /tmp/wallpaper
-else
-  exit 1
+if test -z "${WALLPAPER}${PALETTE}"; then
+  r=$(shuf -i0-1 -n1)
+  test "${r}" -eq 0 && export PALETTE=$(find "${HOME}/usr/col/" -maxdepth 1 -type f | sort -R | head -n 1)
+  test "${r}" -eq 1 && export WALLPAPER=$(find "${HOME}/usr/med/img/wpr" -maxdepth 1 -type f | sort -R | head -n 1)
 fi
 
-unset COLORS
-export COLORS="${cp}"
-. thm-generate  # generate theme
+#printf '\nWALL: "%s"\nPALL: "%s"\n\n' "${WALLPAPER}" "${PALETTE}"
+
+pal-change
+wal-change
+
+thm-generate
+. thm-palette
 
 thm-apply xrs # apply theme to xrs
 . thm-export
 thm-apply cnf # apply theme to config
 thm-apply gtk # apply theme to gtk
 
-cat /tmp/theme | gen-palette # generate palette
+#cat /tmp/theme | gen-palette # generate palette
 
 thm-reload

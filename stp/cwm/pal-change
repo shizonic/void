@@ -1,0 +1,4 @@
+#!/usr/bin/env sh
+
+pal-generate > /tmp/palette
+cat /tmp/palette | pal-preview

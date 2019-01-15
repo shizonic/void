@@ -1,0 +1,25 @@
+#!/usr/bin/env sh
+
+export base00=$(sed -n '1p' "/tmp/palette")
+export base01=$(sed -n '2p' "/tmp/palette")
+export base02=$(sed -n '3p' "/tmp/palette")
+export base03=$(sed -n '4p' "/tmp/palette")
+export base04=$(sed -n '5p' "/tmp/palette")
+export base05=$(sed -n '6p' "/tmp/palette")
+export base06=$(sed -n '7p' "/tmp/palette")
+export base07=$(sed -n '8p' "/tmp/palette")
+export base08=$(sed -n '9p' "/tmp/palette")
+export base09=$(sed -n '10p' "/tmp/palette")
+export base0A=$(sed -n '11p' "/tmp/palette")
+export base0B=$(sed -n '12p' "/tmp/palette")
+export base0C=$(sed -n '13p' "/tmp/palette")
+export base0D=$(sed -n '14p' "/tmp/palette")
+export base0E=$(sed -n '15p' "/tmp/palette")
+export base0F=$(sed -n '16p' "/tmp/palette")
+
+export fontName="$(grep '#define fontName' ~/app/cnf/x/Xfonts | cut -d ' ' -f 3-)"
+export fontSize="$(grep '#define fontSize' ~/app/cnf/x/Xfonts | cut -d ' ' -f 3-)"
+export monoName="$(grep '#define monoName' ~/app/cnf/x/Xfonts | cut -d ' ' -f 3-)"
+export monoSize="$(grep '#define monoSize' ~/app/cnf/x/Xfonts | cut -d ' ' -f 3-)"
+export symbName="$(grep '#define symbName' ~/app/cnf/x/Xfonts | cut -d ' ' -f 3-)"
+export symbSize="$(grep '#define symbSize' ~/app/cnf/x/Xfonts | cut -d ' ' -f 3-)"

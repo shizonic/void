@@ -1,86 +1,24 @@
 #!/usr/bin/env sh
 
-wall="$(cat /tmp/wallpaper)"
-crop='/tmp/wallpaper-cropped'
-brght='/tmp/status-brightness'
-wallc='/tmp/wallpaper-colors'
+wc="${WALLPAPER:-/tmp/wallcolor.png}"
+wr='/tmp/wall-resized'
+w1='/tmp/wall-1x1'
 
-if test -f "${wall}"; then
-  #printf 'Taking colors from wallpaper\n'
-  ln -s "${wall}" "${wallc}"
-  width=$(convert "${wallc}" -format "%w" info:)
+if test -f "${WALLPAPER}"; then
+  w=$(convert "${WALLPAPER}" -format "%w" info:)
 else
-  #printf 'Taking colors from list\n'
-  bg=$(printf '%s\n' "${wall}" | head -n 1)
-  printf '%s\n' "${bg}" | gen-palette "${wallc}.png"
-  mv "${wallc}.png" "${wallc}"
-  width="50"
+  w=50
+  c=$(cat "${PALETTE}" | head -n 1)
+  bg=$(printf '%s\n' "${c}" | head -n 1)
+  printf '%s\n' "${bg}" | pal-generate "${wc}"
 fi
 
-# cut top part so we can calculate top brightness
-convert "${wallc}" -crop "${width}x50+0+0" +repage "${crop}"
-R=$(convert "${crop}" -scale 1x1! -format "%[fx:mean.r]" info:)
-G=$(convert "${crop}" -scale 1x1! -format "%[fx:mean.g]" info:)
-B=$(convert "${crop}" -scale 1x1! -format "%[fx:mean.b]" info:)
-bgt=$(echo "(0.299 * $R + 0.587 * $G + 0.114 * $B) * 100" | bc -s | cut -d '.' -f 1)
-printf '%s' "${bgt}" > "${brght}"
-rm "${crop}"
+convert "${wc}" -crop "${w}x50+0+0" +repage "${wr}"
+convert "${wr}" -resize 1x1! "${w1}"
 
-if test -f "${COLORS}"; then
-  cols=$(cat "${COLORS}")
-  dc="${cols}"; lc="${cols}"
-else
-  args="--no-preview --no-bg-img"
-  cols=$(colorz -n 8 ${args} "${img}")
-  dc=$(printf '%s' "${cols}" | cut -d ' ' -f 1)
-  lc=$(printf '%s' "${cols}" | cut -d ' ' -f 2)
-fi
+m=$(convert "${w1}" -format "%[fx:mean]" info:)
+b=$(echo "scale=0; ${m} * 100 / 1" | bc -s)
 
-bgt=$(convert "${wallc}"  -colorspace gray -format "%[fx:100*mean]%%" info: | cut -d '.' -f 1 | tr -d '%')
-printf '%s\n' "${bgt}" > /tmp/brightness
+printf '%s' "${b}" > /tmp/status-brightness
 
-if test -f "${COLORS}"; then
-  printf '%s\n' "${cols}" > /tmp/theme
-else
-  cat > /tmp/theme < EOL
-#181818
-#282828
-#383838
-#585858
-#b8b8b8
-#d8d8d8
-#e8e8e8
-#f8f8f8
-  EOL
-  # Bright image, Dark theme
-  if test "${bgt}" -ge 70; then
-    printf '%s\n' "${dc}" >> /tmp/theme
-  else # Dark image, bright theme
-    printf '%s\n' "${lc}" >> /tmp/theme
-  fi  
-fi  
-export base00=$(sed -n '1p' "/tmp/theme")
-export base01=$(sed -n '2p' "/tmp/theme")
-export base02=$(sed -n '3p' "/tmp/theme")
-export base03=$(sed -n '4p' "/tmp/theme")
-export base04=$(sed -n '5p' "/tmp/theme")
-export base05=$(sed -n '6p' "/tmp/theme")
-export base06=$(sed -n '7p' "/tmp/theme")
-export base07=$(sed -n '8p' "/tmp/theme")
-export base08=$(sed -n '9p' "/tmp/theme")
-export base09=$(sed -n '10p' "/tmp/theme")
-export base0A=$(sed -n '11p' "/tmp/theme")
-export base0B=$(sed -n '12p' "/tmp/theme")
-export base0C=$(sed -n '13p' "/tmp/theme")
-export base0D=$(sed -n '14p' "/tmp/theme")
-export base0E=$(sed -n '15p' "/tmp/theme")
-export base0F=$(sed -n '16p' "/tmp/theme")
-
-export fontName="$(grep '#define fontName' ~/app/cnf/x/Xfonts | cut -d ' ' -f 3-)"
-export fontSize="$(grep '#define fontSize' ~/app/cnf/x/Xfonts | cut -d ' ' -f 3-)"
-export monoName="$(grep '#define monoName' ~/app/cnf/x/Xfonts | cut -d ' ' -f 3-)"
-export monoSize="$(grep '#define monoSize' ~/app/cnf/x/Xfonts | cut -d ' ' -f 3-)"
-export symbName="$(grep '#define symbName' ~/app/cnf/x/Xfonts | cut -d ' ' -f 3-)"
-export symbSize="$(grep '#define symbSize' ~/app/cnf/x/Xfonts | cut -d ' ' -f 3-)"
-
-rm "${wallc}"
+rm "${wr}" "${w1}"

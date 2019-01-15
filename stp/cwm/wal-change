@@ -1,0 +1,10 @@
+#!/usr/bin/env sh
+
+if test -f "${WALLPAPER}"; then
+  setroot -z "${WALLPAPER}"
+  printf '%s' "${WALLPAPER}" > /tmp/wallpaper
+elif test -f "${PALETTE}"; then
+  wc=$(sed -n '2p' "${PALETTE}")
+  setroot -sc "${wc}"
+  printf '%s' "${wc}" > /tmp/wallpaper
+fi
