@@ -1,0 +1,11 @@
+#!/usr/bin/env sh
+
+while read f; do
+  a=$(realpath "${f}")
+  b=$(basename "${a}")
+  d=$(dirname "${a}")
+  file "${a}" | grep -q 'text' || continue
+  printf 'Creating palette for "%s\n' "${b}"
+  mkdir -p "${d}/prv"
+  cat "${a}" | gen-palette "${d}/prv/${b}.png"
+done

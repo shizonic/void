@@ -1,0 +1,19 @@
+#!/usr/bin/env sh
+# vgp = Void Git Public
+
+cd ~/vos/pub
+stagit ~/vos
+
+l=$(grep 'link' ~/vos/blg/src/posts/layout.tpl)
+
+#fl="${HOME}/vos/pub/files.html"
+fl=$(find ~/vos/pub -name '*.html')
+
+for f in ${fl}; do
+  printf 'Fixing "%s"\n' "${f}"
+  b=$(head -n 6 "${f}")
+  a=$(tail -n +10 "${f}")
+  printf '%s\n%s\n%s' "${b}" "${l}" "${a}" > "${f}"
+  sed -i '/<hr\/>/d' "${f}"
+  sed -i 's/<table/<table class="table"/g' "${f}"
+done

@@ -1,0 +1,24 @@
+#!/usr/bin/env sh
+
+schLst="https://raw.githubusercontent.com/chriskempson/base16-schemes-source/master/list.yaml"
+schDir="${HOME}/usr/col"
+locLst="/tmp/schemes.yaml"
+locRepo="/tmp/scheme.tmp"
+
+test -d "${locRepo}" || mkdir "${locRepo}"
+
+curl -s "${schLst}" > "${locLst}"
+grep -E '^[a-z]' "${locLst}" | while read thm; do
+  name=$(printf '%s' "${thm}" | cut -d ':' -f 1)
+  repo=$(printf '%s' "${thm}" | cut -d ':' -f 2- | xargs)
+  printf 'Building "%s" ...\n' "${name}"
+  test -d "${locRepo}" && rm -rf "${locRepo}"
+  git clone -q "${repo}" "${locRepo}"
+  varLst=$(cd "${locRepo}" && find -name '*.yaml' -printf '%P\n' -maxdepth 1)
+  for varPath in ${varLst}; do
+    varName=$(printf '%s' "${varPath}" | sed 's/\.yaml//g')
+    printf ' - Variant: "%s"\n' "${varName}"
+    cat "${locRepo}/${varPath}" | grep -E '^base' | cut -d ':' -f 2- | tr -d '"' \
+      | sed 's/^ /#/g' | cut -d ' ' -f 1 > "${schDir}/${varName}"
+  done
+done

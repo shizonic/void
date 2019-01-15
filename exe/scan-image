@@ -1,0 +1,22 @@
+#!/usr/bin/env sh
+
+type="${1:-jpg}"
+dir="${HOME}/usr/med/img/scn"
+fn="scan-$(date +%Y%m%d-%H%M%S).${type}"
+
+if test -z "${SCANNER}"; then
+  printf '[%s] Searching for printers/scanners...\n' "$(date +'%X')"
+  SCANNER=$(scanimage -L | grep 'device' | grep -v 'video0' | cut -d ' ' -f 2 | tr -d "\`\'")
+fi
+  
+test -n "${SCANNER}" || exit 1
+
+printf '[%s] Scanning image from %s...\n' "$(date +'%X')" "${SCANNER}"
+scanimage -d "${SCANNER}" --format "${type}" > "${dir}/${fn}"
+
+if test "$?" -eq 0; then
+  printf '[%s] Finished %s\n' "$(date +'%X')" "${dir}/${fn}"
+else
+  printf '[%s] ERROR: Could not scan %s\n' "$(date +'%X')" "${dir}/${fn}"
+  rm "${dir}/${fn}"
+fi

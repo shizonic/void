@@ -1,0 +1,41 @@
+#!/usr/bin/env sh
+# vlm: Void Link Manager
+
+test -z "${ICS}" && ICS=":"
+test "$#" -gt 0 || exit 1
+a="${1}"; shift
+
+vlm_find() {
+  find -P "${1:-${HOME}}" -maxdepth 2 -wholename "${1:-${HOME}}*/.*" -type l -ls \
+    | awk '{print $11"'"${ICS}"'"$13}' | sort
+}
+
+vlm_relink() {
+  test -f "${1}" || return 1
+  lf=$(cat "${1}"); shift
+  test "$#" -gt 0 && dr="${1}" || dr=0
+  for l in ${lf}; do
+    s=$(printf '%s' "${l}" | cut -d "${ICS}" -f 1)
+    t=$(printf '%s' "${l}" | cut -d "${ICS}" -f 2)
+    p=$(dirname "${s}")
+    if ! test -e "${s}"; then
+      if ! test -e "${p}"; then
+        printf 'ERR\t"%s" %s Parent "%s" does not exist!\n' "${s}" "${ICS}" "${p}"
+        continue
+      fi
+      if test -e "${t}"; then
+         printf 'FIX\t"%s" -> "%s"\n' "${s}" "${t}"
+         test "${dr}" -eq 0 && ln -s "${t}" "${s}"
+      else
+        printf 'ERR\t"%s" %s Target "%s" does not exist!\n' "${s}" "${ICS}" "${t}" 
+      fi
+    else
+      test "${dr}" -eq 1 && printf 'OK\t"%s"\n' "${s}"
+    fi
+  done
+}
+
+case "${a}" in
+  f|fnd) vlm_find ${@};;
+  r|rel) vlm_relink ${@};;
+esac

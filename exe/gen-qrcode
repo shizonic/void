@@ -1,0 +1,7 @@
+#!/usr/bin/env sh
+
+. thm-export
+#fg=$(printf '%s' "${base01}" | tr -d '#')
+#bg=$(printf '%s' "${base0F}" | tr -d '#')
+qrencode -o "${2}" "${1}"
+#--foreground="${fg}" --background="${bg}"

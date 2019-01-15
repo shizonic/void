@@ -1,0 +1,14 @@
+#!/usr/bin/env sh
+
+test "$#" -eq 0 && mf=$(cat) || mf=$(realpath "${1}") && shift
+args="--really-quiet -loop"
+#if test -f "${mf}"; then
+  #ext=$(basename "${mf}" | cut -d '.' -f 2-)
+#  test $(file "${mf}" | grep -o 'text') = 'text' && args="${args} --playlist=\"${mf}\"" && mf=''
+#fi
+
+if printf '%s' "${mf}" | grep -q -E '^http.*\.m3u$'; then
+  curl -s "${mf}" > '/tmp/play-list'
+  mf='/tmp/play-list'
+fi
+mpv ${args} "${mf}"

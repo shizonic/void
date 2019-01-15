@@ -1,0 +1,20 @@
+#!/usr/bin/env sh
+
+test -p /dev/stdin && fl=$(cat) || fl="${@}"
+
+if test -z "${fl}"; then
+  printf '[%s] Error: Please pass files to print!\n' "$(date +'%X')"
+  exit 1
+fi
+
+if test -z "${PRINTER}"; then
+  printf '[%s] Searching for printers/scanners...\n' "$(date +'%X')"
+  PRINTER=$(lpstat -p | head -n 1 | cut -d ' ' -f 2)
+fi
+
+test -z "${PRINTER}" && exit 1
+
+for f in ${fl}; do
+  printf '[%s] Printing "%s" on "%s"...\n' "$(date +'%X')" $(basename "${f}") "${PRINTER}"
+  lp -d "${PRINTER}" "${f}"
+done

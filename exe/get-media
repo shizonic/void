@@ -1,0 +1,14 @@
+#!/usr/bin/env sh
+
+test -p /dev/stdin && fl=$(cat) || fl="${@}"
+
+cd ~/usr/tmp/dls
+
+for f in ${fl}; do
+  printf '%s' "${f}" | grep -E '^http(s)?://' || continue
+  t=$(curl "${f}" -so - | grep -iPo '(?<=<title>)(.*)(?=</title>)')
+  #t=$(youtube-dl -e "${f}")
+  test -z "${t}" && t="${f}"
+  printf 'Downloading "%s" ...\n' "${t}"
+  youtube-dl -q "${f}" || wget --quiet "${f}"
+done

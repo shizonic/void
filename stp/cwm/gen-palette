@@ -1,0 +1,5 @@
+#!/usr/bin/env sh
+
+while read color; do
+  convert -size 50x50 "xc:$color" +depth miff:-
+done | montage - -geometry +0+0 "${1:-/tmp/palette.png}"

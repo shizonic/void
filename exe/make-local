@@ -1,0 +1,18 @@
+#!/usr/bin/env sh
+
+# checkout to revert changes
+#git checkout master -f
+
+# updating
+git pull
+
+# patching
+#for p in *.diff; do
+#  patch < "${p}"
+#done
+
+# compiling
+make
+
+# installing
+sudo make install

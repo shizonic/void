@@ -1,0 +1,13 @@
+#!/usr/bin/env sh
+
+txt="${1:-Anachron © $(date +'%Y')}"
+fnt="-pointSize 72 -stroke black -strokewidth 3" # -font '${fontName}'
+
+while read f; do
+  f=$(realpath "${f}"); d=$(dirname "${f}"); bn=$(basename "${f}")
+  r=$(printf '%s' "${bn}" | cut -d '.' -f 1); e=$(printf '%s' "${bn}" | cut -d '.' -f 2-)
+  printf '%s' "${r}" | grep -q -E '\-wm$' && continue # don't watermak already marked images
+  n="${d}/${r}-wm.${e}"
+  printf 'Watermarking "%s" ...\n' "${bn}"
+  convert "${f}" ${fnt} -gravity 'southeast' -fill 'white' -draw "text 0,0 '${txt}'" "${n}"
+done

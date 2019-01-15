@@ -1,0 +1,5 @@
+#!/usr/bin/env sh
+
+d=$(mktemp -d '/tmp/td-XXXXX')
+"${SHELL}" -i -c "export TD='${d}'; cd '${d}'; ${SHELL}"
+rm -rf "${d}"

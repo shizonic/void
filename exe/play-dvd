@@ -1,0 +1,3 @@
+#!/usr/bin/env sh
+
+mpv dvd://menu "dvdread://${1:-1}"
