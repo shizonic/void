@@ -29,16 +29,17 @@ handlePart() {
 }
 
 . thm-export
-sbght=$(cat /tmp/status-brightness)
-tbght=$(cat /tmp/brightness)
+col="${base04}"
+#sbght=$(cat /tmp/status-brightness)
+#tbght=$(cat /tmp/brightness)
 
-if test "${sbght}" -lt 40; then
-  test "${tbght}" -lt 50 && col="${base06}" || col="${base01}"
-elif test "${sbght}" -lt 70; then
-  test "${tbght}" -lt 50 && col="${base05}" || col="${base02}"
-else
-  test "${tbght}" -lt 50 && col="${base04}" || col="${base03}"
-fi
+#if test "${sbght}" -lt 40; then
+#  test "${tbght}" -lt 50 && col="${base06}" || col="${base01}"
+#elif test "${sbght}" -lt 70; then
+#  test "${tbght}" -lt 50 && col="${base05}" || col="${base02}"
+#else
+#  test "${tbght}" -lt 50 && col="${base04}" || col="${base03}"
+#fi
 
 #if test "${sbght}" -lt 35; then
 #  test "${wbght}" -lt 50 && col="${base03}" || col="${base05}"

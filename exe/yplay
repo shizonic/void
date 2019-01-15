@@ -2,7 +2,7 @@
 
 pl='/tmp/play-list'
 
-test -p /dev/stdin && fl=$(cat) || fl=$(yfind ${@})
+test -p /dev/stdin && fl=$(cat) || test -f "${1}" && fl=$(realpath "${1}") || fl=$(yfind ${@})
 printf '%s\n' "${fl}" > "${pl}"
 
 mpv -loop --no-video --playlist="${pl}"

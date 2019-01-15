@@ -1,24 +1,39 @@
 #!/usr/bin/env sh
 
-# passed wallpaper
-if test -f "${1}"; then
-  wp=$(realpath "${1}")
-  shift 1;
+cp="" # color palette
+wp="" # wallpaper
+
+while test "$#" -gt 0; do
+  if test -f "${1}"; then
+    ft=$(file "${1}" | grep -o -E 'text|image')
+    test "${ft}" = 'image' && wp=$(realpath "${1}")
+    test "${ft}" = 'text' && cp=$(realpath "${1}")
+  fi
+  shift 1
+done
+
+test -z "${cp}${wp}" && wp=$(find "${HOME}/usr/med/img/wpr" -maxdepth 1 -type f | sort -R | head -n 1)
+
+if test -f "${wp}"; then
+  setroot -z "${wp}"
+  printf '%s' "${wp}" > /tmp/wallpaper
+elif test -f "${cp}"; then
+  wc=$(sed -n '2p' "${cp}")
+  setroot -sc "${wc}"
+  printf '%s' "${wc}" > /tmp/wallpaper
 else
-# random wallpaper
-  wp=$(find "${HOME}/usr/med/img/wpr" -maxdepth 1 -type f | sort -R | head -n 1)
+  exit 1
 fi
 
-setroot -z "${wp}"
-printf '%s' "${wp}" > /tmp/wallpaper
-
+unset COLORS
+export COLORS="${cp}"
 . thm-generate  # generate theme
+
 thm-apply xrs # apply theme to xrs
 . thm-export
 thm-apply cnf # apply theme to config
 thm-apply gtk # apply theme to gtk
 
-cat /tmp/theme | while read color; do
-  convert -size 50x50 "xc:$color" +depth miff:-
-done | montage - -geometry +0+0 /tmp/palette.png
+cat /tmp/theme | gen-palette # generate palette
 
+thm-reload

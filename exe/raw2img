@@ -1,10 +1,15 @@
 #!/usr/bin/env sh
 
-tgt="${2:-jpg}"
+tgt="${1:-jpg}"
+args="-c -w -h -b 1.5"
 
-printf 'Converting %s to %s\n' "${1}.CR2" "${1}.${tgt}"
-if test "${tgt}" = "jpg"; then
-  dcraw -c -w -h -b 1.0 "${1}.CR2" | pnmtojpeg > "${1}.JPG"
-elif test "${tgt}" = "png"; then
-  dcraw -c -w -h -b 1.0 "${1}.CR2" | pnmtopng > "${1}.PNG"
-fi
+while read f; do
+  printf '%s' "${f}" | grep -q -E 'CR2$' || continue
+  n=$(printf '%s' "${f}" | sed "s/CR2$/${tgt}/g")
+  printf 'Converting "%s" to "%s" ...\n' "${f}" "${n}"
+  if test "${tgt}" = "jpg"; then
+    dcraw ${args} "${f}" | pnmtojpeg > "${n}"
+  elif test "${tgt}" = "png"; then
+    dcraw ${args} "${f}" | pnmtopng > "${n}"
+  fi
+done

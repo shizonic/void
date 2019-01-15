@@ -149,7 +149,7 @@ case "${1}" in
       printf ' ... finished!'
     else
       printf '[%s] Applying to all shells' "$(date +'%X')"
-      pts=$(find /dev/pts -type f)
+      pts=$(find /dev/pts/[0-9]*)
       for pty in ${pts}; do
         apply_shell > "${pty}"
       done

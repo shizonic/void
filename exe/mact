@@ -1,44 +1,53 @@
 #!/usr/bin/env sh
 
-test -n "${1}" && a="${1}" || exit 1
-test -n "${2}" && m="${2}" || m=$(cat)
+a="att"
+test "$#" -gt 0 && a="${1}" && shift
 
-case "${a}" in
-  bnc)
-cat > /tmp/mail-body << EOL
+test -p /dev/stdin && ml=$(cat) || ml="${@}"
+
+handle_mail() {
+  m="${1}"; shift
+  case "${a}" in
+    att)
+      mshow -x "${m}"
+      test "$?" -eq 0 && printf 'Attachments have been extracted.\n'
+      ;;
+    bnc)
+      cat > /tmp/mail-body << EOL
 This message was created automatically by mail delivery software.
 A message that you sent could not be delivered to one or more of its
 recipients. This is a permanent error.
 
 ------ This is a copy of the message, including all the headers. ------
 EOL
-    f=$(mhdr -h from "${m}")
-    mbnc -resent-to "${f}" -- "${m}"
-    test "$?" -eq 0 && printf 'Mail has been bounced.\n'
-    ;;
-  del)
-    #rm "${m}"
-    test "$?" -eq 0 && printf 'Mail has been deleted.\n'
-    ;;
-  ext)
-    mshow -x "${m}"
-    test "$?" -eq 0 && printf 'Attachments have been extracted.\n'
-    ;;
-  tkt)
-    test -f /tmp/mail-ticket || printf '0' > /tmp/mail-ticket
-    tn=$(cat /tmp/mail-ticket) 
-    tn=$(echo "${tn} +1" | bc -s)
-    tn=$(printf '%010d' "${tn}")
-cat > /tmp/mail-body << EOL
+      f=$(mhdr -h from "${m}")
+      >/dev/null mbnc -resent-to "${f}" -send -- "${m}"
+      test "$?" -eq 0 && printf 'Mail has been bounced.\n'
+      ;;
+    del)
+      #rm "${m}"
+      test "$?" -eq 0 && printf 'Mail has been deleted.\n'
+      ;;
+    tkt)
+      test -f /tmp/mail-ticket || printf '0' > /tmp/mail-ticket
+      n=$(cat /tmp/mail-ticket) 
+      n=$(echo "${n} +1" | bc -s)
+      tn=$(printf '%010d' "${n}")
+      cat > /tmp/mail-body << EOL
 Thank you for your email!
 
 Your case number is #${tn}.
 EOL
-    printf '%s' "${tn}" > /tmp/mail-ticket
-    mrep -body /tmp/mail-body -- "${m}"
-    test "$?" -eq 0 && printf 'Mail has been replied (ticket).\n'
-    ;;
-esac
+      printf '%s' "${n}" > /tmp/mail-ticket
+      1>/dev/null mrep -body /tmp/mail-body -noquote -send -- "${m}"
+      test "$?" -eq 0 && printf 'Mail has been replied (ticket).\n'
+      ;;
+  esac
+}
 
-#mbnc "${1}"
-#mrep -body spam-reply.txt "${1}"
+for m in ${ml}; do
+  s=$(mhdr -h 'Subject' "${m}")
+  test -z "${s}" && s=$(basename "${m}")
+  printf 'Processing "%s" ...\n' "${s}"
+  handle_mail "${m}"
+done

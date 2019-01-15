@@ -135,9 +135,9 @@ while test "$#" -gt 0; do
       if test -z "${mntDev}"; then
         newText 'all' 'not mounted'
       else
-        newText 'usr' $(stat -c %y "${mntDev}/user")
-        newText 'med' $(stat -c %y "${mntDev}/media")
-        newText 'sys' $(stat -c %y "${mntDev}/system")
+        newText 'usr' $(stat -c %y "${mntDev}/user/${USER}")
+        newText 'med' $(stat -c %y "${mntDev}/media/${USER}")
+        newText 'sys' $(stat -c %y "${mntDev}/system/${HOSTNAME}")
       fi
       ;;
     -f)

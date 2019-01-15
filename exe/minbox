@@ -6,4 +6,4 @@ else
   MAIL_ACC=$(grep -B 3 'from[ ]*'"$(mfrom)" ~/.msmtprc | head -n 1 | awk '{print $2}')
 fi
 
-cat "${HOME}/usr/mls/${MAIL_ACC}/all.seq" | mscan
+cat "${HOME}/usr/mls/${MAIL_ACC}/all.seq" #| mscan

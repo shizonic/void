@@ -32,7 +32,8 @@ rm "${xpmFile}"
 
 case "${1}" in
   h) sudo zzz;;
-  k) slock;;
+  k) . /etc/os-release; physlock -p "You are currently logged as ${USER} into ${NAME}";;
+  #k) slock;;
   l) pkill -f xinit;;
   n) sudo shutdown -P now;;
   o) sudo reboot;;

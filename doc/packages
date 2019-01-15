@@ -20,11 +20,13 @@ Backup, Restore & Versioning
 - git
 - mercurial
 - testdisk
+- stagit
 
 Containers & VMs
 - containers
 - qemu
 - rkt
+#- virtualenvwrapper
 - wine-32bit
 - wine-mono
 - winetricks
@@ -105,7 +107,7 @@ Printing, Camera, Photo Editing
 - gphoto2
 - gutenprint
 - ImageMagick
-- ufraw
+- sane
 
 Programming
 - rustup
@@ -124,6 +126,7 @@ System
 - lvm2
 - ntfs-3g
 - ntp
+- patch
 - pkg-config
 - socklog-void
 - sysstat
@@ -140,6 +143,7 @@ Utilities
 - lowdown
 - lsof
 - p7zip
+- qrencode
 - sassc
 - tree
 - ufw

@@ -5,4 +5,5 @@
 test "$#" -eq 0 && awk -F ':' '$1 == "Local-Mailbox" {print $2}' ~/.mblaze/profile | xargs && exit
 acc=$(sed -n "/^account[ ]*${1}$/,/^$/p" ~/.msmtprc | awk '$1 == "from" {print $2}')
 test -n "${acc}" && sed -i "s|^Local-Mailbox.*|Local-Mailbox: ${acc}|" ~/.mblaze/profile
+test -f "${HOME}/usr/mls/${1}/signature" && ln -s "${HOME}/usr/mls/${1}/signature" ~/.mblaze/signature || rm ~/.mblaze/signature
 test -n "${acc}" && printf 'Switched to "%s"\n' "${acc}"

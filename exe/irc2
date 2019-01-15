@@ -83,6 +83,8 @@ checkServ() {
   test -f "${s_pidf}" && pid=$(cat "${s_pidf}") || pid=""
   if test -n "${pid}"; then
     ps -p "${pid}" 2>&1 >/dev/null
+  else
+    return 1 
   fi
 }
 
@@ -106,12 +108,14 @@ joinServ() {
 }
 
 recServ() {
-  ! checkServ && joinServ
   while :; do
-    pid=$(cat "${s_pidf}")
-    tail --pid="${pid}" -f /dev/null
+    ! checkServ && joinServ
+    test -e "${s_pidf}" && pid=$(cat "${s_pidf}") || pid=''
+    if test -n "${pid}"; then
+      tail --pid="${pid}" -f /dev/null
+    fi
     notify-send " ${s_key}"
-    joinServ
+    sleep 1
   done
 }
 
@@ -256,9 +260,9 @@ case "${2}" in
     else
       tmux \
         new-session "irc2 ${1} tr ${3}" \; \
-        split-window -h -p 30 "irc2 ${1} n ${3} | less" \; \
         split-window -f -l 2 "irc2 ${1} tw ${3}" \; \
         rename-session "irc2-${1}-${3}" \;
+#        split-window -h -p 30 "irc2 ${1} n ${3} | less" \; \
     fi
     ;;
   r|rec)

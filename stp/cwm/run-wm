@@ -8,8 +8,7 @@ xsetroot -cursor_name left_ptr # set default cursor
 xset m 3/2 0 # manage mouse speed
 manage-displays & # display manager
 
-thm-change # change configs
-thm-reload # reload programs
+thm-change # change configs & reloads
 
 redshift &    # color correct   : ~/.config/redshift.conf
 gpg-agent --daemon # gpg agent  ! ~/.gnupg/gpg-agent.conf
