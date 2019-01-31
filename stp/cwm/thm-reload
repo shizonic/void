@@ -10,7 +10,7 @@ dunst &       # notifications   : ~/.config/dunst/dunstrc
 pgrep cwm 2>&1 >/dev/null && kill -HUP $(pgrep cwm) # reload cwm config
 tmux source-file ~/.tmux.conf # reload tmux
 
-xrdb ~/.Xresources # reload xrs
+xrdb -load ~/.Xresources # reload xrs
 . thm-export
 thm-apply sh # reload all terminals
 

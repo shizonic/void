@@ -1,0 +1,25 @@
+#!/usr/bin/env sh
+
+p=$(cat)
+c=$(printf '%s\n' "${p}" | wc -l)
+
+if test "${c}" -eq 8; then
+  p=$(printf '%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n' '#181818' '#282828' '#383838' '#585858' '#b8b8b8' '#d8d8d8' '#e8e8e8' '#f8f8f8' "${p}")
+fi
+
+if test "$#" -gt 0; then
+  n="${1}"
+else
+  printf '%s\n' "${p}" | pal-preview '/tmp/colors.png'
+  sxiv '/tmp/colors.png'
+  test "$?" -ne 0 && exit 1
+  printf 'Name of palette: '
+  read n </dev/tty
+  rm '/tmp/colors.png'
+  printf '\n'
+fi
+
+test -z "${n}" && exit 1
+
+printf '%s\n' "${p}" > "${n}"
+printf '%s\n' "${n}" | thm-preview

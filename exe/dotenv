@@ -1,0 +1,55 @@
+#!/usr/bin/env sh
+# de = dot.env
+
+test -z "${DOTENV_DIR}" && DOTENV_DIR="${HOME}/.dotenv"
+test -d "${DOTENV_DIR}" || mkdir "${DOTENV_DIR}"
+test -z "${DOTENV_NAME}" && DOTENV_NAME=".env"
+
+dotenv_list() {
+   env | grep -E '^[A-Z_-]*\=' | grep -v '()' | grep "^[^ ]" | sort
+}
+
+dotenv_diff() {
+  tc="${DOTENV_DIR}/tty-${t}-tmp"
+  dotenv_list > "${tc}"
+  join -v 2 <(cat "${ef}") <(cat "${tc}") | grep -v 'PWD'
+  rm "${tc}"
+}
+
+dotenv() {
+  rc="$?"
+  tnr=$(tty | grep -o '[0-9]*')
+  ef="${DOTENV_DIR}/tty-${tnr}-env"
+  hf="${DOTENV_DIR}/tty-${tnr}-hst"
+
+  if test -f "${hf}"; then
+    hd=$(cat "${hf}")
+    if test $(realpath "${PWD}") != "${hd}"; then
+      #printf 'Unloading old .env\n'
+      df=$(dotenv_diff)
+      for f in ${df}; do
+        s=$(printf '%s' "${f}" | cut -d '=' -f 1)
+        o=$(grep "${s}=" "${ef}" | cut -d '=' -f 2-)
+        if test -z "${o}"; then
+          #printf 'Unsetting: %s\n' "${s}"
+          c=$(printf 'unset %s' ${s})
+        else
+          #printf 'Resetting: %s\n' "${s}"
+          c=$(printf 'export %s="%s"' "${s}" "${o}")
+        fi
+        eval "${c}"
+      done
+
+      rm -f "${ef}" "${hf}"
+    fi
+  fi
+
+  if test -e "${PWD}/${DOTENV_NAME}"; then
+    #printf 'Loading .env\n'
+    dotenv_list > "${ef}"
+    realpath "${PWD}" > "${hf}"
+    . "${PWD}/${DOTENV_NAME}"
+  fi
+
+  return "${rc}"
+}

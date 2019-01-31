@@ -1,0 +1,3 @@
+#!/usr/bin/env sh
+
+tmp-dir 'sxiv $(rnd-img)' 

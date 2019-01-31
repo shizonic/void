@@ -1,0 +1,28 @@
+#!/usr/bin/env sh
+
+test "$#" -gt 0 && fn="${1}" || fn=$(find ~/app/dat/x/fonts -iname "*-[rR]egular.ttf" | sort -r | head -n 1)
+ff=$(find ~/app/dat/x/fonts -iname "*${fn}*-[rR]egular.ttf")
+fa=$(fc-list --format='%{family}\n' "${1}" | sort -u | head -n 1)
+fp="/tmp/font-prv.html"
+
+cat > "${fp}" <<EOL
+<!DOCTYPE html>
+<html>
+  <head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>Font Preview: ${fn}</title>
+  <style type="text/css">
+    @font-face {font-family: '${fa}'; src: local('${fn}') url('${ff}');}
+    body {font-family: '${fa}', 'serif';}
+  </style>
+  </head>
+  <body>
+    <p>The quick brown fox jumps over the lazy dog</p>
+    <p>0123456789</p>
+    <p>.,-+*#'_</p>
+  </body>
+</html>
+EOL
+
+"${BROWSER}" "${fp}"
+#rm "${fp}"

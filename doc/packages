@@ -80,6 +80,7 @@ Games
 - steam
 
 Internet, Network & File Sharing
+- aria2
 - avahi
 - cifs
 - firefox
@@ -110,6 +111,7 @@ Printing, Camera, Photo Editing
 - sane
 
 Programming
+- go
 - rustup
 
 System
@@ -139,6 +141,7 @@ Utilities
 - dos2unix
 - gotop
 - fd
+- fff
 - jq
 - lowdown
 - lsof

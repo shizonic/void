@@ -27,7 +27,7 @@ vrb_sync() {
   test -d /${tgt}/boot || mkdir /${tgt}/boot
 
   # Make backup most important root dirs invulnerable
-  printf '[%s] Unprotecting %s/etc & %s/etc ...\n' "$(date +'%X')" "/${tgt}" "/${tgt}"
+  printf '[%s] Unprotecting %s/etc & %s/usr ...\n' "$(date +'%X')" "/${tgt}" "/${tgt}"
   chattr -R -i "/${tgt}/etc" >/dev/null 2>&1
   chattr -R -i "/${tgt}/usr" >/dev/null 2>&1
   

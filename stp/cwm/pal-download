@@ -1,0 +1,41 @@
+#!/usr/bin/env sh
+
+tf=$(mktemp '/tmp/colors-XXXXX')
+
+rgb2hex() {
+  printf '#%02X%02X%02X' "${1}" "${2}" "${3}"
+}
+
+json2rgb() {
+  jq -c '.[]' | sed 's|^\[\[||g;' | tr '[' '\n' | tr -d ']' | sed 's|,$||g; s|,| |g'
+}
+
+# get random color palette (5)
+c=$(curl -s 'http://colormind.io/api/' --data-binary '{"model":"default"}')
+e=$(printf '%s' "${c}" | json2rgb)
+
+# convert them to hex colors
+printf '%s\n' "${e}" | while read line; do
+  printf '%s\n' $(rgb2hex ${line}) >> "${tf}"
+done
+
+# pick 2 random colors
+rc=$(printf '%s\n' "${e}" | shuf | head -n 2)
+rc1=$(printf '%s\n' "${rc}" | head -n 1 | sed 's|^|[|g; s|$|]|g' | tr ' ' ',')
+rc2=$(printf '%s\n' "${rc}" | tail -n 1  | sed 's|^|[|g; s|$|]|g' | tr ' ' ',')
+
+p=$(printf 'C\nC\nR\nR\nR' | shuf | sed 's|R|"N"|g; s|C|%s|g' | tr '\n' ',' | sed 's|,$||g')
+f="{\"model\":\"default\", \"input\": [${p}]}"
+d=$(printf "${f}" "${rc1}" "${rc2}")
+s=$(printf '%s\n' "${p}" | tr ',' '\n' | grep -n -v 'N' | cut -d ':' -f 1 | tr '\n' ';' | sed 's|\;|d\;|g; s|\;$||g')
+
+c=$(curl -s 'http://colormind.io/api/' --data-binary "${d}")
+e=$(printf '%s' "${c}" | json2rgb | sed -e "${s}")
+
+# convert them to hex colors
+printf '%s\n' "${e}" | while read line; do
+  printf '%s\n' $(rgb2hex ${line}) >> "${tf}"
+done
+
+cat "${tf}"
+rm "${tf}"

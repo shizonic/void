@@ -14,7 +14,7 @@ done
 
 if test -z "${WALLPAPER}${PALETTE}"; then
   r=$(shuf -i0-1 -n1)
-  test "${r}" -eq 0 && export PALETTE=$(find "${HOME}/usr/col/" -maxdepth 1 -type f | sort -R | head -n 1)
+  test "${r}" -eq 0 && export PALETTE=$(find "${HOME}/usr/col/" -maxdepth 2 -type f | sort -R | head -n 1)
   test "${r}" -eq 1 && export WALLPAPER=$(find "${HOME}/usr/med/img/wpr" -maxdepth 1 -type f | sort -R | head -n 1)
 fi
 

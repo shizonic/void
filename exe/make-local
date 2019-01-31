@@ -1,18 +1,36 @@
 #!/usr/bin/env sh
 
+d=$(mktemp -d '/tmp/ml-XXXXX')
+cd "${d}"
+
+case "${1}" in
+  'mblaze') git clone 'https://github.com/chneukirchen/mblaze.git' "${d}";;
+  'mvi') git clone 'https://github.com/Duncaen/mvi.git' "${d}";;
+  *) exit 1;;
+esac
+
 # checkout to revert changes
 #git checkout master -f
 
-# updating
-git pull
+printf 'Patching\n'
+for p in $(find -name '*.diff'); do
+  patch < "${p}"
+done
 
-# patching
-#for p in *.diff; do
-#  patch < "${p}"
-#done
+printf 'Compiling\n' 
+if ! make 2>&1 > compile.log; then
+  2>&1 printf 'Compilation error!\n'
+  printf '%s\n' "${d}"
+  exit 2
+fi
 
-# compiling
-make
+printf 'Installing\n'
+if ! sudo make install 2>&1 > install.log; then
+  2>&1 printf 'Installation error!\n'
+  printf '%s\n' "${d}"
+  exit 2
+fi
 
-# installing
-sudo make install
+printf 'Cleaning\n'
+cd - >/dev/null
+rm -rf "${d}"

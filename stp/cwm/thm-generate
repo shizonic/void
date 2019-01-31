@@ -9,8 +9,8 @@ if test -f "${WALLPAPER}"; then
 else
   w=50
   c=$(cat "${PALETTE}" | head -n 1)
-  bg=$(printf '%s\n' "${c}" | head -n 1)
-  printf '%s\n' "${bg}" | pal-generate "${wc}"
+  #bg=$(printf '%s\n' "${c}" | head -n 1)
+  printf '%s\n' "${c}" | pal-preview "${wc}"
 fi
 
 convert "${wc}" -crop "${w}x50+0+0" +repage "${wr}"

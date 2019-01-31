@@ -1,5 +1,5 @@
 #!/usr/bin/env sh
 
-khard email --parsable "${1}" | tail -n +2 | awk '{print $1}'
+khard email -p "${1}" | tail -n +2 | awk '{print $1}'
 #test -f ~/.mblaze/address || mlist ${HOME}/usr/mls/*/INBOX/cur | maddr -a | tr 'A-Z' 'a-z' | sort -d -u > ~/.mblaze/address
-#grep -i "${1}" ~/.mblaze/address
+#grep -m 1 -i "${1}" ~/.mblaze/address

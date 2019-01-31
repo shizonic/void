@@ -1,7 +1,8 @@
 #!/usr/bin/env sh
 
 f=$(mktemp "${TD:-/tmp}/tf-XXXXX")
+cmd="${@:-${EDITOR} '${f}'}"
 export TF="${f}"
-"${EDITOR}" "${f}"
+${cmd}
 unset TF
 test -z "${TD}" && rm -f "${f}"

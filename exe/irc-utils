@@ -6,6 +6,7 @@ idntLst="${cnfDir}/idents.csv"
 servLst="${cnfDir}/servers.csv"
 chanLst="${cnfDir}/channels.csv"
 actLst="${cnfDir}/active.csv"
+ignLst="${cnfDir}/ignore.csv"
 
 findServ() {
   awk -F ',' '$1 == "'"${1}"'" {print $0}' "${servLst}"
@@ -127,12 +128,18 @@ saveHistory() {
     printf 'Archiving "%s"\n' "${name}"
     mkdir -p "${datDir}/${s_addr}/history/${name}"
     awk -v dir="${datDir}/${s_addr}/history/${name}" '{date=strftime("%Y-%m-%d", $1); print >> dir"/"date".log"}' "${datDir}/${s_addr}/${chan}"
-    test "$?" -eq 0 && truncate -s 0 "${chan}"
+    test "$?" -eq 0 && truncate -s 0 "${datDir}/${s_addr}/${chan}"
   done
 }
 
 findHistory() {
   grep "${@}" "${datDir}/${s_addr}/history/${c_name}"/*.log
+}
+
+isIgnored() {
+  ign=$(awk -F ',' '$1 == "'"${1}"'" && $2 == "'"${2}"'" {print $3}' "${ignLst}")
+  test -n "${ign}" && return 0
+  return 1
 }
 
 checkIdent() {
@@ -163,6 +170,7 @@ termReader() {
   t_act='«';  t_speak='»'
   t_join='+'; t_left='×'
   t_mode='*'; t_quit=';'
+  t_mute='*';
   t_empty=$(seq -s ' ' 17 | tr -d '[:digit:]')
 
   m_rows=$(tput lines); m_cols=$(tput cols)
@@ -173,6 +181,10 @@ termReader() {
   while IFS=' ' read m_time m_nick m_text; do
     #printf '%s: %s\n' "${m_nick}" "${m_text}"  
     m_nick=$(printf '%s' "${m_nick}" | tr -d '<>' | cut -c 1-12)
+    if isIgnored "${s_key}" "${m_nick}"; then
+      printf '%-14b%b%b\n' " ${m_nick}" "${c_sys}${t_mute}${c_res}" ' (muted)'
+      continue
+    fi
     m_self=$(test "${m_nick}" = "${i_nick}" && printf 0 || printf 1)
     m_sys=$(test "${m_nick}" = '-!-' && printf 0 || printf 1)
     m_ment=$(printf '%s' "${m_text}" | grep -q "${i_nick}" && printf 1 || printf 0)
@@ -222,81 +234,3 @@ termWriter() {
   done
 }
 
-test "$#" -le 1 && printf 'To less arguments!\n' && exit 1
-
-readServ $(findServ "${1}")
-
-test -z "${s_key}" && printf 'Unknown server: %s\n' "${1}" && exit 1
-
-case "${2}" in
-  a|archive)
-    shift 2
-    saveHistory "${@}"
-    ;;
-  c|con)
-    readIdent $(findServIdents "${1}") || exit 1
-    joinServ || exit 1
-    ;;
-  h|hist)
-    readChan $(findChan "${1}" "${3}") || exit 1
-    shift 3
-    findHistory "${@}"
-    ;;
-  j|join)
-    readChan $(findChan "${1}" "${3}") || exit 1
-    joinChan
-    ;;
-  l|leave)
-    readChan $(findChan "${1}" "${3}") || exit 1
-    leaveChan
-    ;;
-  n|nicks)
-    t=$(tac "${datDir}/${s_addr}/out" | grep -m 1 "= ${chn}" | cut -d ' ' -f 1)
-    tac "${datDir}/${s_addr}/out" | grep "${t} = ${chn}" | cut -d ' ' -f 4- | tr ' ' '\n' | sort -u
-    ;;
-  o|open)
-    if tmux ls | grep -q "irc2-${1}-${3}"; then
-      tmux attach -t "irc2-${1}-${3}"
-    else
-      tmux \
-        new-session "irc2 ${1} tr ${3}" \; \
-        split-window -f -l 2 "irc2 ${1} tw ${3}" \; \
-        rename-session "irc2-${1}-${3}" \;
-#        split-window -h -p 30 "irc2 ${1} n ${3} | less" \; \
-    fi
-    ;;
-  r|rec)
-    readIdent $(findServIdents "${1}") || exit 1
-    recServ
-    ;;
-  tr|termreader)
-    readChan $(findChan "${1}" "${3}") || exit 1
-    readIdent $(findServIdents "${1}") || exit 1
-    shift 3
-    termReader "${@}"
-    ;;
-  tw|termwriter)
-    readChan $(findChan "${1}" "${3}") || exit 1
-    readIdent $(findServIdents "${1}") || exit 1
-    shift 3
-    termWriter "${@}"
-    ;;
-  w|write)
-    readChan $(findChan "${1}" "${3}") || exit 1
-    shift 3
-    writeChan "${@}"
-    ;; 
-  q|quit)
-    pid=$(cat "${datDir}/${s_addr}/pid")
-    ps -p "${pid}" 2>&1 >/dev/null || exit
-    sess=$(tmux ls 2>/dev/null | grep -o -w -E "irc2-${s_key}-[a-z]*")
-    if test -n "${sess}"; then
-      for s in ${sess}; do
-        tmux kill-session -t "${s}"
-      done
-    fi
-    printf '/quit\n' > "${datDir}/${s_addr}/in"
-    tail --pid="${pid}" -f /dev/null
-    printf 'Disconnected\n'
-    ;;
-esac

@@ -1,0 +1,23 @@
+#!/usr/bin/env sh
+
+test -z "${TRASH_DIR}" && TRASH_DIR="${HOME}/usr/tsh"
+
+test -p /dev/stdin && el=$(cat) || el="${@}"
+for e in ${el}; do
+  test ! -e "${e}" && continue # skip if node does not exist
+  rp=$(readlink -f "${e}")
+  echo "${rp}" | grep -q "${TRASH_DIR}" && continue # skip if node is in trash
+  mt=$(stat -c '%Y' "${rp}"); pm=$(stat -c '%a' "${rp}")
+  ow=$(stat -c '%u:%g' "${rp}")
+  test -f "${rp}" && ms=$(md5sum "${rp}" | awk '{print $1}') || ms=$(tar -cf - "${rp}" 2>&1 >/dev/null | md5sum | awk '{print $1}')
+  bn=$(basename "${e}")
+  tn="${bn}@${ms}.bak"
+  nf="${bn}@${ms}.inf"
+  test -f "${TRASH_DIR}/${tn}" && continue # file already trashed
+  if mv "${rp}" "${TRASH_DIR}/${tn}"; then
+    printf "%s\n%s\n%s\n%s\n%s" "${rp}" "${mt}" "${pm}" "${ow}" > "${TRASH_DIR}/${nf}"
+    touch "${TRASH_DIR}/${tn}" "${TRASH_DIR}/${nf}" # refresh modification time
+    chmod 400 "${TRASH_DIR}/${tn}" "${TRASH_DIR}/${nf}" # change permissions
+    printf '%s\n' "${TRASH_DIR}/${bn}@${ms}.bak" # print node to be used further
+  fi
+done

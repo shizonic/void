@@ -1,0 +1,25 @@
+#!/usr/bin/env sh
+
+test "$#" -gt 2 || exit 1
+
+. irc-utils || exit 2
+
+export SELF="TheAnachron"
+
+export SRV="${1}"
+export CHN="${2}"
+export BOT="${3}"
+shift 3
+
+readServ $(findServ "${SRV}") || exit 3
+readChan $(findChan "${SRV}" "${CHN}") || exit 3
+
+export IN="${HOME}/usr/irc/${s_addr}/${c_name}/in"
+export OUT="${HOME}/usr/irc/${s_addr}/${c_name}/out"
+
+tail -f -n 1 "${OUT}" | \
+while IFS=' ' read TIME NICK TEXT; do
+  NICK=$(printf '%s' "${NICK}" | tr -d '<>')
+  export TIME; export NICK; export TEXT
+  ${BOT}
+done

@@ -1,6 +1,39 @@
 #!/usr/bin/env sh
 
-cd /tmp
-i=$(unsplash 1)
-sxiv "${i}"
-rm "${i}"
+tmp='/tmp/unsplash'
+
+qry=""
+num=1
+while test "$#" -gt 0; do
+  printf '%s' "${1}" | grep -q -E '^[0-9]*$' && num="${1}" || qry="${1}"
+  shift
+done
+
+res=$(xrandr | grep -o -E 'primary [0-9]*x[0-9]*' | grep -o -E '[0-9x]*')
+imw=$(echo "${res}" | awk -F 'x' '{print $1}')
+imh=$(echo "${res}" | awk -F 'x' '{print $2}')
+
+if test -n "${qry}"; then
+  api="https://api.unsplash.com/photos/search/?query=${qry}&w=${imw}&h=${imh}&per_page=${num}&orientation=landscape"
+else
+  api="https://api.unsplash.com/photos/random/?w=${imw}&h=${imh}&count=${num}"
+fi
+
+! test -f "${tmp}" && curl -s "${api}" -H "Authorization: Client-ID ${UNSPLASH_API}" > "${tmp}"
+
+i=0
+while test "${i}" -lt "${num}"; do
+  if test -z "${qry}"; then
+    url=$(cat "${tmp}" | jq ".[${i}].urls.custom" | tr -d '"')
+  else
+    url=$(cat "${tmp}" | jq ".[${i}].urls.full" | tr -d '"')
+  fi
+  id=$(cat "${tmp}" | jq ".[${i}].id" | tr -d '"')
+  fmt=$(echo "${url}" | grep -o -E 'fm=([a-z])*' | cut -d '=' -f 2)
+  fn="photo-${id}.${fmt}"
+  ! test -f "${fn}" && curl -s "${url}" > "${fn}"
+  test -f "${fn}" && printf '%s\n' "${fn}"
+  i=$((i +1))
+done
+
+rm "${tmp}"

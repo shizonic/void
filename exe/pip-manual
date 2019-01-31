@@ -1,0 +1,14 @@
+#!/usr/bin/env sh
+
+python -m site
+
+pl2=""; pl3=""
+command -v 'pip2' && pl2=$(pip2 list | cut -d ' ' -f 1 | tail -n +3)
+command -v 'pip3' && pl3=$(pip3 list | cut -d ' ' -f 1 | tail -n +3)
+pl=$(printf '%s\n%s' "${pl2}" "${pl3}")
+for p in ${pl2}; do
+  w=$(which "${p}" 2>/dev/null)
+  test -z "${w}" && printf 'WARN: %s exe not found!\n' "${p}" && continue
+  xpkg=$(xbps-query -o "${w}")
+  test -n "${xpkg}" && printf '%s -> %s\n' "${p}" "${xpkg}" || printf '%s (manual)\n' "${p}"
+done

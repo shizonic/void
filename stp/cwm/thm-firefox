@@ -1,0 +1,86 @@
+#!/usr/bin/env sh
+
+# https://github.com/mozilla/FirefoxColor/blob/2b5cdf55754eaebcf29b367100964372b80d0a45/src/preset-themes/default.json
+# https://github.com/mozilla/FirefoxColor/blob/2b5cdf55754eaebcf29b367100964372b80d0a45/src/web/index.js#L43-L51
+# https://github.com/masotime/json-url/blob/master/src/main/index.js#L11-L23
+# https://github.com/RGBboy/urlsafe-base64/blob/master/lib/urlsafe-base64.js#L31-L61
+
+ffc_c() {
+  msgpack-cli encode | lzma -c | base64 | sed 's|+|-|g; s|/|_|g'
+}
+
+ffc_d() {
+  sed 's|-|+|g; s|_|/|g' | base64 -d | lzcat | msgpack-cli decode
+}
+
+hex2rgb(){
+  h=$(echo "${1}" | tr -d '#' | tr '[:lower:]' '[:upper:]')
+  r=$(printf '%s' "${h}" | cut -c 1-2)
+  g=$(printf '%s' "${h}" | cut -c 3-4)
+  b=$(printf '%s' "${h}" | cut -c 5-6) 
+
+  printf '{"r":%d,"g":%d,"b":%d}' "0x${r}" "0x${g}" "0x${b}"
+}
+
+ffc_g() {
+  tb=$(hex2rgb "${base01}")     # toolbar
+  tbt=$(hex2rgb "${base07}")    # toolbar text
+  ac=$(hex2rgb "${base01}")     # accent (background)
+  tc=$(hex2rgb "${base07}")     # textcolor
+  tbf=$(hex2rgb "${base03}")    # toolbar field
+  tbft=$(hex2rgb "${base07}")   # toolbar field text
+  tl=$(hex2rgb "${base0B}")     # tabline
+  pop=$(hex2rgb "${base01}")    # popup
+  popt=$(hex2rgb "${base07}")   # popup text
+  cat << EOL
+{"title:": "default", "colors": {
+"toolbar": ${tb}, "toolbar_text": ${tbt},
+"accentcolor": ${ac}, "textcolor": ${tc},
+"toolbar_field": ${tbf}, "toolbar_field_text": ${tbft},
+"tab_line": ${tl}, "popup": ${pop}, "popup_text": ${popt}
+}, "images": {}}
+EOL
+}
+
+ffc_o() {
+  test -f "${1}" && thm=$(cat "${1}") || thm=$(cat)
+  cmp=$(printf '%s' "${thm}" | ffc_c)
+  xdg-open "https://color.firefox.com/?theme=${cmp}"
+}
+
+test "$#" -gt 0 || exit 1
+act="${1}"; shift
+
+case "${act}" in
+  c*) ffc_c ${@};;
+  d*) ffc_d ${@};;
+  g*) ffc_g ${@};;
+  o*) ffc_o ${@};;
+esac
+
+# base64-encode
+#   return buffer.toString('base64')
+#     .replace(/\+/g, '-') // Convert '+' to '-'
+#     .replace(/\//g, '_') // Convert '/' to '_'
+#     .replace(/=+$/, ''); // Remove ending '='
+
+# base64-decode
+# base64 += Array(5 - base64.length % 4).join('=');
+# base64 = base64
+#   .replace(/\-/g, '+') // Convert '-' to '+'
+#   .replace(/\_/g, '/'); // Convert '_' to '/'
+
+#compress(json) {
+#  const packed = pack ? (await LOADERS.msgpack()).encode(json) : JSON.stringify(json);
+#  const compressed = await ALGORITHMS[algorithm].compress(packed);
+#  const encoded = encode ? (await LOADERS.safe64()).encode(compressed) : compressed;
+#  return encoded;
+#}
+
+#decompress(string) {
+#  const decoded = encode ? (await LOADERS.safe64()).decode(string) : string;
+#  const decompressed = await ALGORITHMS[algorithm].decompress(decoded);
+#  const unpacked = pack ? (await LOADERS.msgpack()).decode(decompressed) : JSON.parse(decompressed);
+#  return unpacked;
+#}
+

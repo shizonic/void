@@ -1,3 +1,19 @@
 #!/usr/bin/env sh
 
-cp -r "${1}" "${1}-$(date +'%Y%m%d_%H%M%S').bak"
+test -z "${BAK_DIR}" && BAK_DIR="${HOME}/usr/tsh"
+
+test -p /dev/stdin && el=$(cat) || el="${@}"
+for e in ${el}; do
+  test ! -e "${e}" && continue # skip if node does not exist
+  rp=$(readlink -f "${e}")
+  echo "${rp}" | grep -q "${BAK_DIR}" && continue # skip if node is in backup
+  #test -f "${rp}" && ms=$(md5sum "${rp}" | awk '{print $1}') || ms=$(tar -cf - "${rp}" 2>&1 >/dev/null | md5sum | awk '{print $1}')
+  bn=$(basename "${e}")
+  if test -f "${rp}"; then
+    bk="${BAK_DIR}/${bn}-$(date +'%Y%m%d_%H%M%S').bak"
+    cp "${rp}" "${bk}" && printf '%s\n' "${bk}"
+  else
+    bk="${BAK_DIR}/${bn}-$(date +'%Y%m%d_%H%M%S').tgz"
+    (cd "${rp}" && tar -czf "${bk}" ".") && printf '%s\n' "${bk}"
+  fi
+done

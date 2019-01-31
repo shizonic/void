@@ -3,8 +3,8 @@
 
 scriptDir=$(dirname `realpath -P "$0"`)
 parentDir=$(dirname "${scriptDir}")
-voidRepo1='https://repo.voidlinux.eu/current'
-voidRepo2='https://repo.voidlinux.eu/current/multilib'
+voidRepo1='https://alpha.de.repo.voidlinux.org/current'
+voidRepo2='https://alpha.de.repo.voidlinux.org/current/multilib'
 
 cnt_backup() {
   bakFile="${cntDir}/../${cntName}-$(date +'%Y%m%d-%H%M%S').tar.gz"
@@ -17,7 +17,7 @@ cnt_create() {
   test -z "${cntDir}" && cntDir="${HOME}/${cntName}"
 
   printf '[%s] Installing bootstrap ...\n' "$(date +'%X')"
-  pseudo xbps-install -R "${voidRepo1}" -MSr "${cntDir}" base-voidstrap
+  pseudo xbps-install -R "${voidRepo1}" -MSyr "${cntDir}" base-voidstrap
   
   cd "${cntDir}"
 
@@ -33,8 +33,23 @@ cnt_create() {
   pseudo rm etc/runit/runsvdir/default/agetty*
   
   printf '[%s] Fixing runit virt detection ...\n' "$(date +'%X')"
-  sed -i "s|-q lxc|-q -e 'contain\|inject\|lxc'|g" etc/runit/functions
-  
+  sed -i "s|-q lxc|-q -e 'contain\|inject-contain\|lxc'|g" etc/runit/functions
+
+  #printf '[%s] Fixing base-files ...\n' "$(date +'%X')"
+  #pseudo xbps-reconfigure -r "${cntDir}" -f base-files
+
+  printf '[%s] Installing base-pkgs ...\n' "$(date +'%X')"
+  pseudo xbps-install -y -R "${voidRepo1}" -r "${cntDir}" $(grep -v '^#' "${cntPkgs}" | tr '\n' ' ')
+
+  printf '[%s] Fixing hostname ...\n' "$(date +'%X')"
+  pseudo printf '%s' "${cntName}" > etc/hostname
+
+  printf '[%s] Fixing ${TERM} ...\n' "$(date +'%X')"
+  pseudo printf '%s=%s\n' 'TERM' 'xterm-256color' > root/.bashrc
+
+  printf '[%s] Fixing ping ...\n' "$(date +'%X')"
+  pseudo chmod u+s bin/ping*
+
   printf '[%s] Creating container runtime directory ...\n' "$(date +'%X')"
   pseudo mkdir cnt
   cd -
@@ -65,7 +80,7 @@ cnt_inject() {
   printf '[%s] Injecting into %s\n' "$(date +'%X')" "${cntName}"
   printf '%s' "${cmd}" > "${cntDir}/cnt/run"
   chmod +x "${cntDir}/cnt/run"
-  sudo inject $(cat "${cntDir}/cnt/pid") cnt/run
+  sudo inject-contain $(cat "${cntDir}/cnt/pid") cnt/run
   test -f "${cntDir}/cnt/run" && rm "${cntDir}/cnt/run"
 }
 
@@ -87,7 +102,8 @@ cnt_run() {
   test -s "${cntDir}/cnt/subgid" && cargs="${cargs} -g $(cat cnt/subgid)"
 
   printf '[%s] Running container %s...\n' "$(date +'%X')" "cnt"
-  nohup contain ${cargs} -n "${cntDir}" "${1:-/bin/init}" > "${cntDir}/tmp/contain.log" &
+  truncate -s 0 "${cntDir}/cnt/contain.log"
+  nohup contain -c ${cargs} -n "${cntDir}" "${1:-/bin/init}" > "${cntDir}/cnt/contain.log" &
   cntPID="$!"
 
   sleep 0.1
@@ -198,8 +214,8 @@ if test ! -d "${cntDir}" && test "${act}" != 'c'; then
   exit 1
 fi
 
-test -z "${cntPkgs}" && cntPkgs="${parentDir}/conf/cnt.pkgs"
-test -z "${cntFiles}" && cntFiles="${parentDir}/conf/cnt.files"
+test -z "${cntPkgs}" && cntPkgs="${parentDir}/cnf/cnt.pkgs"
+test -z "${cntFiles}" && cntFiles="${parentDir}/cnf/cnt.files"
 
 case "${act}" in
   b) cnt_backup ${@};;

@@ -1,0 +1,5 @@
+#!/usr/bin/env sh
+
+test -z "${TRASH_DIR}" && TRASH_DIR="${HOME}/usr/tsh"
+
+find "${TRASH_DIR}" -name '*.bak' ${@}

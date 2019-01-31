@@ -1,0 +1,23 @@
+#!/usr/bin/env sh
+
+test -z "${TRASH_DIR}" && TRASH_DIR="${HOME}/usr/tsh"
+
+test -p /dev/stdin && el=$(cat) || el="${@}"
+for e in ${el}; do
+  test ! -e "${e}" && continue # skip if node does not exist
+  rp=$(readlink -f "${e}")
+  echo "${rp}" | grep -q "${TRASH_DIR}" || continue # skip if node is in trash
+  echo "${rp}" | grep -q -E '.bak$' || continue # skip if not data file
+  nf=$(printf '%s' "${e}" | sed 's|.bak$|.inf|g')
+  rp=$(sed -n '1p' "${nf}")
+  mt=$(sed -n '2p' "${nf}")
+  pm=$(sed -n '3p' "${nf}")
+  ow=$(sed -n '4p' "${nf}")
+  test -e "${rp}" && continue # skip if target already exists
+  if mv "${e}" "${rp}"; then
+    touch -d "@${mt}" "${rp}"
+    chmod "${pm}" "${rp}"
+    rm -f "${nf}"
+    printf '%s\n' "${rp}"
+  fi
+done

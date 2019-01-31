@@ -1,0 +1,5 @@
+#!/usr/bin/env sh
+
+d="${1:-${PWD}}"
+find -P "${d}" -maxdepth 2 -wholename "${d}*/.*" -type l -ls \
+ | awk '{print $11" > "$13}' | sort

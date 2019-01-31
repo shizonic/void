@@ -5,7 +5,8 @@ while read f; do
   b=$(basename "${a}")
   d=$(dirname "${a}")
   file "${a}" | grep -q 'text' || continue
-  printf 'Creating palette for "%s\n' "${b}"
+  printf 'Creating palette for "%s"\n' "${b}"
   mkdir -p "${d}/prv"
-  cat "${a}" | gen-palette "${d}/prv/${b}.png"
+  test -f "${d}/prv/${b}.png" && continue
+  cat "${a}" | pal-preview "${d}/prv/${b}.png"
 done

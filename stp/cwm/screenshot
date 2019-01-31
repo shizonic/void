@@ -2,9 +2,9 @@
 
 fp="${HOME}/usr/med/img/scr/$(date +'%x-%X')"
 
-#if test "${1}" = 'area'; then
-#  maim -s -c 0.1,0.05,0.3,1 "${fp}-area.png"
-if test "${1}" = 'window'; then
+if test "${1}" = 'area'; then
+  maim -s -c 0.1,0.05,0.3,1 "${fp}-area.png"
+elif test "${1}" = 'window'; then
   fp="${fp}-window.png"
   import -w $(gfcw) "${fp}"
 elif test "${1}" = 'desktop'; then

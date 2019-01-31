@@ -1,7 +1,7 @@
 #!/usr/bin/env sh
 
 schLst="https://raw.githubusercontent.com/chriskempson/base16-schemes-source/master/list.yaml"
-schDir="${HOME}/usr/col"
+schDir="${HOME}/usr/col/gen"
 locLst="/tmp/schemes.yaml"
 locRepo="/tmp/scheme.tmp"
 

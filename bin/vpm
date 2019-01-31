@@ -1,20 +1,29 @@
 #!/usr/bin/env sh
- 
-test "$#" -eq 0 && exit 1
-act="${1}"; shift
+# VPM: Void Package Manager
+
 pkgDir="${HOME}/pkg"
- 
+
+if test "$#" -eq 0; then
+  export GOPATH="${pkgDir}/go"
+  export GEM_HOME="${pkgDir}/rb"
+  export CARGO_HOME="${pkgDir}/rs"
+  export PYTHONUSERBASE="${pkgDir}/py"
+  return
+fi
+
+act="${1}"; shift
+
 if echo "${PWD}" | grep -q "${pkgDir}"; then
   lng=$(basename "${PWD}")
 else
-  printf 'Not in %s folder! Exiting.' "${pkgDir}"
+  printf 'Not in %s folder! Exiting.\n' "${pkgDir}"
   exit 1
 fi
  
 case "${lng}" in
   'go') # go: go -> https://golang.org/cmd/go/
     case "${act}" in
-      i) go install ${@};;
+      i) go get ${@};;
       l) go list ${@};;
       s) echo 'Visit: "http://go-search.org"';;
       u) go clean -i ${@};;
@@ -29,7 +38,6 @@ case "${lng}" in
     esac
   ;;
   'py') # python: pip -> https://pip.pypa.io/en/stable/
-    export PYTHONUSERBASE="${PWD}"
     case "${act}" in
       i) pip install --user ${@};;
       l) pip list ${@};;
@@ -38,7 +46,6 @@ case "${lng}" in
     esac
   ;;
   'rb') # ruby: gem -> http://guides.rubygems.org/
-    export GEM_HOME="${PWD}"
     case "${act}" in
       i) gem install ${@};;
       l) gem list ${@};;
@@ -47,7 +54,6 @@ case "${lng}" in
     esac
   ;;
   'rs') # rust: cargo -> https://doc.rust-lang.org/cargo/
-    export CARGO_HOME="${PWD}"
     case "${act}" in
       i) cargo install ${@};;
       l) cargo install --list ${@};;
