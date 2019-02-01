@@ -3,10 +3,10 @@
 acl=$(find "${HOME}/app/sec/getmail" -type f -name '*.rc' | sort)
 for f in ${acl}; do
   acc=$(basename "${f}" | cut -d '.' -f 1)
-  printf '[%s] Updating %s\n' "$(date +'%X')" "${acc}"
+  #printf '[%s] Updating %s\n' "$(date +'%X')" "${acc}"
   getmail -q -n -r"${f}"
   new=$(find "${HOME}/usr/mls/${acc}/INBOX/new" -type f | wc -l)
-  minc "${HOME}/usr/mls/${acc}/INBOX"
+  minc "${HOME}/usr/mls/${acc}/INBOX" > /dev/null
   mlist "${HOME}/usr/mls/${acc}/INBOX/cur" | msort -r -d > "${HOME}/usr/mls/${acc}/all.seq"
   test "${new}" -gt 0 && printf 'MI|%s\n' "${acc}" > /tmp/status-fifo || true
 done

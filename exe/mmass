@@ -1,0 +1,19 @@
+#!/usr/bin/sh
+# mmass. mblaze mass mail sending
+
+test "$#" -ne 2 && exit 1
+af="${1}"; tf="${2}"; shift 2
+
+while IFS=',' read -r m_to m_cc m_bcc m_sbj; do
+  test "${m_to}" = 'to' && continue || s=""
+  test -n "${m_to}" && s="/to/c/${m_to}/;${s}"
+  test -n "${m_cc}" && s="/cc/c/${m_cc}/;${s}"
+  test -n "${m_bcc}" && s="/bcc/c/${m_bcc}/;${s}"
+  test -n "${m_sbj}" && s="/subject/c/${m_sbj}/;${s}"
+  s=$(printf '%s' "${s}" | sed 's|;$||')
+  printf '%s' "${tf}" | msed "${s}"
+  #export TO="${m_to}"; export CC="${m_cc}"
+  #export BCC="${m_bcc}"; export SUB="${m_sub}"
+  #export FROM="$(mfrom)"
+  #envsubst '${FROM} ${TO} ${CC} ${BCC} ${SUB}' < "${tf}"
+done < "${af}"

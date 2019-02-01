@@ -28,6 +28,7 @@ md2toc() {
 
 toc2class() {
   sed 's/<ul>/<ul class="menu menu-nav">/g; s/<li>/<li class="menu-item">/g'
+  #sed -E 's/<(\/)?ul>//g; s/<li>/<li class="menu-item">/g'
 }
 
 code2class() {
@@ -71,6 +72,8 @@ cmp_page() {
   test -d "${dest}" || mkdir -p "${dest}"
 
   md2data "${1}"
+  export comments="$(cat ${dir}/comments.tpl | envsubst '${issue}')"
+  
   test "${published}" != '' || return 1
   test -f "${dir}/${layout}" || return 1
   test -f "${dir}/${template}" || return 1
