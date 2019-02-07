@@ -148,7 +148,7 @@ upd_site() {
 }
 
 new_cont() {
-  test -e "${PWD}/${1}" && exit
+  test -e "${PWD}/${1}" && exit 1
   cat > "${PWD}/${1}" << EOL
 author: 
 tags: 
