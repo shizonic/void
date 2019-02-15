@@ -1,18 +1,20 @@
 #!/usr/bin/env sh
 
 pgrep dunst >/dev/null && pkill dunst
-pgrep status-writer >/dev/null && pkill status-writer
-pgrep status-reader >/dev/null && pkill status-reader
-pgrep status-bar >/dev/null && pkill status-bar
-pgrep lemonbar >/dev/null && pkill lemonbar
+#pgrep status-writer >/dev/null && pkill status-writer
+#pgrep status-reader >/dev/null && pkill status-reader
+#pgrep status-bar >/dev/null && pkill status-bar
+#pgrep lemonbar >/dev/null && pkill lemonbar
 
 dunst &       # notifications   : ~/.config/dunst/dunstrc
 pgrep cwm 2>&1 >/dev/null && kill -HUP $(pgrep cwm) # reload cwm config
-tmux source-file ~/.tmux.conf # reload tmux
+#tmux source-file ~/.tmux.conf # reload tmux
 
 xrdb -load ~/.Xresources # reload xrs
 . thm-export
 thm-apply sh # reload all terminals
 
-status-reader | status-bar & # statusbar
-status-writer # status polling
+status-runner & # reload statusbar
+
+#status-reader | status-bar & # statusbar
+#status-writer # status polling

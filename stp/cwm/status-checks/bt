@@ -1,0 +1,30 @@
+#!/usr/bin/env sh
+
+export STATUS_NAME='Battery'
+BAT_LEVEL=$(grep 'POWER_SUPPLY_CAPACITY=' "/sys/class/power_supply/BAT${1:-0}/uevent" | awk -F '=' '{print $2}')
+BAT_STATUS=$(grep 'POWER_SUPPLY_STATUS=' "/sys/class/power_supply/BAT${1:-0}/uevent" | awk -F '=' '{print $2}')
+export STATUS_VALUE="${BAT_LEVEL}"
+export STATUS_URGENT=0
+
+if test "${BAT_LEVEL}" -ge 90; then
+  export STATUS_ICON=' '
+elif test "${BAT_LEVEL}" -ge 75; then
+  export STATUS_ICON=' '
+elif test "${BAT_LEVEL}" -ge 50; then
+  export STATUS_ICON=' '
+elif test "${BAT_LEVEL}" -ge 25; then
+  export STATUS_ICON=' '
+else
+  export STATUS_ICON=' '
+fi
+
+if test "${BAT_STATUS}" = 'Full'; then
+  export STATUS_TEXT="${STATUS_VALUE}%"
+elif test "${BAT_STATUS}" = 'Discharging'; then
+  export STATUS_TEXT=" ${STATUS_VALUE}%"
+  test "${BAT_LEVEL}" -le 20 && export STATUS_URGENT=1
+elif test "${BAT_STATUS}" = 'Charging'; then
+  export STATUS_TEXT=" ${STATUS_VALUE}%"
+fi
+
+export STATUS_PERIOD=60

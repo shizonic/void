@@ -1,0 +1,8 @@
+#!/usr/bin/env sh
+
+export STATUS_ICON=' '
+export STATUS_NAME='Webcam'
+export STATUS_VALUE=$(fuser -s /dev/video0 && printf 'on' || printf 'off')
+export STATUS_TEXT="${STATUS_VALUE}"
+export STATUS_URGENT=$(test "${STATUS_VALUE}" = 'on' && printf 1 || printf 0)
+export STATUS_PERIOD=5

@@ -12,4 +12,4 @@ elif test "${1}" = 'desktop'; then
   import -w root "${fp}"
 fi
 
-test $? -eq 0 && printf '%s' "${fp}" && notify-send -u 'low' " ${1}"
+test $? -eq 0 && printf '%s' "${fp}" && notify-quick ' ' 'Screenshot' "${1}" 'low'

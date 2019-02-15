@@ -1,0 +1,10 @@
+#!/usr/bin/env sh
+
+export STATUS_ICON=' '
+export STATUS_NAME='WLAN'
+WLAN_DEV=$(iw dev | awk '$1 == "Interface" {print $2}')
+export STATUS_VALUE=$(iw dev "${WLAN_DEV}" link | awk '$1 == "SSID:" {print $2}')
+export STATUS_TEXT=$(test -z "${STATUS_VALUE}" && printf 'disc' || printf '%s' "${STATUS_VALUE}")
+#export STATUS_URGENT=$(test -z "${STATUS_VALUE}" && printf 1 || printf 0)
+export STATUS_URGENT=0
+export STATUS_PERIOD=60

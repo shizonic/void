@@ -1,0 +1,8 @@
+#!/usr/bin/env sh
+
+export STATUS_ICON=' '
+export STATUS_NAME='SSH out'
+export STATUS_VALUE=$(pgrep -x ssh | wc -l)
+export STATUS_TEXT="${STATUS_VALUE}"
+export STATUS_URGENT=$(test "${STATUS_VALUE}" -gt 0 && printf 1 || printf 0)
+export STATUS_PERIOD=5

@@ -2,4 +2,4 @@
 
 test -z "${TRASH_DIR}" && TRASH_DIR="${HOME}/usr/tsh"
 
-find "${TRASH_DIR}" -name '*.bak' ${@}
+find "${TRASH_DIR}" -maxdepth 1 -name '*.bak' ${@}

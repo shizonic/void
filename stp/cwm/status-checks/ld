@@ -1,0 +1,8 @@
+#!/usr/bin/env sh
+
+export STATUS_ICON=" "
+export STATUS_NAME="CPU Load"
+export STATUS_VALUE=$(cat /proc/loadavg | awk '{print $1}' | tr -d '.' | sed 's/^0*//')
+export STATUS_TEXT="${STATUS_VALUE}"
+export STATUS_URGENT=$(test "${STATUS_VALUE}" -gt 200 && printf 1 || printf 0)
+export STATUS_PERIOD=5

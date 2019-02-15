@@ -1,0 +1,8 @@
+#!/usr/bin/env sh
+
+export STATUS_ICON=' '
+export STATUS_NAME='RAM'
+export STATUS_VALUE=$(LC_ALL=C free | grep Mem | awk '{printf "%3.0f\n", $3/$2 * 100.0}' | xargs)
+export STATUS_TEXT="${STATUS_VALUE}%"
+export STATUS_URGENT=$(test "${STATUS_VALUE}" -ge 90 && printf 1 || printf 0)
+export STATUS_PERIOD=15

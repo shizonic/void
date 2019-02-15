@@ -1,0 +1,9 @@
+#!/usr/bin/env sh
+
+test "$#" -eq 1 || exit 1
+export STATUS_ABBREV="${1}"; shift
+
+while :; do
+  . status-check || exit "$?"
+  sleep "${STATUS_PERIOD:-10}"
+done

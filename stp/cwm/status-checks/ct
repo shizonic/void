@@ -1,0 +1,15 @@
+#!/usr/bin/env sh
+
+export STATUS_ICON=' '
+export STATUS_NAME='CPU Temp'
+
+ts=$(sensors | grep 'Core' | awk '{print $1$2" "$3}' | tr -d '+' | grep -o -E '[0-9]{2,3}'| tr '\n' ' ')
+m=0
+for t in ${ts}; do
+  test "${t}" -gt "${m}" && m="${t}"
+done
+
+export STATUS_VALUE="${m}"
+export STATUS_TEXT="${STATUS_VALUE}°C"
+export STATUS_URGENT=$(test "${STATUS_VALUE}" -gt 60 && printf 1 || printf 0)
+export STATUS_PERIOD=5

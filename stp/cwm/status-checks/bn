@@ -1,0 +1,8 @@
+#!/usr/bin/env sh
+
+export STATUS_ICON=' '
+export STATUS_NAME='Brightness'
+export STATUS_VALUE=$(xbacklight | cut -d '.' -f 1)
+export STATUS_TEXT="${STATUS_VALUE}%"
+export STATUS_URGENT=$(test "${STATUS_VALUE}" -le 20 && printf 1 || printf 0)
+export STATUS_PERIOD=60

@@ -10,15 +10,15 @@ test "${1}" != 'a' && test -f "${xpmFile}" && exit 1
 case "${1}" in
   p)
     test -f "${xpmFile}" || exit 1
-    notify-send ' abort'
+    notify-quick ' ' 'Power' 'abort'
     rm "${xpmFile}"
     exit 0
     ;;
-  h) notify-send ' sleep';;
-  k) notify-send ' lock';;
-  l) notify-send ' logoff';;
-  n) notify-send ' shutdown';;
-  o) notify-send ' reboot';;
+  h) notify-quick ' ' 'Power' 'sleep';;
+  k) notify-quick ' ' 'Power' 'lock';;
+  l) notify-quick ' ' 'Power' 'logoff';;
+  n) notify-quick ' ' 'Power' 'shutdown';;
+  o) notify-quick ' ' 'Power' 'reboot';;
   *) exit 1;; # unknown command
 esac
 

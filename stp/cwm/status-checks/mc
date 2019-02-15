@@ -1,0 +1,8 @@
+#!/usr/bin/env sh
+
+export STATUS_ICON=' '
+export STATUS_NAME='Micro'
+export STATUS_VALUE=$(fuser -s /dev/snd/pcmC0D0c && printf 1 || printf 0)
+export STATUS_TEXT=$(test "${STATUS_VALUE}" -eq 1 && printf 'on' || printf 'off')
+export STATUS_URGENT="${STATUS_VALUE}"
+export STATUS_PERIOD=5

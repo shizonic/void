@@ -1,0 +1,8 @@
+#!/usr/bin/env sh
+
+export STATUS_ICON=' '
+export STATUS_NAME='Keyboard'
+export STATUS_VALUE=$(setxkbmap -query | grep layout | awk '{print $2}' | tr -d '\n')
+export STATUS_TEXT="${STATUS_VALUE}"
+export STATUS_URGENT=0
+export STATUS_PERIOD=15

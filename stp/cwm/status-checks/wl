@@ -1,0 +1,13 @@
+#!/usr/bin/env sh
+
+export STATUS_ICON=' '
+export STATUS_NAME='Wifi Signal'
+export STATUS_VALUE=$(tail -n 1 /proc/net/wireless | awk '{ print int($3 * 100 / 70) }')
+export STATUS_TEXT="${STATUS_VALUE}%"
+export STATUS_URGENT=$(test "${STATUS_VALUE}" -le 50 && printf 1 || printf 0)
+export STATUS_PERIOD=15
+
+#if test "$#" -gt 0; then
+#  grep "${1}" /proc/net/wireless | awk '{ print int($3 * 100 / 70) }'
+#else
+#fi

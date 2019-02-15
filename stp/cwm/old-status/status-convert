@@ -1,0 +1,10 @@
+#!/usr/bin/env sh
+
+find ~/vos/stp/cwm/status-polls | while read f; do
+  nn=$(basename "${f}" | cut -d '-' -f 2)
+  uc=$(printf '%s' "${nn}" | tr '[a-z]' '[A-Z]')
+  ll=$(tail -n 1 "${f}")
+  p=$(status-period "${uc}")
+  i=$(status-icon "${uc}")
+  printf '%s|%s|%s |%s\n' "${nn}" "${p}" "${i}" "${ll}"
+done

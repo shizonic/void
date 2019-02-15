@@ -87,7 +87,7 @@ if test "${micro}" -eq 1; then
 fi
 
 clean() {
-  test -f "${output}" && notify-send ' fin' || notify-send ' stp'
+  test -f "${output}" && notify-quick ' ' 'Screenrecord' 'fin' || notify-quick ' ' 'Screenrecord' 'stp'
   rm -f "${lock}"
 }
 
@@ -96,12 +96,12 @@ trap 'clean' EXIT INT TERM
 test "${delay}" -gt 0 && sleep "${delay}"
 
 #echo "ffmpeg ${ffmopts}"
-notify-send ' rec'
+notify-quick ' ' 'Screenrecord' 'rec'
 ffmpeg ${ffmopts} "${lock}"
 
 test -f "${lock}" || exit 1
 
-notify-send ' con'
+notify-quick ' ' 'Screenrecord' 'con'
 ffmpeg -loglevel "${loglvl}" -i "${lock}" -c:v libvpx -qmin 1 -qmax 10 -preset ultrafast -c:a libvorbis "${output}"
 
 printf '%s\n' "${output}"

@@ -1,0 +1,5 @@
+#!/usr/bin/env sh
+
+printf '/tmp/status-data' | rwc -p | while read f; do
+  status-display
+done

@@ -1,0 +1,32 @@
+#!/usr/bin/env sh
+
+case "${1}" in
+  i|init)
+    test -n "${2}" && y="${2}" || y=$(date +%Y)
+    d="${HOME}/usr/doc/tax/${y}"
+    test -d "${d}" && exit 1
+    mkdir "${d}"
+    cd "${d}"
+    mkdir allgemein; cd allgemein
+    mkdir steuer-id bank-verb ls-besch
+    cd ..
+    mkdir arbeit; cd arbeit
+    mkdir reise schulung zimmer technik telefon kleidung
+    cd ..
+    mkdir versicherung; cd versicherung
+    mkdir renten risiko leben unfall haft kranken
+    cd ..
+    mkdir wohnung; cd wohnung
+    mkdir nebenkosten handwerker haushalt
+    cd ..
+    mkdir gesundheit; cd gesundheit
+    mkdir brille kontaktlinse medikamente arzt_kh
+    cd ..
+    mkdir familie; cd familie
+    mkdir kinder unterhalt pflege
+    cd ..
+    mkdir finanzen; cd finanzen
+    mkdir steuerberatung vermoegleist spenden
+    cd ..
+  ;;
+esac

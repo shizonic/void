@@ -1,8 +1,12 @@
 #!/bin/sh
 
-test "$#" -gt 0 && amixer -q sset Master "${1}"
+if test "$#" -gt 0; then
+  amixer -q sset Master "${1}"
+  status-check vl
+  notify-from-status vl
+fi
 
-status=$(amixer get Master | grep -o -w 'o[nf]*')
-volume=$(amixer get Master | grep -o -E '[0-9]{1,3}%' | tr -d '%')
+#status=$(amixer get Master | grep -o -w 'o[nf]*')
+#volume=$(amixer get Master | grep -o -E '[0-9]{1,3}%' | tr -d '%')
 
-printf 'VL|%s|%s\n' "${status}" "${volume}" > /tmp/status-fifo
+#printf 'VL|%s|%s\n' "${status}" "${volume}" > /tmp/status-fifo

@@ -1,0 +1,8 @@
+#!/usr/bin/env sh
+
+export STATUS_ICON=' '
+export STATUS_NAME='Root'
+export STATUS_VALUE=$(LC_ALL=C df -h / | tail -n 1 | awk '{print $5}' | tr -d '%')
+export STATUS_TEXT="${STATUS_VALUE}%"
+export STATUS_URGENT=$(test "${STATUS_VALUE}" -ge 90 && printf 1 || printf 0)
+export STATUS_PERIOD=60

@@ -1,0 +1,59 @@
+#!/usr/bin/env sh
+
+if test -n "${TD}"; then
+  d="${TD}"
+else
+  #d=$(mktemp -d '/tmp/ml-XXXXX')
+  d="${PWD}"
+fi
+
+test "$#" -eq 0 && n=$(basename "${d}") || n="${1}"
+
+test -d "${d}/repo" && rm -rf "${d}/repo"
+find "${d}" -name '*.log' -delete
+
+case "${n}" in
+  'mblaze') p='https://github.com/chneukirchen/mblaze.git';;
+  'mvi') p='https://github.com/Duncaen/mvi.git';;
+  'opentracker') p='git://erdgeist.org/opentracker';;
+  'st') p='https://git.suckless.org/st';;
+  *) exit 1;;
+esac
+
+if ! git clone "${p}" "${d}/repo" 2> "${d}/clone.err" > "${d}/clone.log"; then
+  2>&1 printf 'Cloning error!\n'
+  printf '%s\n' "${d}"
+  exit 2
+fi
+
+cd "${d}/repo"
+
+if test -d "${d}/patches"; then
+  printf 'Patching\n'
+  for p in $(find "${d}/patches" -name '*.diff'); do
+    if ! patch < "${p}" 2>> "${d}/patching.err" >> "${d}/patching.log"; then
+      2>&1 printf 'Patching error!\n'
+      printf '%s\n' "${d}"
+      exit 3
+    fi
+  done
+fi
+
+printf 'Compiling\n' 
+if ! make 2> "${d}/compile.err" > "${d}/compile.log"; then
+  2>&1 printf 'Compilation error!\n'
+  printf '%s\n' "${d}"
+  exit 4
+fi
+
+printf 'Installing\n'
+if ! sudo make install 2> "${d}/install.err" > "${d}/install.log"; then
+  2>&1 printf 'Installation error!\n'
+  printf '%s\n' "${d}"
+  exit 5
+fi
+
+test -n "${TD}" && exit
+printf 'Cleaning\n'
+cd - >/dev/null
+rm -rf "${d}"

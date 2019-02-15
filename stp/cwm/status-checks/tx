@@ -1,0 +1,19 @@
+#!/usr/bin/env sh
+
+export STATUS_ICON=' '
+export STATUS_NAME='Upload'
+
+WLAN_DEV=$(iw dev | awk '$1 == "Interface" {print $2}')
+
+R1=$(cat "/sys/class/net/${WLAN_DEV}/statistics/tx_bytes")
+sleep 1
+R2=$(cat "/sys/class/net/${WLAN_DEV}/statistics/tx_bytes")
+
+TBPS=$(expr $R2 - $R1)
+TKBPS=$(expr $TBPS / 1024)
+
+#printf '%s' "${RKBPS}"
+export STATUS_VALUE="${TKBPS}"
+export STATUS_TEXT="${STATUS_VALUE}"
+export STATUS_URGENT=$(test "${STATUS_VALUE}" -ge 1000 && printf 1 || printf 0)
+export STATUS_PERIOD=10

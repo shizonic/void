@@ -1,0 +1,10 @@
+#!/usr/bin/env sh
+
+test "$#" -ge 3 || exit
+
+export NOTIFY_ICON="${1}"
+export NOTIFY_NAME="${2}"
+export NOTIFY_TEXT="${3}"
+export NOTIFY_PRIO="${4:-normal}"
+
+notify-create

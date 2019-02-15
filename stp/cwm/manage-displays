@@ -27,7 +27,8 @@ while :; do
     done
 
     ${cmd}
-    printf 'DP|%s\n' "${dsk}" > /tmp/status-fifo
+    #printf 'DP|%s\n' "${dsk}" > /tmp/status-fifo
+    notify-from-status 'dp'
 
     sleep 4
   else

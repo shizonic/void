@@ -1,0 +1,20 @@
+#!/usr/bin/env sh
+
+#pkill $(pgrep -f 'status')
+#pkill lemonbar
+pkill -f status-watcher
+pkill -f status-bar
+pkill -f lemonbar
+
+find ~/vos/stp/cwm/status-checks -type f | while read f; do
+  test -x "${f}" || continue
+  bn=$(basename "${f}")
+  if pgrep -f "status-poll ${bn}" >/dev/null; then
+    #printf 'Already running: %s\n' "${bn}"
+    continue
+  fi
+  #printf 'Started %s\n' "${bn}"
+  status-poll "${bn}" &
+done
+
+status-watcher | status-bar &

@@ -1,0 +1,19 @@
+#!/usr/bin/env sh
+
+export STATUS_NAME='Volume'
+VOL_STATUS=$(amixer get Master | grep -o -w 'o[nf]*')
+VOL_VALUE=$(amixer get Master | grep -o -E '[0-9]{1,3}%' | tr -d '%')
+export STATUS_VALUE="${VOL_VALUE}"
+export STATUS_TEXT="${VOL_VALUE}%"
+export STATUS_URGENT=0
+if test "${VOL_STATUS}" = 'off'; then
+  STATUS_ICON=' '
+  export STATUS_URGENT=1
+elif test "${VOL_VALUE}" -gt 50; then
+  STATUS_ICON=' '
+elif test "${VOL_VALUE}" -gt 0; then
+  STATUS_ICON=' '
+else
+  STATUS_ICON=' '
+fi
+STATUS_PERIOD=5

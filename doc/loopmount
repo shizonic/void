@@ -1,0 +1,3 @@
+sshfs user@xxx.xxx.xxx.xxx:~/myfolder localmount
+losetup loop0 localmount/image.img
+mount /dev/loop0 localmount1

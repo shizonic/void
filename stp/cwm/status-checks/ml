@@ -1,0 +1,9 @@
+#!/usr/bin/env sh
+
+export STATUS_ICON=' '
+export STATUS_NAME='Mail'
+export STATUS_VALUE=$(mlist -s ~/usr/mls/*/INBOX | wc -l)
+export STATUS_TEXT="${STATUS_VALUE}"
+#export STATUS_URGENT=$(test "${STATUS_VALUE}" -gt 0 && printf 1 || printf 0)
+export STATUS_URGENT=0
+export STATUS_PERIOD=60

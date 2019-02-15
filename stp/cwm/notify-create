@@ -1,0 +1,16 @@
+#!/usr/bin/env sh
+
+txt=''; arg=''
+
+export NOTIFY_HISTORY='/tmp/notify-history'
+
+# NOTIFY_ABBREV, NOTIFY_ICON, NOTIFY_NAME, NOTIFY_TEXT, NOTIFY_PRIO
+
+test -n "${NOTIFY_ICON}" && txt="${NOTIFY_ICON} "
+test -n "${NOTIFY_TEXT}" && txt="${txt}${NOTIFY_TEXT} "
+test -n "${NOTIFY_NAME}" && arg="${arg} -a ${NOTIFY_NAME}"
+test -n "${NOTIFY_PRIO}" && arg="${arg} -u ${NOTIFY_PRIO}"
+
+notify-send ${arg} "${txt}"
+
+printf '%s|%s|%s|%s|%s\n' "$(date +'%s')" "${NOTIFY_NAME}" "${NOTIFY_ICON}" "${NOTIFY_TEXT}" "${NOTIFY_PRIO}" >> "${NOTIFY_HISTORY}"

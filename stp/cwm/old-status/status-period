@@ -28,6 +28,7 @@ case "${1}" in
   'RM') printf '15';; # ram space
   'RX') printf '5';; # received data
   'RS') printf '60';; # redshift state
+  'SB') printf '5';;
   'SI') printf '3';; # ssh incoming
   'SO') printf '3';; # ssh outgoing
   'SP') printf '60';; # rom space

@@ -1,0 +1,33 @@
+#!/usr/bin/env sh
+
+#if test -f 'weather.json'; then
+#  data=$(cat 'weather.json')
+#else
+  data=$(curl -s "http://api.openweathermap.org/data/2.5/weather?id=${OPENWEATHERMAP_CITY}&appid=${OPENWEATHERMAP_API_KEY}&units=metric")
+#  printf '%s\n' "${data}" > 'weather.json'
+#fi
+
+t=$(printf '%s' "${data}" | jq '.main.temp' | tr -d '"' | cut -d '.' -f 1 | sed 's/^-0/0/')
+m=$(printf '%s' "${data}" | jq '.weather[].main' | tr -d '"')
+sr=$(printf '%s' "${data}" | jq '.sys.sunrise' | tr -d '"')
+ss=$(printf '%s' "${data}" | jq '.sys.sunset' | tr -d '"')
+ct=$(date +%s)
+
+test "${ct}" -ge "${sr}" && test "${ct}" -le "${ss}" && tod=1 || tod=0
+
+case "${m}" in
+  Clear) test "${tod}" -eq 1 && i=' ' || i=' ';;
+  Clouds) i=' ';;
+  Fog|Mist) i=' ';;
+  Drizzle|Rain) i=' ';;
+  Snow) i=' ';;
+  Thunderstorm|Storm) i=' ';;
+  Wind*) i=' ';;
+esac
+
+export STATUS_ICON="${i}"
+export STATUS_NAME='Weather'
+export STATUS_VALUE="${t}"
+export STATUS_TEXT="${t}°C"
+export STATUS_URGENT=0
+export STATUS_PERIOD=600

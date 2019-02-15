@@ -31,6 +31,7 @@ case "${1}" in
   'RM') printf '';; # ram space
   'RX') printf '';; # received data
   'RS') printf '';; # redshift state
+  'SB') printf '';; # samba status
   'SI') printf '';; # ssh incoming
   'SO') printf '';; # ssh outgoing
   'SP') printf '';; # rom space

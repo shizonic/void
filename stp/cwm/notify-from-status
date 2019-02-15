@@ -1,0 +1,19 @@
+#!/usr/bin/env sh
+
+test "$#" -eq 1 || exit 1
+
+export NOTIFY_ICON=$(awk -F '|' '$1 == "'"${1}"'" {print $2}' '/tmp/status-data')
+export NOTIFY_NAME=$(awk -F '|' '$1 == "'"${1}"'" {print $3}' '/tmp/status-data')
+NOTIFY_TEXT=$(awk -F '|' '$1 == "'"${1}"'" {print $4}' '/tmp/status-data')
+export NOTIFY_PRIO=$(awk -F '|' '$1 == "'"${1}"'" {print $6}' '/tmp/status-data')
+
+case "${NOTIFY_PRIO}" in
+  0) export NOTIFY_PRIO='low';;
+  1) export NOTIFY_PRIO='normal';;
+  *) export NOTIFY_PRIO='critical';;
+esac
+
+export NOTIFY_ICON="${NOTIFY_ICON} "
+export NOTIFY_TEXT
+
+notify-create

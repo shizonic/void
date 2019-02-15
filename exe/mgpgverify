@@ -1,0 +1,17 @@
+#!/usr/bin/env sh
+
+test "$#" -gt 0 || exit 1
+m="${1}"; shift
+test -f "${m}" || exit 2
+
+mshow -t "${m}" awk -v "m=${m}" '
+BEGIN {s=0,d=""}
+{
+  if ($2 == "application/gpg-signature") {
+    print $0
+  }
+}
+END {}
+'
+
+#gpg2 --verify "${1}" "${2}"

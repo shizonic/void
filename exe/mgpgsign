@@ -1,0 +1,29 @@
+#!/usr/bin/env sh
+# mgpgsign: sign one or multiple mail messages using gpg
+
+test "$#" -gt 0 || exit 1
+m="${1}"; shift
+test -f "${m}" || exit 2
+
+d="/tmp/mgpgsign"
+test -d "${d}" || mkdir "${d}"
+#d=$(mktemp -d 'mgpgsign.XXXXXX')
+#trap "rm -rf '${d}'" INT TERM EXIT
+
+h="${d}/headers"
+c="${d}/content"
+s="${d}/signature.asc"
+
+#f=$(maddr -a -h from "${m}")
+f=$(mfrom)
+sed -e '/^$/q' "${m}" > "${h}"
+sed -e '/^$/p' "${m}" > "${c}"
+gpg2 -u "${f}" -b -o "${s}" "${c}"
+
+{
+  sed '/^$/q' "${m}" # copy headers
+  printf '#mblaze/raw %s/content\n' "${d}" # attach content
+  printf '#application/gpg-signature %s/signature.asc\n' "${d}" # attach signature
+} | mmime -t 'multipart/signed'
+
+#gpg --verify "${s}" "${c}"

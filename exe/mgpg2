@@ -1,0 +1,9 @@
+#!/usr/bin/env sh
+
+test -f "${1}" || exit 1
+
+if file "${1}" | grep -q -i 'PGP.*message'; then
+  gpg "${1}"
+elif file "${1}" | grep -q -i 'mail.*text'; then
+  gpg --encrypt --sign --armor --default-key $(mfrom) --output "mail.asc" -r $(mfrom) "${1}"
+fi

@@ -1,0 +1,10 @@
+#!/usr/bin/env sh
+
+export STATUS_ICON=' '
+export STATUS_NAME='Sleep'
+
+h=$(date +'%H')
+export STATUS_VALUE=$(test "${h}" -ge 8 && test "${h}" -le 21 && printf 0 || printf 1)
+export STATUS_TEXT=$(test "${STATUS_VALUE}" -eq 1 && printf 'sleep' || printf 'work')
+export STATUS_URGENT="${STATUS_VALUE}"
+export STATUS_PERIOD=60

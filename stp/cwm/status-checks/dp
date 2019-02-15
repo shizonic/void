@@ -1,0 +1,8 @@
+#!/usr/bin/env sh
+
+export STATUS_ICON=' '
+export STATUS_NAME='Display'
+export STATUS_VALUE=$(xrandr | awk '$3 == "primary" {print $1}')
+export STATUS_TEXT="${STATUS_VALUE}"
+export STATUS_URGENT=0
+export STATUS_PERIOD=60

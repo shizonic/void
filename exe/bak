@@ -1,6 +1,6 @@
 #!/usr/bin/env sh
 
-test -z "${BAK_DIR}" && BAK_DIR="${HOME}/usr/tsh"
+test -z "${BAK_DIR}" && BAK_DIR="${HOME}/usr/bak"
 
 test -p /dev/stdin && el=$(cat) || el="${@}"
 for e in ${el}; do

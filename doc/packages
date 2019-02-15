@@ -147,6 +147,7 @@ Utilities
 - lsof
 - p7zip
 - qrencode
+- rwc
 - sassc
 - tree
 - ufw

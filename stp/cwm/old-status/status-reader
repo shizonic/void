@@ -86,6 +86,7 @@ while :; do
       'RM') rmStr=$(handlePart $(test "${val}" -ge 90; printf "$?"));; # ram space
       'RX') rxStr=$(handlePart $(test "${val}" -ge 2500; printf "$?"));; # received data
       'RS') rsStr=$(handlePart $(test "${val}" -ne 0; printf "$?"));; # redshift state
+      'SB') sbStr=$(handlePart $(test "${val}" -gt 0; printf "$?"));; # samba shares
       'SI') siStr=$(handlePart $(test "${val}" -ne 0; printf "$?"));; # SSH connections in
       'SO') soStr=$(handlePart $(test "${val}" -ne 0; printf "$?"));; # SSH connections out
       'SS') ssStr=$(handlePart $(test "${val}" -ne 0; printf "$?"));; # screen share
@@ -108,7 +109,7 @@ while :; do
 
     system="${btStr}${bkStr}${rmStr}${spStr}${cuStr}${ctStr}${gtStr}${mtStr}"
     safety="${fwStr}${pkStr}${siStr}${soStr}${rcStr}${ssStr}"
-    network="${dnStr}${rxStr}${txStr}${wlStr}${icStr}"
+    network="${dnStr}${sbStr}${rxStr}${txStr}${wlStr}${icStr}"
     media="${mcStr}${wcStr}${vlStr}"
     status="${rsStr}${bnStr}${stStr}${ptStr}"
 
@@ -117,6 +118,7 @@ while :; do
     lftStr=""
     
     #printf '%s\n' "%{l}${lftStr}%{c}${cenStr}%{r}${rgtStr}"
-    printf '%s\n' "%{c}${lftStr}${cenStr}${rgtStr}"
+    #printf '%s\n' "%{c}${lftStr}${cenStr}${rgtStr}"
+    printf '%s\n' "%{c}${lftStr}${cenStr}${rgtStr}" > /tmp/status-text
   done < "/tmp/status-fifo"
 done

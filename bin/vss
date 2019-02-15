@@ -1,0 +1,33 @@
+#!/usr/bin/env sh
+# vss: Void Samba Shares
+
+test "$#" -eq 0 && exit 1
+
+a="${1}"; shift
+
+p="${PWD}"
+test "$#" -gt 0 && p="${1}" && shift
+
+#grep "${p}" /proc/mounts && exit 0
+
+#s=$(sv status 'smbd' | grep -q '^run'; echo "$?")
+s=$(pgrep smbd | wc -l)
+
+if test "${s}" -eq 0; then
+  printf 'Warning: Service smbd not running!\n'
+fi
+
+m=$(grep '/data/share' /proc/mounts | cut -d ' ' -f 1)
+
+#if printf '%s' "${m}" | grep -q "${p}"; then
+#  printf '%s is already mounted!\n' "${p}"
+#  exit 1
+#fi
+
+if test "${m}" != ""; then
+  umount '/data/share' && printf 'Unmounted %s\n' "${m}"
+fi
+
+case "${a}" in
+  s|shr|share) mount --bind "${p}" /data/share && printf 'Mounted %s\n' "${p}";;
+esac

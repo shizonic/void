@@ -1,0 +1,21 @@
+#!/usr/bin/env sh
+
+sd='/tmp/status-data'
+
+# left part: basic info
+kb=$(grep '^kb' "${sd}" | cut -d '|' -f 2,4 | tr -d '|')
+ml=$(grep '^ml' "${sd}" | cut -d '|' -f 2,4 | tr -d '|')
+vl=$(grep '^vl' "${sd}" | cut -d '|' -f 2,4 | tr -d '|')
+#printf ' %s %s %s ' '%{l}' "${kb}" "${vl}" "${ml}"
+
+# center part: important info
+printf '%s' '%{c}'
+awk -F '|' '$6 == 1 {print $2}' "${sd}" | tr '\n' ' '
+
+# right part: global info
+dt=$(grep '^dt' "${sd}" | cut -d '|' -f 2,4 | tr -d '|')
+cl=$(grep '^cl' "${sd}" | cut -d '|' -f 2,4 | tr -d '|')
+nw=$(grep '^nw' "${sd}" | cut -d '|' -f 2,4 | tr -d '|')
+#printf '%s %s %s %s ' '%{r}' "${nw}" "${dt}" "${cl}"
+
+printf '\n'

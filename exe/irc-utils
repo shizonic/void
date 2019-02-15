@@ -97,7 +97,8 @@ joinServ() {
     test -z "${i_pass}" && i_pass=$(pass "irc/${s_key}/${i_key}") && export i_pass
     ii -i "${datDir}" -s "${s_addr}" -p "${s_port}" -n "${i_nick}" -f "${i_name}" -k 'i_pass' 2>&1 >/dev/null &
     printf '%s' "$!" > "${datDir}/${s_addr}/pid"
-    checkIdent && notify-send " ${s_key}"
+    #checkIdent && NOTIFY_ICON=' ' NOTIFY_NAME='IRC' NOTIFY_TEXT="${s_key}" notify-create
+    checkIdent && notify-quick ' ' 'IRC' "${s_key}"
   else
     printf 'Server "%s" already running!\n' "${s_key}"
   fi
@@ -115,7 +116,8 @@ recServ() {
     if test -n "${pid}"; then
       tail --pid="${pid}" -f /dev/null
     fi
-    notify-send " ${s_key}"
+    #NOTIFY_ICON=' ' NOTIFY_NAME='IRC' NOTIFY_TEXT="${s_key}" notify-create
+    notify-quick ' ' 'IRC' "${s_key}"
     sleep 1
   done
 }
@@ -205,8 +207,8 @@ termReader() {
       o_text=$(printf '%s' "${m_text}" | fold -s -w "$((m_cols - 17))" | sed -e "1!s/^/${t_empty}/")
       o_text=" ${c_ment}${o_text}${c_res}"
       printf '%-25b%b%b\n' "${o_nick}" "${c_sys}${t_speak}${c_res}" "${o_text}"
-      printf 'IR|%s\n' "${c_name}" > /tmp/status-fifo
-    #elif test "${m_sys}" -eq 1; then
+      #NOTIFY_ICON=' ' NOTIFY_NAME='IRC' NOTIFY_TEXT="${c_name}" notify-create
+      notify-quick ' ' 'IRC' "${c_name}"
     elif test "${m_self}" -eq 1; then
       o_nick=" ${c_self}${m_nick}${c_res}"
       o_text=$(printf '%s' "${m_text}" | fold -s -w "$((m_cols - 17))" | sed -e "1!s/^/${t_empty}/")
@@ -217,7 +219,6 @@ termReader() {
         printf '%-14b%b%b\n' " ${m_nick}" "${c_sys}${t_mute}${c_res}" ' (muted)'
         continue
       fi
-      #o_text=$(printf '%s' "${m_text}" | cut -d ' ' -f 2-)
       o_text=$(printf '%s' "${m_text}" | fold -s -w "$((m_cols - 17))" | sed -e "1!s/^/${t_empty}/")
       o_nick=" ${c_nick}${m_nick}${c_res}"
       printf '%-25b%b%b\n' "${o_nick}" "${c_sys}${t_speak}${c_res}" " ${c_text}${o_text}${c_res}"

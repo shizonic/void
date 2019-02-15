@@ -1,0 +1,26 @@
+#!/usr/bin/env sh
+
+bs='bluescreen.png'
+to='textoverlay.png'
+fi='final.png'
+
+r=$(xrandr | grep -o -E 'primary [0-9]*x[0-9]*' | grep -o -E '[0-9x]*')
+w=$(echo "${r}" | awk -F 'x' '{print $1}')
+h=$(echo "${r}" | awk -F 'x' '{print $2}')
+
+rm "${bs}" "${to}" "${fi}"
+
+# yellow, green, blue, red
+c=$(printf '%s\n' '#ffbb00' '#7cbb00' '#00a1f1' '#f65314' | shuf | head -n 1)
+dev=$(lsblk -l | tail -n +2 | shuf | head -n 1 | cut -d ' ' -f 1)
+t=$(. /etc/os-release; cat << EOL
+${NAME} has encountered a critical error:
+No more space left on device "${dev}"!
+EOL
+)
+
+test -f "${bs}" || convert -size "${w}x${h}" "canvas:${c}" "${bs}"
+test -f "${to}" || convert -size "700x200" -background 'transparent' -fill "#212121" -pointsize 25 caption:"${t}" "${to}"
+convert -composite -gravity Center "${bs}" "${to}" "${fi}"
+
+sxiv -b -f "${fi}"

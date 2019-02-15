@@ -1,0 +1,8 @@
+#!/usr/bin/env sh
+
+export STATUS_ICON=' '
+export STATUS_NAME='Date'
+export STATUS_VALUE=$(date +'%d.%m')
+export STATUS_TEXT="${STATUS_VALUE}"
+export STATUS_URGENT=0
+export STATUS_PERIOD=600

@@ -1,0 +1,17 @@
+#!/usr/bin/env sh
+
+if test "$#" -eq 1; then
+  export STATUS_ABBREV="${1}"
+elif test -z "${STATUS_ABBREV}"; then
+  return 1
+fi
+
+export STATUS_SCRIPT="${HOME}/vos/stp/cwm/status-checks/${STATUS_ABBREV}"
+test -x "${STATUS_SCRIPT}" || return 2
+
+unset STATUS_ICON STATUS_NAME STATUS_TEXT STATUS_VALUE STATUS_URGENT STATUS_PERIOD
+. "${STATUS_SCRIPT}"
+STATUS_LINE=$(printf '%s|%s|%s|%s|%s\n' "${STATUS_ICON}" "${STATUS_NAME}" "${STATUS_TEXT}" "${STATUS_VALUE}" "${STATUS_URGENT}")
+export STATUS_LINE
+#printf '%s|%s\n' "${STATUS_ABBREV}" "${STATUS_LINE}"
+status-update "${STATUS_ABBREV}" "${STATUS_LINE}"

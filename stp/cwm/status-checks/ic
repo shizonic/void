@@ -1,0 +1,8 @@
+#!/usr/bin/env sh
+
+export STATUS_ICON=' '
+export STATUS_NAME='Internet'
+export STATUS_VALUE=$(getent hosts github.com | cut -d ' ' -f 1 | wc -l)
+export STATUS_TEXT=$(test "${STATUS_VALUE}" -gt 0 && printf 'con' || printf 'disc')
+export STATUS_URGENT=$(test "${STATUS_VALUE}" -eq 0 && printf 1 || printf 0)
+export STATUS_PERIOD=5

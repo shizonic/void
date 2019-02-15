@@ -5,7 +5,7 @@ dow=$(date +%w)
 h=$(date +%H)
 
 if test "${dow}" -ge 1 && test "${dow}" -le 4; then
-  test "${h}" -gt 18 && test "${h}" -le 22 && notify-send " workout"
+  test "${h}" -gt 18 && test "${h}" -le 22 && notify-quick ' ' "Workout" "workout"
 else
-  test "${h}" -gt 10 && test "${h}" -le 22 && notify-send " workout"
+  test "${h}" -gt 10 && test "${h}" -le 22 && notify-quick ' ' "Workout" "workout"
 fi
