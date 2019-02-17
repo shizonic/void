@@ -2,4 +2,4 @@
 
 . thm-export
 
-lemonbar -g 'x30' -f "${symbName} Solid-${symbSize}" -f "${symbName} Regular-${symbSize}" -f "${fontName}-${fontSize}" -F "${base05}" -B "${base00}" "${@}"
+lemonbar -f "${symbName} Solid-${symbSize}" -f "${symbName} Regular-${symbSize}" -f "${fontName}-${fontSize}" -F "${base04}" -B "${base00}" "${@}"

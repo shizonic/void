@@ -2,7 +2,7 @@
 
 export STATUS_ICON=' '
 export STATUS_NAME='Clock'
-export STATUS_VALUE=$(date +'%H:%m')
+export STATUS_VALUE=$(date +'%H:%M')
 export STATUS_TEXT="${STATUS_VALUE}"
 export STATUS_URGENT=0
 export STATUS_PERIOD=30

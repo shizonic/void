@@ -1,5 +1,5 @@
 #!/usr/bin/env sh
 
-c=$(awk -F '|' '{print $3}' '/tmp/status-data' | run-menu -i)
+c=$(awk -F '|' '{print $3}' '/tmp/status-data' | sort | run-menu -i)
 test -n "${c}" || exit
 notify-from-status $(awk -F '|' '$3 == "'"${c}"'" {print $1}' '/tmp/status-data')

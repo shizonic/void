@@ -1,0 +1,6 @@
+#!/usr/bin/env sh
+
+tac '/tmp/notify-history' | head -n "${1:-50}" | \
+while IFS='|' read -r time name icon value prio; do
+  printf '[%s] %s %s (%s,%s)\n' "$(date -d "@${time}" +'%x_%X')" "${icon}" "${value}" "${name}" "${prio}"
+done

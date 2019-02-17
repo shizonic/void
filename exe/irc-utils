@@ -177,6 +177,9 @@ termReader() {
 
   m_rows=$(tput lines); m_cols=$(tput cols)
 
+  now=$(date +%s)
+  #now=0
+
   clear
 
   tail -f -n "${m_rows}" "${datDir}/${s_addr}/${c_name}/out" | \
@@ -186,7 +189,7 @@ termReader() {
     m_self=0; m_sys=0; m_ment=0; m_act=0
     test "${m_nick}" = "${i_nick}" && m_self=1
     test "${m_nick}" = '-!-' && m_sys=1
-    printf '%s' "${m_text}" | grep -q "${i_nick}" && m_ment=1
+    test "${m_sys}" != 1 && printf '%s' "${m_text}" | grep -q "${i_nick}" && m_ment=1
     printf '%s' "${m_text}" | grep -q -e '^[^\s\\]*ACTION' && m_act=1
     if test "${m_act}" -eq 1; then
       o_nick=" ${c_sys}${m_nick}${c_res}"
@@ -207,8 +210,7 @@ termReader() {
       o_text=$(printf '%s' "${m_text}" | fold -s -w "$((m_cols - 17))" | sed -e "1!s/^/${t_empty}/")
       o_text=" ${c_ment}${o_text}${c_res}"
       printf '%-25b%b%b\n' "${o_nick}" "${c_sys}${t_speak}${c_res}" "${o_text}"
-      #NOTIFY_ICON=' ' NOTIFY_NAME='IRC' NOTIFY_TEXT="${c_name}" notify-create
-      notify-quick ' ' 'IRC' "${c_name}"
+      test "${m_time}" -gt "${now}" && notify-quick ' ' 'IRC' "${c_name}"
     elif test "${m_self}" -eq 1; then
       o_nick=" ${c_self}${m_nick}${c_res}"
       o_text=$(printf '%s' "${m_text}" | fold -s -w "$((m_cols - 17))" | sed -e "1!s/^/${t_empty}/")

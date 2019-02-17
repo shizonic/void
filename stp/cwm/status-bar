@@ -2,4 +2,4 @@
 
 . thm-export
 
-run-bar -p -d -B '#00FFFFFF' -F "${base07}"
+run-bar -g 'x++5' -p -d -b -B '#00000000' -F "${base05}"

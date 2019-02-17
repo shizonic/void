@@ -1,0 +1,30 @@
+#!/usr/bin/env sh
+# https://www.kernel.org/doc/Documentation/iostats.txt
+
+DIR="${DIR:-/}"
+MOUNT=$(df -h "${DIR}" | tail -n 1 | awk '{print $1}')
+RMOUNT=$(realpath "${MOUNT}")
+RMNAME=$(basename "${RMOUNT}")
+
+VAL1=$(grep "${RMNAME}" /proc/diskstats | awk '{print $6}')
+sleep 1
+VAL2=$(grep "${RMNAME}" /proc/diskstats | awk '{print $6}')
+
+DIFF=$(echo "(${VAL2} - ${VAL1}) * 512" | bc -s)
+
+export STATUS_ICON=' '
+export STATUS_NAME='Disk Writes'
+export STATUS_VALUE="${DIFF}"
+export STATUS_TEXT="${STATUS_VALUE}B"
+export STATUS_URGENT=0
+export STATUS_PERIOD=5
+
+if test "${DIFF}" -gt 1024; then
+  DIFF=$(echo "${DIFF}/1024" | bc -s)
+  export STATUS_TEXT="${DIFF}KB"
+fi
+if test "${DIFF}" -gt 1024; then
+  DIFF=$(echo "${DIFF}/1024" | bc -s)
+  export STATUS_TEXT="${DIFF}MB"
+  export STATUS_URGENT=1
+fi

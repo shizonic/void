@@ -11,36 +11,29 @@ json2rgb() {
 }
 
 # get random color palette (5)
-c=$(curl -s 'http://colormind.io/api/' --data-binary '{"model":"default"}')
-e=$(printf '%s' "${c}" | json2rgb)
+col=$(curl -s 'http://colormind.io/api/' --data-binary '{"model":"default"}')
+rgb=$(printf '%s\n' "${col}" | json2rgb)
 
 # convert them to hex colors
-printf '%s\n' "${e}" | while read line; do
-  printf '%s\n' $(rgb2hex ${line}) >> "${tf}"
-done
+printf '%s\n' "${rgb}" | while read line; do
+  printf '%s\n' $(rgb2hex ${line})
+done | head -n 4 >> "${tf}"
 
-# pick 2 random colors
-rc=$(printf '%s\n' "${e}" | shuf | head -n 2)
-rc1=$(printf '%s\n' "${rc}" | head -n 1 | sed 's|^|[|g; s|$|]|g' | tr ' ' ',')
-rc2=$(printf '%s\n' "${rc}" | tail -n 1  | sed 's|^|[|g; s|$|]|g' | tr ' ' ',')
+fc=$(printf '%s\n' "${rgb}" | sed -n '1p')
+lc=$(printf '%s\n' "${rgb}" | sed -n '5p')
 
-test -z "${RANDOM}" && str=$(printf 'C\nR\nR\nR\nC') || str=$(printf 'C\nC\nR\nR\nR' | shuf)
-p=$(printf '%s' "${str}" | sed 's|R|"N"|g; s|C|%s|g' | tr '\n' ',' | sed 's|,$||g')
-f="{\"model\":\"default\", \"input\": [${p}]}"
-#printf 'F: %s\n' "${f}"
-#printf 'P: %s\n' "${p}"
-d=$(printf "${f}" "${rc1}" "${rc2}")
-s=$(printf '%s\n' "${p}" | tr ',' '\n' | grep -n -v 'N' | cut -d ':' -f 1 | tr '\n' ';' | sed 's|\;|d\;|g; s|\;$||g')
+fn=$(printf '%s' "${fc}" |  tr ' ' ',')
+ln=$(printf '%s' "${lc}" |  tr ' ' ',')
 
-#printf 'D: %s\n' "${d}" && exit
-
-c=$(curl -s 'http://colormind.io/api/' --data-binary "${d}")
-e=$(printf '%s' "${c}" | json2rgb | sed -e "${s}")
+lst="[${ln}],\"N\",\"N\",\"N\",[${fn}]"
+data='{"model":"default", "input": ['"${lst}"']}'
+col=$(curl -s 'http://colormind.io/api/' --data-binary "${data}")
+rgb=$(printf '%s\n' "${col}" | json2rgb)
 
 # convert them to hex colors
-printf '%s\n' "${e}" | while read line; do
-  printf '%s\n' $(rgb2hex ${line}) >> "${tf}"
-done
+printf '%s\n' "${rgb}" | while read line; do
+  printf '%s\n' $(rgb2hex ${line})
+done | head -n 4 >> "${tf}"
 
 cat "${tf}"
 rm "${tf}"

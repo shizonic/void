@@ -1,9 +1,9 @@
 #!/usr/bin/env sh
 
-export STATUS_ICON=' '
 export STATUS_NAME='DDNS'
 CUR_IP=$(curl -s "https://api.ipify.org")
 export STATUS_VALUE=$(getent hosts home.cron.world | cut -d ' ' -f 1)
 export STATUS_TEXT=$(test "${STATUS_VALUE}" != "${CUR_IP}" && printf 'diff' || printf 'ok')
 export STATUS_URGENT=$(test "${STATUS_VALUE}" != "${CUR_IP}" && printf 1 || printf 0)
+export STATUS_ICON=$(test "${STATUS_VALUE}" != "${CUR_IP}" && printf ' ' || printf ' ')
 export STATUS_PERIOD=600
