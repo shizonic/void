@@ -94,7 +94,7 @@ joinServ() {
     printf 'Cleaning up "%s"\n' "${s_key}"
     sed -i "/^${s_key}/d" "${cnfDir}/active.csv"
     printf 'Connecting to "%s"\n' "${s_key}"
-    test -z "${i_pass}" && i_pass=$(pass "irc/${s_key}/${i_key}") && export i_pass
+    test -z "${i_pass}" && i_pass=$(pass-get "irc/${s_key}/${i_key}") && export i_pass
     ii -i "${datDir}" -s "${s_addr}" -p "${s_port}" -n "${i_nick}" -f "${i_name}" -k 'i_pass' 2>&1 >/dev/null &
     printf '%s' "$!" > "${datDir}/${s_addr}/pid"
     #checkIdent && NOTIFY_ICON=' ' NOTIFY_NAME='IRC' NOTIFY_TEXT="${s_key}" notify-create
@@ -111,7 +111,7 @@ joinServ() {
 
 recServ() {
   while :; do
-    ! checkServ && joinServ
+    ! checkServ && find "${datDir}/${s_addr}" -name 'in' -delete && joinServ
     test -e "${s_pidf}" && pid=$(cat "${s_pidf}") || pid=''
     if test -n "${pid}"; then
       tail --pid="${pid}" -f /dev/null

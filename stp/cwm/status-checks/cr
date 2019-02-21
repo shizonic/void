@@ -1,0 +1,8 @@
+#!/usr/bin/env sh
+
+export STATUS_ICON=' '
+export STATUS_NAME='CD-Rom'
+export STATUS_VALUE=$(blkid /dev/sr0 | awk -F '"' '{print $4}')
+export STATUS_TEXT="${STATUS_VALUE}"
+export STATUS_URGENT=0
+export STATUS_PERIOD=0

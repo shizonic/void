@@ -1,0 +1,7 @@
+#!/usr/bin/env sh
+
+export WATCH_ICON=' '
+export WATCH_NAME='USB Devices'
+WATCH_VALUE=$(lsusb | cut -d ' ' -f 7- | sort | grep -v -i 'hub\|Realtek\|Intel\|JMicron')
+export WATCH_VALUE
+export WATCH_URGENT=0

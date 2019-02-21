@@ -1,0 +1,27 @@
+#!/usr/bin/env sh
+
+test -z "${CACHE_NAME}" && exit 1
+test "$#" -eq 0 && exit 2
+act="${1}"; shift
+cd='/tmp/cache'
+cf="${cd}/${CACHE_NAME}"
+
+test -d "${cd}" || mkdir -p "${cd}" 
+
+case "${act}" in
+  c|clean) test -f "${cf}" && truncate -s 0 "${cf}";;
+  d|diff)
+    test -f "${cf}" || touch "${cf}"
+    df="${cf}.diff"
+    printf '%s\n' "$(cat)" > "${df}"
+    diff \
+      --unchanged-line-format="" \
+      --old-line-format="- %L" \
+      --new-line-format="+ %L" \
+      ${@} "${cf}" "${df}"
+    rm "${df}"
+    ;;
+  g|get) cat "${cf}";;
+  h|has) grep -q ${@} "${cf}";;
+  s|set) printf '%s\n' "$(cat)" > "${cf}";;
+esac

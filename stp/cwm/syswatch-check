@@ -1,0 +1,35 @@
+#!/usr/bin/env sh
+
+if test "$#" -eq 1; then
+  export WATCH_ABBREV="${1}"
+elif test -z "${WATCH_ABBREV}"; then
+  return 1
+fi
+
+export WATCH_SCRIPT="${HOME}/vos/stp/cwm/syswatch-checks/${WATCH_ABBREV}"
+test -x "${WATCH_SCRIPT}" || return 2
+
+unset WATCH_ICON WATCH_NAME WATCH_VALUE WATCH_URGENT WATCH_PERIOD
+. "${WATCH_SCRIPT}"
+
+export CACHE_NAME="syswatch-${WATCH_ABBREV}"
+
+WATCH_DIFF=$(printf '%s\n' "${WATCH_VALUE}" | cache diff)
+DIFF_POS=$(printf '%s' "${WATCH_DIFF}" | awk '$1 == "+" {print $0}' | cut -d ' ' -f 2-)
+DIFF_NEG=$(printf '%s' "${WATCH_DIFF}" | awk '$1 == "-" {print $0}' | cut -d ' ' -f 2-)
+SYMB_POS=' '
+SYMB_NEG=' '
+
+printf '%s\n' "${DIFF_NEG}" | while read -r ln; do
+  test -z "${ln}" && continue
+  test "${WATCH_URGENT}" -eq 1 && prio='normal' || prio='low'
+  notify-quick "${WATCH_ICON}" "${WATCH_NAME}" "${ln} ${SYMB_NEG}" "${prio}"
+done
+
+printf '%s\n' "${DIFF_POS}" | while read -r ln; do
+  test -z "${ln}" && continue
+  test "${WATCH_URGENT}" -eq 1 && prio='normal' || prio='low'
+  notify-quick "${WATCH_ICON}" "${WATCH_NAME}" "${ln} ${SYMB_POS}" "${prio}"
+done
+
+printf '%s\n' "${WATCH_VALUE}" | cache set

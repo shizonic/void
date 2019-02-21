@@ -1,6 +1,6 @@
 #!/usr/bin/env sh
 
-txt=''; arg=''
+txt=''
 
 export NOTIFY_HISTORY='/tmp/notify-history'
 
@@ -8,9 +8,7 @@ export NOTIFY_HISTORY='/tmp/notify-history'
 
 test -n "${NOTIFY_ICON}" && txt="${NOTIFY_ICON} "
 test -n "${NOTIFY_TEXT}" && txt="${txt}${NOTIFY_TEXT} "
-test -n "${NOTIFY_NAME}" && arg="${arg} -a ${NOTIFY_NAME}"
-test -n "${NOTIFY_PRIO}" && arg="${arg} -u ${NOTIFY_PRIO}"
 
-notify-send ${arg} "${txt}"
+notify-send -a "${NOTIFY_NAME}" -u "${NOTIFY_PRIO:-low}" "${txt}"
 
 printf '%s|%s|%s|%s|%s\n' "$(date +'%s')" "${NOTIFY_NAME}" "${NOTIFY_ICON}" "${NOTIFY_TEXT}" "${NOTIFY_PRIO}" >> "${NOTIFY_HISTORY}"

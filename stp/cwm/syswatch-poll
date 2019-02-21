@@ -1,0 +1,9 @@
+#!/usr/bin/env sh
+
+test "$#" -eq 1 || exit 1
+export WATCH_ABBREV="${1}"; shift
+
+while :; do
+  . syswatch-check || exit "$?"
+  sleep "${WATCH_PERIOD:-10}"
+done 

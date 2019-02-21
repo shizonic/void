@@ -1,0 +1,8 @@
+#!/usr/bin/env sh
+
+export STATUS_ICON=' '
+export STATUS_NAME='Phone'
+export STATUS_VALUE=$(lsusb | grep -o 'iPhone')
+export STATUS_TEXT="${STATUS_VALUE}"
+export STATUS_URGENT=$(test "${STATUS_VALUE}" != '' && printf 1 || printf 0)
+export STATUS_PERIOD=30

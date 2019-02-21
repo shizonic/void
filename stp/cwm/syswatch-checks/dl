@@ -1,0 +1,8 @@
+#!/usr/bin/env sh
+
+rwc ~/usr/tmp/dls | while read f; do
+  test $(stat -c '%s' "${f}") -eq 0 && continue
+  #test -f "${f}.part" && continue
+  bn=$(basename "${f}")
+  notify-quick ' ' 'Download' "${bn}" 
+done

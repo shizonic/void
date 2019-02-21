@@ -1,0 +1,6 @@
+#!/usr/bin/env sh
+
+export WATCH_ICON=' '
+export WATCH_NAME='Video Out'
+export WATCH_VALUE=$(xrandr | awk '$2 == "connected" {print $1}' | sort)
+export WATCH_URGENT=0

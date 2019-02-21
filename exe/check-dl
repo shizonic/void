@@ -1,7 +1,0 @@
-#!/usr/bin/env sh
-
-rwc ~/usr/tmp/dls | while read f; do
-  printf '%s' "${f}" | grep -q -E '.part$' && continue
-  test -f "${f}.part" && continue
-  notify-quick ' ' 'Download' $(basename "${f}")
-done

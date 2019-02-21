@@ -1,0 +1,16 @@
+#!/usr/bin/env sh
+
+export STATUS_ICON=' '
+export STATUS_NAME='Workout'
+export STATUS_VALUE=0
+
+H=$(date +%H)
+M=$(date +%M)
+
+if printf "${H}" | grep -q -E '17|19|21'; then
+  test "${M}" -ge 0 && test "${M}" -le 15 && STATUS_VALUE=1
+fi
+
+export STATUS_TEXT=$(test "${STATUS_VALUE}" -eq 1 && printf 'now' || printf 'later')
+export STATUS_URGENT="${STATUS_VALUE}"
+export STATUS_PERIOD=60

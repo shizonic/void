@@ -1,3 +1,8 @@
 #!/usr/bin/env sh
 
-test -f /tmp/record.mkv && printf 1 || printf 0
+export STATUS_ICON=' '
+export STATUS_NAME='Record'
+export STATUS_VALUE=$(test -f /tmp/record.mkv && printf 1 || printf 0)
+export STATUS_TEXT=$(test -f /tmp/record.mkv && printf 'on' || printf 'off')
+export STATUS_URGENT="${STATUS_VALUE}"
+export STATUS_PERIOD=5

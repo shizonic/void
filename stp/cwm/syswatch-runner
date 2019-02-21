@@ -1,0 +1,12 @@
+#!/usr/bin/env sh
+
+find ~/vos/stp/cwm/syswatch-checks -type f | while read f; do
+  test -x "${f}" || continue
+  bn=$(basename "${f}")
+  if pgrep -f "syswatch-poll ${bn}" >/dev/null; then
+    #printf 'Already running: %s\n' "${bn}"
+    continue
+  fi
+  #printf 'Started %s\n' "${bn}"
+  syswatch-poll "${bn}" &
+done

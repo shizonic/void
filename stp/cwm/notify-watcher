@@ -1,0 +1,13 @@
+#!/usr/bin/env sh
+
+sd='/tmp/status-data'
+nc='/tmp/notify-cache'
+
+printf '%s' "${sd}" | rwc -p | while read f; do
+  u=$(awk -F '|' '$6 == 1 {print $0}' "${sd}")
+  n=$(printf '%s\n' "${u}" | cut -d '|' -f 1)
+
+  x=$(printf '%s\n' "${n}" | tr '\n' '|' | sed 's/|$//')
+  #printf '%s\n' "${x}"
+  grep -E "${x}" "${sd}"
+done
