@@ -2,4 +2,18 @@
 
 . thm-export
 
-run-bar -g 'x++5' -p -d -b -B '#00000000' -F "${base05}"
+sb=$(cat /tmp/status-brightness)
+
+if test "${sb}" -ge 80; then
+  col="${base03}"
+elif test "${sb}" -ge 60; then
+  col="${base02}"
+elif test "${sb}" -ge 40; then
+  col="${base05}"
+elif test "${sb}" -ge 20; then
+  col="${base06}"
+else
+  col="${base07}"
+fi
+
+run-bar -g 'x++5' -p -d -b -B '#00000000' -F "${col}"

@@ -1,0 +1,16 @@
+#!/usr/bin/env sh
+
+printf 'Finishing "%s" ...\n' "${@}"
+
+while test "$#" -gt 0; do
+  test -f "${1}" || continue
+  f="${1}"; shift
+  s=$(printf '%s' "${f}" | sed 's|.html$|.md|')
+  TITLE=$(lowdown -X title < "${s}")
+  AUTHOR=$(lowdown -X author < "${s}")
+  TAGS=$(lowdown -X tags < "${s}")
+  DATE=$(lowdown -X date < "${s}")
+  ISSUE=$(lowdown -X issue < "${s}")
+  export TITLE AUTHOR  TAGS DATE ISSUE
+  ./blocks "${f}" "${f}"
+done

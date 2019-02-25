@@ -1,0 +1,170 @@
+<html>
+  <head>
+    <title>My Setup</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no" />
+    <!--<link rel="alternate" type="application/rss+xml" title="RSS" href="feed.rs" />-->
+    <link href="assets/void.png" type="image/png" rel="icon" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/spectre.css/0.5.7/spectre.min.css" rel="stylesheet" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/spectre.css/0.5.7/spectre-icons.min.css" rel="stylesheet" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/spectre.css/0.5.7/spectre-exp.min.css" rel="stylesheet" />
+    <link href="assets/style.css" rel="stylesheet" />
+  </head>
+  <body>
+    <div class="container">
+      <div class="columns">
+        <div id="content" class="column col-9 col-md-12">
+          <div class="return show-md">
+            <div class="menu">
+              <div class="menu-item"><a href="index.html">Go back</a></div>
+            </div>
+          </div>
+          <article data-sblg-article="1" data-sblg-tags="lvm, luks"><h1>My Setup</h1>
+<hr/>
+
+<h2 id="File-System">File-System</h2>
+
+<pre><code class="language-text">NAME                                          MAJ:MIN RM   SIZE RO TYPE  MOUNTPOINT
+sda                                             8:0    0 465,8G  0 disk
+|-sda1                                          8:1    0     1G  0 part  /boot
+|-sda2                                          8:2    0 464,8G  0 part
+  |-luks-1e05ddda-736a-408e-8cf0-ee37c9c8d3ee 254:0    0 464,8G  0 crypt
+    |-lvm-void                                254:1    0    10G  0 lvm   /
+    |-lvm-copy                                254:2    0    10G  0 lvm   /copy
+    |-lvm-swap                                254:3    0     4G  0 lvm   [SWAP]
+    |-lvm-data                                254:4    0 440,8G  0 lvm   /data
+</code></pre>
+
+<h2 id="Explanation">Explanation</h2>
+
+<p>I use two partitions <code>sda1</code> and <code>sda2</code>. While <code>sda1</code> is <code>/boot</code>-only, everything else is on <code>sda2</code>.</p>
+
+<p><code>sda2</code> is then encrypted via <code>luks</code> which has <code>lvm</code> inside. </p>
+
+<ul>
+<li><code>/ (root)</code> is on <code>lvm-void</code>.</li>
+<li><code>/ (root-copy)</code> is on <code>lvm-copy</code>.</li>
+<li><code>[SWAP]</code> is on <code>lvm-swap</code> &amp;</li>
+<li><code>/data</code> is on <code>lvm-data</code>.</li>
+</ul>
+
+<p><code>/home</code> is on <code>/data</code>. </p>
+
+<p>This way I can easily sync my system files (residing on <code>lvm-void</code>) to it&#8217;s backup place (<code>lvm-copy</code>).</p>
+
+<p>Since all the data is on it&#8217;s own partition there is no trouble when I have to restore a backup from <code>lvm-copy</code> since <code>/home</code> is not affected.</p>
+
+<h2 id="Backup">Backup</h2>
+
+<p>My backups are split into three different categories:</p>
+
+<ul>
+<li><strong>System</strong> (Everything system-dependent, like <code>/etc</code>, <code>/usr</code>, <code>/root</code> and <code>/var</code>)</li>
+<li><strong>User</strong> (User related files such as configurations, programdata and documents)</li>
+<li><strong>Media</strong> (User related media-files such as audio, pictures, movies and alike)</li>
+</ul>
+
+<h3 id="System">System</h3>
+
+<p>This backup includes a copy of <code>/boot</code>, all files/dirs listed above, luks-headers, the lvm-config, a void package list and a backup of block devices and their ids.</p>
+
+<h3 id="User">User</h3>
+
+<p>A user backup typically includes all app files (configs and data), user-specific binaries/programs and all documents/downloads/mails/etc.</p>
+
+<h3 id="Media">Media</h3>
+
+<p>Every other data-type, mostly big-data, is included in this backup. Files like pictures, songs, movies and alike will be backed up to this place. This backup normally takes the longest amount of time.</p>
+</article>
+        </div>
+        <div class="column col-3 hide-md">
+          <ul class="menu">
+            <li class="menu-item"><a href="index.html">Go back</a></li>
+            <li class="divider" data-content="Table of Contents"></li>
+            <ul class="menu menu-nav">
+<li class="menu-item"><a href="#File-System">File-System</a></li>
+<li class="menu-item"><a href="#Explanation">Explanation</a></li>
+<li class="menu-item"><a href="#Backup">Backup</a>
+
+<ul class="menu menu-nav">
+<li class="menu-item"><a href="#System">System</a></li>
+<li class="menu-item"><a href="#User">User</a></li>
+<li class="menu-item"><a href="#Media">Media</a></li>
+</ul></li>
+</ul>
+            <li class="divider"></li>
+            <li class="menu-item"><a href="#comments">Comments</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="columns">
+        <div class="column">
+              <div id="comments">
+      <template v-if="maxPage > 0">
+        <div class="panel">
+          <div class="panel-header">
+            <div class="panel-title">
+              <h4>Comments</h4>
+              <p>Click the button to contribute to the discussion</p>
+              <a :href="newURL"><button class="btn">Write Comment</button></a>
+            </div>
+          </div>
+          <div class="divider" v-if="maxPage > 1"></div>
+          <div class="centered" v-if="maxPage > 1">
+            <ul class="pagination">
+              <template v-for="navPage in maxPage">
+                <li class="page-item" v-if="page != navPage">
+                  <a href="#comments" @click="page = navPage">{{ navPage }}</a>
+                </li>
+                <li class="page-item active" v-if="page == navPage">
+                  <a>{{ navPage }}</a>
+                </li>
+              </template>
+            </ul>
+          </div>
+          <div class="divider"></div>
+          <div class="panel-body">
+            <div v-for="comment in comments" class="tile">
+              <div class="tile-icon">
+                <figure class="avatar"><img :src="comment.user.avatar_url" /></figure>
+              </div>
+              <div class="tile-content">
+                <p class="tile-title">
+                  <span class="text-bold">{{ comment.user.login }}</span>
+                  <span class="text-gray">wrote {{ comment.created_at | moment }}</span>
+                </p>
+                <p class="tile-subtitle" v-html="comment.body_html"></p>
+              </div>
+            </div>
+          </div>
+          <!--<div class="panel-footer"></div>-->
+        </div>
+      </template>
+      <template v-if="maxPage == 0">
+        <div class="empty">
+          <div class="empty-icon">
+            <i class="icon icon-3x icon-mail"></i>
+          </div>
+          <p class="empty-title h5">There are no comments</p>
+          <p class="empty-subtitle">Click the button to start a conversation.</p>
+          <div class="empty-action">
+            <a :href="newURL"><button class="btn">Write Comment</button></a>
+          </div>
+        </template>
+      </div>
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.5.16/vue.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.22.2/moment.min.js"></script>
+    <script src="assets/ghcmt.js"></script>
+    <script>initComments('Anachron/void', 2);</script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/default.min.css" rel="stylesheet"></link>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+    <script>hljs.initHighlightingOnLoad();</script>
+  </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
+
+

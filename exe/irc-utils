@@ -110,6 +110,7 @@ joinServ() {
 }
 
 recServ() {
+  #pgrep -f "irc ${s_key} r" 2>&1 >/dev/null && return 1
   while :; do
     ! checkServ && find "${datDir}/${s_addr}" -name 'in' -delete && joinServ
     test -e "${s_pidf}" && pid=$(cat "${s_pidf}") || pid=''
@@ -246,3 +247,18 @@ termWriter() {
   done
 }
 
+runBot() {
+  export SELF="${i_name}"
+  export SRV="${s_key}"
+  export CHN="${c_key}"
+
+  export IN="${datDir}/${s_addr}/${c_name}/in"
+  export OUT="${datDir}/${s_addr}/${c_name}/out"
+
+  tail -f -n 1 "${OUT}" | \
+  while IFS=' ' read TIME NICK TEXT; do
+    NICK=$(printf '%s' "${NICK}" | tr -d '<>')
+    export TIME; export NICK; export TEXT
+    ${BOT}
+  done
+}

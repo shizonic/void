@@ -8,5 +8,5 @@ for f in ${acl}; do
   new=$(find "${HOME}/usr/mls/${acc}/INBOX/new" -type f | wc -l)
   minc "${HOME}/usr/mls/${acc}/INBOX" > /dev/null
   mlist "${HOME}/usr/mls/${acc}/INBOX/cur" | msort -r -d > "${HOME}/usr/mls/${acc}/all.seq"
-  test "${new}" -gt 0 && printf 'MI|%s\n' "${acc}" > /tmp/status-fifo || true
+  test "${new}" -gt 0 && notify-quick ' ' 'Mail' "${acc}" || true
 done

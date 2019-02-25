@@ -1,6 +1,6 @@
 #!/usr/bin/env sh
 
-q=$(irc2 "${1}" h "${2}" "${3}" | cut -d ':' -f 2- | sort -R | head -n 1)
+q=$(irc "${1}" h "${2}" "${3}" | cut -d ':' -f 2- | sort -R | head -n 1)
 test -z "${q}" && exit
 q_dt=$(printf '%s\n' "${q}" | cut -d ' ' -f 1)
 q_nick=$(printf '%s\n' "${q}" | cut -d ' ' -f 2 | tr -d '<>')

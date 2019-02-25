@@ -3,11 +3,14 @@
 test "$#" -eq 0 && exit
 
 . ~/app/cnf/shell/paths
+. ~/app/cnf/shell/cron
 
 bn=$(basename $(realpath "${1}"))
 lf="${HOME}/app/log/cron/${bn}.log"
+ef="${HOME}/app/log/cron/${bn}.env"
 cmd="${@}"
 touch "${lf}"
 printf '[%s] Starting "%s"\n' "$(date +'%X')" "${cmd}" >> "${lf}"
+#env > "${ef}"
 ${@} 2>&1 >> "${lf}"
 printf '[%s] Finished "%s"\n' "$(date +'%X')" "${cmd}" >> "${lf}"

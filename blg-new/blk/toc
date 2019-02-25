@@ -1,0 +1,12 @@
+#!/usr/bin/env sh
+
+test "$#" -gt 1 || exit 1
+src="${1}"; shift 1
+
+hds=$(grep -E '^#+' "${src}")
+min=$(printf '%s\n' "${hds}" | grep -o -E '#+' | sort -n | head -n 1 | awk '{ print length }')
+reg=$(printf 's|^#{%s}||g' "${min}")
+
+printf '%s' "${hds}" | sed -e "${reg}" | sed 's|#| |g' \
+  | sed -E 's|[^ #*]+.*|* [&](#&)|g' | lowdown \
+  | sed 's|<ul>|<ul class="menu menu-nav">|g; s|<li>|<li class="menu-item">|g'

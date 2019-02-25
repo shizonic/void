@@ -2,6 +2,8 @@
 
 tf=$(mktemp '/tmp/colors-XXXXX')
 
+trap "rm ${tf}" EXIT INT TERM
+
 rgb2hex() {
   printf '#%02X%02X%02X' "${1}" "${2}" "${3}"
 }

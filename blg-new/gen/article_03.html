@@ -1,0 +1,275 @@
+<html>
+  <head>
+    <title>Diving into the Void</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no" />
+    <!--<link rel="alternate" type="application/rss+xml" title="RSS" href="feed.rs" />-->
+    <link href="assets/void.png" type="image/png" rel="icon" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/spectre.css/0.5.7/spectre.min.css" rel="stylesheet" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/spectre.css/0.5.7/spectre-icons.min.css" rel="stylesheet" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/spectre.css/0.5.7/spectre-exp.min.css" rel="stylesheet" />
+    <link href="assets/style.css" rel="stylesheet" />
+  </head>
+  <body>
+    <div class="container">
+      <div class="columns">
+        <div id="content" class="column col-9 col-md-12">
+          <div class="return show-md">
+            <div class="menu">
+              <div class="menu-item"><a href="index.html">Go back</a></div>
+            </div>
+          </div>
+          <article data-sblg-article="1" data-sblg-tags="wm, shell, status, screen, editor, media, files, dirs"><h1>Diving into the Void</h1>
+<hr/>
+
+<h2 id="The%20WM,%20StatusBar,%20Shell%20and%20Editor">The WM, StatusBar, Shell and Editor</h2>
+
+<h3 id="Window-Manager">Window-Manager</h3>
+
+<p>After fiddling around with <code>i3wm</code>, <code>bspwm</code> and <code>wmutils</code> I&#8217;ve now come to my new favorite WM: <code>cwm</code>.</p>
+
+<p><code>cwm</code> is not only portable and very well written but also very fast. 
+It allows you to use the mouse and keyboard for window moving/resizing/selecting and can be configured via a rc-file.</p>
+
+<p>In my personal testing and daily working with the WM I&#8217;ve come to the conclusion that <code>cwm</code> is what I&#8217;ve always wanted.
+<code>cwm</code> supports window groups, easy key binding, reloading via <code>HUP</code> signal and very fast execution whatever you command.</p>
+
+<h3 id="Status-Bar">Status-Bar</h3>
+
+<p>I&#8217;ve come to the conclusion that the less you clutter your statusbar with, the more productive you are. 
+This concept you can also find in my <code>/bin/bash</code>, <code>vim</code> and <code></code> setups respectively.</p>
+
+<p>For my statusbar I use <code>lemonbar</code>. I&#8217;ve written a ton of scripts to monitor important system events/statistics.
+Whenever something urgent is up, my lemonbar will display a symbol on the desktop indicating something being urgent.
+Normally when nothing is up my statusbar is empty.</p>
+
+<p>The following screenshot includes both the information that my sound is muted and that I have an outgoing ssh session open.</p>
+
+<p><img src="assets/article03_statusbar.png" alt="Statusbar-Example"/></p>
+
+<h3 id="Shell">Shell</h3>
+
+<p>I&#8217;m still on <code>bash</code> but rewrote most of my scripts to be <code>posix</code> compatible.
+<code>mksh</code> is my destination, will need a bit more testing though.</p>
+
+<p>My <code>/bin/bash</code>-prompt tries to be both minimal and functional. The prompt will show me:</p>
+
+<ul>
+<li>The current working directory (<code>/home/anon/vos/blg-new</code>)</li>
+<li>The git branch and if it has any non-commited changes</li>
+<li>Return code of the last run command (<code>$?</code>), if not 0</li>
+<li>Amount of jobs in the background, if any</li>
+<li>Amount of .env-variables that are injected into the env, if any</li>
+</ul>
+
+<p>When the prompt gets too long (&gt;= 30 chars) the user input will be asked in a new line.</p>
+
+<p>The following image contains a few examples of my shell prompt.</p>
+
+<ul>
+<li>The first prompt is minimal display</li>
+<li>The second prompt is minimal with truncated path (auto for long paths) + git status</li>
+<li>The third prompt shows how rc = 0 is being ignored</li>
+<li>The fourth prompt shows how rc &gt; 0 are being displayed</li>
+<li>The fith prompt shows how to display background jobs active in current <code>tty</code>.</li>
+</ul>
+
+<p><img src="assets/article03_shell.png" alt="Shell-Example"/></p>
+
+<h3 id="Editor">Editor</h3>
+
+<p>My default <code>vim</code> is vim and I haven&#8217;t customized it much. 
+Since I am learning <code>rust</code> I have installed <code>RLS</code> (Rust Language Server) and that&#8217;s it.</p>
+
+<p><img src="assets/article03_editor.png" alt="Editor-Example"/></p>
+
+<h2 id="IRC,%20Mail,%20Browsing%20and%20Gaming">IRC, Mail, Browsing and Gaming</h2>
+
+<h3 id="IRC">IRC</h3>
+
+<p>I am using self-written wrappers around <a href="https://tools.suckless.org/ii/">ii</a>.
+The setup includes a read-panel, write-panel and nicklist. Bound together by tmux.</p>
+
+<h3 id="Mail">Mail</h3>
+
+<p>Totally digging the mimalism, I&#8217;ve come to setup my mail as the following:</p>
+
+<ul>
+<li><a href="https://github.com/chneukirchen/mblaze">mblaze</a> for mail composing/searching/filtering</li>
+<li><a href="http://pyropus.ca/software/getmail/">getmail</a> for mail retrieval and</li>
+<li><a href="https://marlam.de/msmtp/">msmtp</a> for mail sending.<br/></li>
+</ul>
+
+<h3 id="Browsing">Browsing</h3>
+
+<p>I&#8217;m boring and until <a href="https://www.qutebrowser.org/">qutebrowser</a> has <a href="https://github.com/qutebrowser/qutebrowser/issues/30">plugins</a> I will stick to <a href="https://www.mozilla.org/en-US/firefox/new/">firefox</a>.</p>
+
+<h3 id="Gaming">Gaming</h3>
+
+<p>There are not many games left that I play, so here is the complete list:</p>
+
+<ul>
+<li><a href="https://hedgewars.org">hedgewars</a></li>
+<li><a href="http://www.dota2.com/play/">DotA2</a> </li>
+<li><a href="http://www.metanetsoftware.com/games/nplusplus">n++</a></li>
+<li><a href="https://us.shop.battle.net/en-us/product/warcraft-iii-reign-of-chaos">Wc3</a> </li>
+</ul>
+
+<h2 id="Media%20and%20Folders">Media and Folders</h2>
+
+<p>I&#8217;m playing music or videos via <a href="https://mpv.io/">mpv</a>. The best player there is.
+Streams and alike are also viewable through it.</p>
+
+<p>I have the following directory tree:</p>
+
+<pre><code class="language-text">/home/anon
+├── app
+├── bin
+├── usr
+├── vos
+└── vrt
+
+5 directories, 0 files 
+</code></pre>
+
+<p>App contains all the <code>cnf</code> (configs), <code>dat</code> (data) and <code>log</code> (logs).
+For everything that needs to be secure and cannot reside in <code>cnf</code> (like ssh-keys, passwords, API-keys, etc),
+there is <code>sec</code> (secure).</p>
+
+<pre><code class="language-text">/home/anon/app
+├── cnf
+├── dat
+├── log
+└── sec
+
+4 directories, 0 files
+</code></pre>
+
+<p>Inside the <code>usr</code> (user-related) folder are:</p>
+
+<pre><code class="language-text">/home/anon/usr
+├── cal
+├── crd
+├── doc
+├── dsk
+├── irc
+├── med
+├── mls
+├── prj
+├── pub
+└── tmp
+
+10 directories
+</code></pre>
+
+<p><code>cal</code> (calendars), <code>crd</code> (cards), <code>doc</code> (documents), <code>dsk</code> (desktop), <code>irc</code> (irc-data), 
+<code>med</code> (media likes <code>aud</code> (audio), <code>img</code> (images) etc), <code>mls</code> (mails), <code>prj</code> (projects),
+<code>pub</code> (public files) and <code>tmp</code> (temporary files like <code>dls</code> (downloads))</p>
+
+<h2 id="Screenshots/Workflow">Screenshots/Workflow</h2>
+
+<p><img src="https://i.imgur.com/hBF4m5Y.png" alt="Photo-Roll-Screenshot"/></p>
+
+<p><strong>Hint</strong>: The themes are generated by wallpaper colors.</p>
+</article>
+        </div>
+        <div class="column col-3 hide-md">
+          <ul class="menu">
+            <li class="menu-item"><a href="index.html">Go back</a></li>
+            <li class="divider" data-content="Table of Contents"></li>
+            <ul class="menu menu-nav">
+<li class="menu-item"><a href="#The%20WM,%20StatusBar,%20Shell%20and%20Editor">The WM, StatusBar, Shell and Editor</a>
+
+<ul class="menu menu-nav">
+<li class="menu-item"><a href="#Window-Manager">Window-Manager</a></li>
+<li class="menu-item"><a href="#Status-Bar">Status-Bar</a></li>
+<li class="menu-item"><a href="#Shell">Shell</a></li>
+<li class="menu-item"><a href="#Editor">Editor</a></li>
+</ul></li>
+<li class="menu-item"><a href="#IRC,%20Mail,%20Browsing%20and%20Gaming">IRC, Mail, Browsing and Gaming</a>
+
+<ul class="menu menu-nav">
+<li class="menu-item"><a href="#IRC">IRC</a></li>
+<li class="menu-item"><a href="#Mail">Mail</a></li>
+<li class="menu-item"><a href="#Browsing">Browsing</a></li>
+<li class="menu-item"><a href="#Gaming">Gaming</a></li>
+</ul></li>
+<li class="menu-item"><a href="#Media%20and%20Folders">Media and Folders</a></li>
+<li class="menu-item"><a href="#Screenshots/Workflow">Screenshots/Workflow</a></li>
+</ul>
+            <li class="divider"></li>
+            <li class="menu-item"><a href="#comments">Comments</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="columns">
+        <div class="column">
+              <div id="comments">
+      <template v-if="maxPage > 0">
+        <div class="panel">
+          <div class="panel-header">
+            <div class="panel-title">
+              <h4>Comments</h4>
+              <p>Click the button to contribute to the discussion</p>
+              <a :href="newURL"><button class="btn">Write Comment</button></a>
+            </div>
+          </div>
+          <div class="divider" v-if="maxPage > 1"></div>
+          <div class="centered" v-if="maxPage > 1">
+            <ul class="pagination">
+              <template v-for="navPage in maxPage">
+                <li class="page-item" v-if="page != navPage">
+                  <a href="#comments" @click="page = navPage">{{ navPage }}</a>
+                </li>
+                <li class="page-item active" v-if="page == navPage">
+                  <a>{{ navPage }}</a>
+                </li>
+              </template>
+            </ul>
+          </div>
+          <div class="divider"></div>
+          <div class="panel-body">
+            <div v-for="comment in comments" class="tile">
+              <div class="tile-icon">
+                <figure class="avatar"><img :src="comment.user.avatar_url" /></figure>
+              </div>
+              <div class="tile-content">
+                <p class="tile-title">
+                  <span class="text-bold">{{ comment.user.login }}</span>
+                  <span class="text-gray">wrote {{ comment.created_at | moment }}</span>
+                </p>
+                <p class="tile-subtitle" v-html="comment.body_html"></p>
+              </div>
+            </div>
+          </div>
+          <!--<div class="panel-footer"></div>-->
+        </div>
+      </template>
+      <template v-if="maxPage == 0">
+        <div class="empty">
+          <div class="empty-icon">
+            <i class="icon icon-3x icon-mail"></i>
+          </div>
+          <p class="empty-title h5">There are no comments</p>
+          <p class="empty-subtitle">Click the button to start a conversation.</p>
+          <div class="empty-action">
+            <a :href="newURL"><button class="btn">Write Comment</button></a>
+          </div>
+        </template>
+      </div>
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.5.16/vue.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.22.2/moment.min.js"></script>
+    <script src="assets/ghcmt.js"></script>
+    <script>initComments('Anachron/void', 3);</script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/default.min.css" rel="stylesheet"></link>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+    <script>hljs.initHighlightingOnLoad();</script>
+  </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
+
+

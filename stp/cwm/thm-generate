@@ -13,7 +13,9 @@ else
   printf '%s\n' "${c}" | pal-preview "${wc}"
 fi
 
-convert "${wc}" -crop "${w}x50+0+0" +repage "${wr}"
+convert "${wc}" -gravity Center -crop "${w}x50+0+0" +repage "${wr}"
+#convert "${wc}" -crop "${w}x50+0+0" +repage "${wr}"
+#convert "${wc}" -crop "${w}x50+0+50" +repage "${wr}"
 convert "${wr}" -resize 1x1! "${w1}"
 
 m=$(convert "${w1}" -format "%[fx:mean]" info:)

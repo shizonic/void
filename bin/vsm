@@ -1,0 +1,7 @@
+#!/usr/bin/env sh
+# vsm: Void SSH Manager
+
+case "${1}" in
+  vps|vltr) ssh ${VULTR_OPTS} "${VULTR_VPS}";;
+  bak|htz) ssh ${HETZNER_OPTS} "${HETZNER_BAK}";;
+esac

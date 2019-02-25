@@ -1,0 +1,27 @@
+#!/usr/bin/env sh
+
+#printf '[%s] %s: %s\n' $(date -d "@${TIME}" +'%H:%M') "${NICK}" "${TEXT}"
+if test "${NICK}" = "${SELF}"; then
+  case "${TEXT}" in
+    #'!xbuilders') NOCOLOR=1 xbuilders > "${IN}";;
+    '!docs') printf 'Void Linux docs are here: "%s"\n' 'http://docs.voidlinux.org' > "${IN}";;
+    '!build') printf 'Void Linux builders are here: "%s"\n' 'http://build.voidlinux.org' > "${IN}";;
+    '!paste') printf 'Please use a pastebin service for files, logs and commands.\n' > "${IN}";;
+    '!quote'*)
+      user=$(printf '%s\n' "${TEXT}" | cut -d ' ' -f 2)
+      test -z "${user}" && user="${NICK}"
+      irc-quote "${SRV}" "${CHN}" "<${user}>" > "${IN}"
+      exit
+      ;;
+  esac
+fi
+
+printf '%s' "${TEXT}" | grep -q "${SELF}" || exit
+
+case "${TEXT}" in
+  *ping*) printf 'pong %s\n' "${NICK}" > "${IN}";;
+  #*age*|*old*) uptime -p > "${IN}";;
+  #*time*|*day*|*date*) date +%c > "${IN}";;
+  #*sudo*make*sandwich*) printf '%s is not in sudoers file. This incident will be reported.\n' "${NICK}" > "${IN}";;
+  #*make*sandwich*) printf 'Access for %s denied.\n' "${NICK}" > "${IN}";;
+esac

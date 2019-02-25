@@ -1,6 +1,7 @@
 #!/usr/bin/env sh
 
 test -p /dev/stdin && fl=$(cat) || fl="${@}"
+opts="${OPTS:-}"
 
 if test -z "${fl}"; then
   printf '[%s] Error: Please pass files to print!\n' "$(date +'%X')"
@@ -14,7 +15,8 @@ fi
 
 test -z "${PRINTER}" && exit 1
 
+test -n "${opts}" && printf '[%s] Options: %s\n' "$(date +'%X')" "${opts}"
 for f in ${fl}; do
   printf '[%s] Printing "%s" on "%s"...\n' "$(date +'%X')" $(basename "${f}") "${PRINTER}"
-  lp -d "${PRINTER}" "${f}"
+  lp -d "${PRINTER}" ${opts} "${f}"
 done

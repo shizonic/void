@@ -1,0 +1,4 @@
+.container {margin-top: 1rem; max-width: 1000px;}
+.container .navbar {margin-bottom: 1rem;}
+.container .return {float: right; margin-right: 1rem;}
+.container img {max-width: 100%;}

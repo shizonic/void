@@ -1,0 +1,9 @@
+#!/usr/bin/env sh
+
+pgrep manage-displays 2>&1 >/dev/null || manage-displays & # display manager
+pgrep redshift 2>&1 >/dev/null || redshift &    # color correct   : ~/.config/redshift.conf
+pgrep gpg-agent 2>&1 >/dev/null || gpg-agent --daemon # gpg agent  ! ~/.gnupg/gpg-agent.conf
+pgrep compton 2>&1 >/dev/null || compton -b &  # transparency    : ~/.compton.conf
+
+pgrep -f 'irc fn r' 2>&1 >/dev/null || (sleep 5; irc fn r) & # internet relay chat
+(sleep 1; thm-change) & # change theme (random)

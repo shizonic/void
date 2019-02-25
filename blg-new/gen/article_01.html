@@ -1,0 +1,128 @@
+<html>
+  <head>
+    <title>Hello World</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no" />
+    <!--<link rel="alternate" type="application/rss+xml" title="RSS" href="feed.rs" />-->
+    <link href="assets/void.png" type="image/png" rel="icon" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/spectre.css/0.5.7/spectre.min.css" rel="stylesheet" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/spectre.css/0.5.7/spectre-icons.min.css" rel="stylesheet" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/spectre.css/0.5.7/spectre-exp.min.css" rel="stylesheet" />
+    <link href="assets/style.css" rel="stylesheet" />
+  </head>
+  <body>
+    <div class="container">
+      <div class="columns">
+        <div id="content" class="column col-9 col-md-12">
+          <div class="return show-md">
+            <div class="menu">
+              <div class="menu-item"><a href="index.html">Go back</a></div>
+            </div>
+          </div>
+          <article data-sblg-article="1" data-sblg-tags="initroduction, void, blog"><h1>Hello World</h1>
+<hr/>
+
+<h2 id="Introduction">Introduction</h2>
+
+<p>I&#8217;m Anachron and I&#8217;m currently on <a href="https://www.voidlinux.eu/">VoidLinux</a>.</p>
+
+<h2 id="Myself">Myself</h2>
+
+<p>I love linux and everything releated to DYI/KISS, such as <a href="https://suckless.org/">suckless</a> and <a href="https://github.com/arachsys/containers">containers</a>.</p>
+
+<p>If I am not writing scripts to make my life easier I&#8217;m probably <a href="https://www.reddit.com/r/unixporn">ricing</a> my desktop or play <a href="http://www.nplusplus.org/">n++</a>.</p>
+
+<p>You can find me on <a href="https://github.com/Anachron">github</a> and <a href="https://www.reddit.com/user/AnachronGuy">reddit</a>.</p>
+
+<h2 id="Blog">Blog</h2>
+
+<p>This blog is generated using <a href="https://github.com/Anachron/smag">smag</a>, a simple static website generator based on <a href="https://kristaps.bsd.lv/lowdown/">lowdown</a>, <a href="https://rsync.samba.org/">rsync</a>, <a href="https://picturepan2.github.io/spectre/">spectre</a>, <a href="https://highlightjs.org/">highlightjs</a> and <a href="https://github.com/chneukirchen/rwc">rwc</a>.</p>
+
+<p>In the future you&#8217;ll find more about <code>Void Linux</code>, <code>ricing</code>  and <code>minimalism</code> here.</p>
+</article>
+        </div>
+        <div class="column col-3 hide-md">
+          <ul class="menu">
+            <li class="menu-item"><a href="index.html">Go back</a></li>
+            <li class="divider" data-content="Table of Contents"></li>
+            <ul class="menu menu-nav">
+<li class="menu-item"><a href="#Introduction">Introduction</a></li>
+<li class="menu-item"><a href="#Myself">Myself</a></li>
+<li class="menu-item"><a href="#Blog">Blog</a></li>
+</ul>
+            <li class="divider"></li>
+            <li class="menu-item"><a href="#comments">Comments</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="columns">
+        <div class="column">
+              <div id="comments">
+      <template v-if="maxPage > 0">
+        <div class="panel">
+          <div class="panel-header">
+            <div class="panel-title">
+              <h4>Comments</h4>
+              <p>Click the button to contribute to the discussion</p>
+              <a :href="newURL"><button class="btn">Write Comment</button></a>
+            </div>
+          </div>
+          <div class="divider" v-if="maxPage > 1"></div>
+          <div class="centered" v-if="maxPage > 1">
+            <ul class="pagination">
+              <template v-for="navPage in maxPage">
+                <li class="page-item" v-if="page != navPage">
+                  <a href="#comments" @click="page = navPage">{{ navPage }}</a>
+                </li>
+                <li class="page-item active" v-if="page == navPage">
+                  <a>{{ navPage }}</a>
+                </li>
+              </template>
+            </ul>
+          </div>
+          <div class="divider"></div>
+          <div class="panel-body">
+            <div v-for="comment in comments" class="tile">
+              <div class="tile-icon">
+                <figure class="avatar"><img :src="comment.user.avatar_url" /></figure>
+              </div>
+              <div class="tile-content">
+                <p class="tile-title">
+                  <span class="text-bold">{{ comment.user.login }}</span>
+                  <span class="text-gray">wrote {{ comment.created_at | moment }}</span>
+                </p>
+                <p class="tile-subtitle" v-html="comment.body_html"></p>
+              </div>
+            </div>
+          </div>
+          <!--<div class="panel-footer"></div>-->
+        </div>
+      </template>
+      <template v-if="maxPage == 0">
+        <div class="empty">
+          <div class="empty-icon">
+            <i class="icon icon-3x icon-mail"></i>
+          </div>
+          <p class="empty-title h5">There are no comments</p>
+          <p class="empty-subtitle">Click the button to start a conversation.</p>
+          <div class="empty-action">
+            <a :href="newURL"><button class="btn">Write Comment</button></a>
+          </div>
+        </template>
+      </div>
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.5.16/vue.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.22.2/moment.min.js"></script>
+    <script src="assets/ghcmt.js"></script>
+    <script>initComments('Anachron/void', 1);</script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/default.min.css" rel="stylesheet"></link>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+    <script>hljs.initHighlightingOnLoad();</script>
+  </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
+
+

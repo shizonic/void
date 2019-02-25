@@ -1,0 +1,11 @@
+#!/usr/bin/env sh
+
+pkill manage-displays
+pkill redshift
+pkill gpg-agent
+pkill compton
+pkill dunst
+
+pkill -f 'status-poll'
+pkill -f 'syswatch-poll'
+pkill -f 'irc fn r'

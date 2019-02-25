@@ -30,7 +30,7 @@ while test "$#" -gt 0; do
     opts="${opts} ${fn}"
     continue
   fi
-  printf '%s\n' "${fn}" >> "${pf}"
+  printf '%s\n' $(realpath "${fn}") >> "${pf}"
 done
 
 #printf '[%s] DEBUG options: "%s"\n' "$(date +'%X')" "${opts}"

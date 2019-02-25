@@ -1,0 +1,23 @@
+#!/usr/bin/env sh
+
+test "$#" -eq 2 || exit 1
+cmp="${1}"; tgt="${2}"; shift 2
+
+src=$(printf '%s' "${cmp}" | sed 's|.html$|.md|')
+#printf ':: %s > %s > %s\n' "${src}" "${cmp}" "${tgt}"
+
+for blk in $(find blk -type f); do
+  #printf 'Runing "%s"\n' "${blk}"
+  vn=$(basename "${blk}" | tr '[a-z]' '[A-Z]')
+  reg=$(printf 's|{{%s}}|${%s}|' "${vn}" "${vn}")
+  if test -x "${blk}"; then
+    cmd=$(printf 'export %s="$(%s %s %s)"' "${vn}" "${blk}" "${src}" "${cmp}")
+  else
+    cmd=$(printf 'export %s="$(cat %s)"' "${vn}" "${blk}")
+  fi
+  eval "${cmd}";
+  cat "${cmp}" | sed "${reg}" | envsubst > "${cmp}.tmp"
+  mv "${cmp}.tmp" "${cmp}"
+done
+
+test "${cmp}" != "${tgt}" && mv "${cmp}" "${tgt}" || true
